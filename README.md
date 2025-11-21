@@ -1,6 +1,6 @@
 # Monorepo Project Template
 
-A modern **monorepo template** using **PNPM Workspaces** and **Turborepo**.
+A **monorepo template** using **PNPM Workspaces** and **Turborepo**.
 This repository includes a frontend, backend, and shared UI component library.
 
 ---
