@@ -1,0 +1,28 @@
+{
+  "name": "myapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "packageManager": "pnpm@8.0.0",
+  "devDependencies": {
+    "turbo": "^2.6.1",
+    "typescript": "~5.9.3"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@myapp/ui": "workspace:^"
+  }
+}
