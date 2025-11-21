@@ -1,4 +1,5 @@
 import {Button} from "./components/button/Button";
 import {Page} from "./components/common/Page";
 import {Table} from "./components/table/Table";
-export {Button, Page, Table};
+import {FileTree} from "./components/filetree/FileTree";
+export {Button, Page, Table, FileTree};
