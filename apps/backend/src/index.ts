@@ -52,15 +52,20 @@ app.post("/api/repos", async (req: Request, res: Response) => {
     const {name} = req.body as {name: string};
     if (!name) return res.status(400).json({error: "Repo name required"});
 
-    const repoPath = path.join(REPO_DIR, name);
+    // Append .git postfix
+    const repoNameWithGit = `${name}.git`;
+    const repoPath = path.join(REPO_DIR, repoNameWithGit);
+
     if (fs.existsSync(repoPath))
       return res.status(400).json({error: "Repo exists"});
 
     fs.mkdirSync(repoPath, {recursive: true});
     const git: SimpleGit = simpleGit(repoPath);
-    await git.init();
 
-    res.json({message: "Repo created", name});
+    // Initialize as bare repository
+    await git.init(true);
+
+    res.json({message: "Repo created", name: repoNameWithGit});
   } catch (err) {
     console.error("POST /api/repos error:", err);
     res.status(500).json({error: "Internal server error"});
@@ -80,21 +85,73 @@ app.get("/api/repos", (_req: Request, res: Response) => {
   }
 });
 
-// Get file tree of a repo (recursive)
-app.get("/api/repos/:name", (req: Request, res: Response) => {
+app.get("/api/repos/:name", async (req: Request, res: Response) => {
   try {
     const repoPath = path.join(REPO_DIR, req.params.name);
     if (!fs.existsSync(repoPath))
       return res.status(404).json({error: "Repo not found"});
 
-    const files = listFiles(repoPath);
-    res.json(files); // returns FileNode[]
+    const git = simpleGit(repoPath);
+
+    // Check if there are commits
+    const log = await git.log({maxCount: 1});
+    if (log.total === 0) return res.json([]); // no commits, empty repo
+
+    // List files in the latest commit
+    const tree = await git.raw(["ls-tree", "--name-only", "-r", "HEAD"]);
+
+    const files = tree
+      .split("\n")
+      .filter(Boolean)
+      .map((f) => ({name: f, type: "file" as const}));
+
+    res.json(files);
   } catch (err) {
     console.error(`GET /api/repos/${req.params.name} error:`, err);
     res.status(500).json({error: "Internal server error"});
   }
 });
-// Get commits of a repo
+
+// Get current branch of a repo
+app.get(
+  "/api/repos/:name/current-branch",
+  async (req: Request, res: Response) => {
+    try {
+      const repoPath = path.join(REPO_DIR, req.params.name);
+      if (!fs.existsSync(repoPath))
+        return res.status(404).json({error: "Repo not found"});
+
+      const git = simpleGit(repoPath);
+      const branchSummary = await git.branch(); // gets all branches + current
+
+      res.json({current: branchSummary.current});
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({error: "Internal server error"});
+    }
+  }
+);
+
+// List all branches
+app.get("/api/repos/:name/branches", async (req: Request, res: Response) => {
+  try {
+    const repoPath = path.join(REPO_DIR, req.params.name);
+    if (!fs.existsSync(repoPath))
+      return res.status(404).json({error: "Repo not found"});
+
+    const git = simpleGit(repoPath);
+    const branchSummary = await git.branch();
+
+    res.json({
+      current: branchSummary.current,
+      branches: branchSummary.all, // array of branch names
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({error: "Internal server error"});
+  }
+});
+
 // Get commits of a repo
 app.get("/api/repos/:name/commits", async (req: Request, res: Response) => {
   try {
