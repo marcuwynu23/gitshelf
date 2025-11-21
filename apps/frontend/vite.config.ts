@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [tailwindcss(), tsconfigPaths()],
   server: {
     proxy: {
-      "/api": "http://localhost:3000",
+      "/api": "http://localhost:4642",
     },
   },
 });
