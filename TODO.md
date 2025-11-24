@@ -1,3 +1,4 @@
 # Todo list
 
-- make file content show
+- make file content show - done
+- create branch switching - pending
