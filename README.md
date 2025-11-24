@@ -1,5 +1,14 @@
-# Repohub
+<div align="center">
+  <h1> # Repohub
+ </h1>
+</div>
 
+<p align="center">
+  <img src="https://img.shields.io/github/stars/marcuwynu23/repohub.svg" alt="Stars Badge"/>
+  <img src="https://img.shields.io/github/forks/marcuwynu23/repohub.svg" alt="Forks Badge"/>
+  <img src="https://img.shields.io/github/issues/marcuwynu23/repohub.svg" alt="Issues Badge"/>
+  <img src="https://img.shields.io/github/license/marcuwynu23/repohub.svg" alt="License Badge"/>
+</p>
 Repohub is a lightweight Git repository manager built with **Node.js/Express** for the backend and **React + TailwindCSS** for the frontend. It allows you to:
 
 - Create Git repositories locally.
