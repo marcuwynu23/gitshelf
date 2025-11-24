@@ -15,12 +15,12 @@
     "@types/node": "^24.10.1",
     "cors": "^2.8.5",
     "esbuild": "^0.27.0",
-    "express": "^5.1.0",
     "tsx": "^4.10.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
     "dotenv": "^17.2.3",
-    "simple-git": "^3.30.0"
+    "simple-git": "^3.30.0",
+    "express": "^5.1.0"
   }
 }
