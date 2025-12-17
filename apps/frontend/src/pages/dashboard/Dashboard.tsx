@@ -8,6 +8,7 @@ import {
   CodeBracketIcon,
   ClockIcon,
   UserIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
 
 interface DashboardStats {
@@ -150,7 +151,7 @@ export const Dashboard = () => {
           <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-4">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-app-accent/10 rounded">
-                <CodeBracketIcon className="w-5 h-5 text-app-accent" />
+                <ShareIcon className="w-5 h-5 text-app-accent" />
               </div>
               <div>
                 <p className="text-xs text-[#808080] uppercase tracking-wider">

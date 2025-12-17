@@ -1,4 +1,5 @@
 import {useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   BellIcon,
@@ -15,12 +16,35 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch?.(searchQuery);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Call logout API endpoint if it exists
+      // await axios.post("/api/auth/logout");
+    } catch (err) {
+      // Even if logout API fails, continue with local cleanup
+      console.error("Logout error:", err);
+    } finally {
+      // Clear any stored auth data
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+
+      // Close the menu
+      setShowUserMenu(false);
+
+      // Redirect to login page
+      navigate("/auth/login");
+    }
   };
 
   return (
@@ -87,24 +111,26 @@ export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
                 </p>
                 <p className="text-xs text-[#808080]">user@example.com</p>
               </div>
-              <a
-                href="#"
+              <Link
+                to="/profile"
+                onClick={() => setShowUserMenu(false)}
                 className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
               >
                 Profile
-              </a>
-              <a
-                href="#"
+              </Link>
+              <Link
+                to="/settings"
+                onClick={() => setShowUserMenu(false)}
                 className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
               >
                 Settings
-              </a>
-              <a
-                href="#"
-                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
               >
                 Sign out
-              </a>
+              </button>
             </div>
           )}
         </div>
