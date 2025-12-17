@@ -7,6 +7,7 @@ import {Register} from "./pages/auth/Register";
 import {Recovery} from "./pages/auth/Recovery";
 import {Settings} from "./pages/settings/Settings";
 import {Profile} from "./pages/profile/Profile";
+import {Notification} from "./pages/notifications/Notification";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/repository/:name" element={<RepoDetailPage />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/notifications" element={<Notification />} />
 
         {/* Default Routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
