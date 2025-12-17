@@ -1,9 +1,12 @@
-import {useState} from "react";
+import {useState, useEffect, useRef} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   BellIcon,
   UserCircleIcon,
+  CodeBracketIcon,
+  ShareIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 
 interface HeaderProps {
@@ -15,14 +18,107 @@ interface HeaderProps {
   actions?: React.ReactNode;
 }
 
+interface NotificationItem {
+  id: string;
+  type: "commit" | "branch" | "repo" | "system";
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  link?: string;
+}
+
 export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const notificationButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch?.(searchQuery);
+  };
+
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        // TODO: Replace with actual API endpoint
+        // const res = await axios.get<NotificationItem[]>("/api/notifications");
+        // setNotifications(res.data);
+
+        // Mock data for now
+        const mockNotifications: NotificationItem[] = [
+          {
+            id: "1",
+            type: "commit",
+            title: "New commit in repository",
+            message: "New commit 'Initial commit' in my-repo",
+            timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+            read: false,
+            link: "/repository/my-repo.git",
+          },
+          {
+            id: "2",
+            type: "branch",
+            title: "New branch created",
+            message: "Branch 'feature/new-feature' created in my-repo",
+            timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+            read: false,
+            link: "/repository/my-repo.git",
+          },
+        ];
+        setNotifications(mockNotifications);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node) &&
+        notificationButtonRef.current &&
+        !notificationButtonRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const formatTime = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return date.toLocaleDateString();
+  };
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case "commit":
+        return CodeBracketIcon;
+      case "branch":
+        return ShareIcon;
+      default:
+        return BellIcon;
+    }
   };
 
   const handleLogout = async () => {
@@ -79,13 +175,110 @@ export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
         </form>
 
         {/* Notifications */}
-        <button
-          className="relative p-1.5 hover:bg-[#353535] rounded transition-colors"
-          aria-label="Notifications"
-        >
-          <BellIcon className="w-5 h-5 text-[#b0b0b0]" />
-          <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-app-accent rounded-full" />
-        </button>
+        <div className="relative">
+          <button
+            ref={notificationButtonRef}
+            onClick={() => setShowNotifications(!showNotifications)}
+            className="relative p-1.5 hover:bg-[#353535] rounded transition-colors"
+            aria-label="Notifications"
+          >
+            <BellIcon className="w-5 h-5 text-[#b0b0b0]" />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-app-accent rounded-full" />
+            )}
+          </button>
+          {showNotifications && (
+            <div
+              ref={notificationRef}
+              className="absolute right-0 mt-1 w-80 bg-app-surface border border-[#3d3d3d] rounded shadow-lg z-50 max-h-96 overflow-hidden flex flex-col"
+            >
+              {/* Header */}
+              <div className="px-4 py-3 border-b border-[#3d3d3d] flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-[#e8e8e8]">
+                  Notifications
+                </h3>
+                {unreadCount > 0 && (
+                  <span className="text-xs text-[#b0b0b0]">
+                    {unreadCount} new
+                  </span>
+                )}
+              </div>
+
+              {/* Notifications List */}
+              <div className="overflow-y-auto max-h-80">
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-8 text-center">
+                    <BellIcon className="w-8 h-8 text-[#808080] mx-auto mb-2" />
+                    <p className="text-sm text-[#b0b0b0]">No notifications</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#3d3d3d]">
+                    {notifications.slice(0, 5).map((notification) => {
+                      const Icon = getNotificationIcon(notification.type);
+                      return (
+                        <div
+                          key={notification.id}
+                          className={`px-4 py-3 hover:bg-[#353535] transition-colors ${
+                            !notification.read ? "bg-app-accent/5" : ""
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`p-1.5 rounded flex-shrink-0 ${
+                                !notification.read
+                                  ? "bg-app-accent/10"
+                                  : "bg-app-bg"
+                              }`}
+                            >
+                              <Icon
+                                className={`w-4 h-4 ${
+                                  !notification.read
+                                    ? "text-app-accent"
+                                    : "text-[#b0b0b0]"
+                                }`}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className={`text-xs font-medium mb-1 ${
+                                  !notification.read
+                                    ? "text-[#e8e8e8]"
+                                    : "text-[#b0b0b0]"
+                                }`}
+                              >
+                                {notification.title}
+                              </p>
+                              <p className="text-xs text-[#b0b0b0] line-clamp-2 mb-1">
+                                {notification.message}
+                              </p>
+                              <p className="text-[10px] text-[#808080]">
+                                {formatTime(notification.timestamp)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              {notifications.length > 0 && (
+                <div className="px-4 py-2 border-t border-[#3d3d3d]">
+                  <Link
+                    to="/notifications"
+                    onClick={() => setShowNotifications(false)}
+                    className="flex items-center justify-between text-xs text-app-accent hover:text-[#5a95f5] transition-colors"
+                  >
+                    <span>View all notifications</span>
+                    <ChevronRightIcon className="w-4 h-4" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* User Menu */}
         <div className="relative">
