@@ -6,6 +6,7 @@ import {
   Cog6ToothIcon,
   Bars3Icon,
   ChevronLeftIcon,
+  UserIcon,
 } from "@heroicons/react/24/outline";
 
 interface SidebarItem {
@@ -38,6 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({activeItem, onItemClick}) => {
         return "/repositories";
       case "settings":
         return "/settings";
+      case "profile":
+        return "/profile";
       default:
         return "/";
     }
@@ -76,8 +79,13 @@ export const Sidebar: React.FC<SidebarProps> = ({activeItem, onItemClick}) => {
       ],
     },
     {
-      label: "Settings",
+      label: "Account",
       items: [
+        {
+          id: "profile",
+          label: "Profile",
+          icon: UserIcon,
+        },
         {
           id: "settings",
           label: "Settings",
