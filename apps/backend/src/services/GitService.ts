@@ -1,21 +1,22 @@
 import simpleGit, {SimpleGit} from "simple-git";
 import path from "path";
-import {REPO_DIR} from "../utils/config";
+import {getUserRepoDir} from "../utils/config";
 import type {Commit} from "../models/Commit";
 import type {BranchInfo} from "../models/Branch";
 import type {FileNode, TreeNode} from "../models/FileNode";
 
 export class GitService {
-  private getRepoPath(repoName: string): string {
-    return path.join(REPO_DIR, repoName);
+  private getRepoPath(username: string, repoName: string): string {
+    const repoDir = getUserRepoDir(username);
+    return path.join(repoDir, repoName);
   }
 
   private getGitInstance(repoPath: string): SimpleGit {
     return simpleGit(repoPath);
   }
 
-  async hasCommits(repoName: string): Promise<boolean> {
-    const repoPath = this.getRepoPath(repoName);
+  async hasCommits(username: string, repoName: string): Promise<boolean> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     try {
@@ -29,11 +30,11 @@ export class GitService {
     }
   }
 
-  async getFileTree(repoName: string): Promise<FileNode[]> {
-    const repoPath = this.getRepoPath(repoName);
+  async getFileTree(username: string, repoName: string): Promise<FileNode[]> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
-    const hasCommits = await this.hasCommits(repoName);
+    const hasCommits = await this.hasCommits(username, repoName);
     if (!hasCommits) {
       return [];
     }
@@ -92,8 +93,12 @@ export class GitService {
     return root as FileNode[];
   }
 
-  async getFileContent(repoName: string, filePath: string): Promise<string> {
-    const repoPath = this.getRepoPath(repoName);
+  async getFileContent(
+    username: string,
+    repoName: string,
+    filePath: string
+  ): Promise<string> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     // Get latest commit hash
@@ -118,8 +123,8 @@ export class GitService {
     return content;
   }
 
-  async getBranches(repoName: string): Promise<BranchInfo> {
-    const repoPath = this.getRepoPath(repoName);
+  async getBranches(username: string, repoName: string): Promise<BranchInfo> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     try {
@@ -140,8 +145,12 @@ export class GitService {
     }
   }
 
-  async getCommits(repoName: string, maxCount = 20): Promise<Commit[]> {
-    const repoPath = this.getRepoPath(repoName);
+  async getCommits(
+    username: string,
+    repoName: string,
+    maxCount = 20
+  ): Promise<Commit[]> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     try {
@@ -160,8 +169,29 @@ export class GitService {
     }
   }
 
-  async getCurrentBranch(repoName: string): Promise<string | null> {
-    const repoPath = this.getRepoPath(repoName);
+  async getTotalCommitCount(
+    username: string,
+    repoName: string
+  ): Promise<number> {
+    const repoPath = this.getRepoPath(username, repoName);
+    const git = this.getGitInstance(repoPath);
+
+    try {
+      const log = await git.log();
+      return log.total;
+    } catch (err: any) {
+      if (err?.message.includes("does not have any commits yet")) {
+        return 0;
+      }
+      throw err;
+    }
+  }
+
+  async getCurrentBranch(
+    username: string,
+    repoName: string
+  ): Promise<string | null> {
+    const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     try {
@@ -175,4 +205,3 @@ export class GitService {
     }
   }
 }
-

@@ -1,7 +1,4 @@
 import fs from "fs";
-import path from "path";
-import simpleGit, {SimpleGit} from "simple-git";
-import {REPO_DIR} from "../utils/config";
 import {RepoService} from "./RepoService";
 import {GitService} from "./GitService";
 import type {RepoItem} from "../models/Repo";
@@ -32,8 +29,11 @@ export class DashboardService {
     this.gitService = new GitService();
   }
 
-  async getDashboardStats(httpBaseURL: string): Promise<DashboardStats> {
-    const repos = await this.repoService.listRepos(httpBaseURL);
+  async getDashboardStats(
+    username: string,
+    httpBaseURL: string
+  ): Promise<DashboardStats> {
+    const repos = await this.repoService.listRepos(username, httpBaseURL);
     const totalRepos = repos.length;
 
     let totalCommits = 0;
@@ -44,50 +44,59 @@ export class DashboardService {
     for (const repo of repos) {
       try {
         const repoName = repo.name;
-        const repoPath = path.join(REPO_DIR, repoName);
+        const repoPath = this.repoService.getRepoPath(username, repoName);
 
         if (!fs.existsSync(repoPath)) {
           continue;
         }
 
-        const git: SimpleGit = simpleGit(repoPath);
-
-        // Get branches
-        let branchCount = 0;
-        let branches: any = null;
+        // Get branches using GitService
+        let branchInfo;
         try {
-          branches = await git.branchLocal();
-          branchCount = branches.all.length;
+          branchInfo = await this.gitService.getBranches(username, repoName);
+          const branchCount = branchInfo.branches.length;
           totalBranches += branchCount;
         } catch (err) {
           // Repo might be empty or have no branches
-          branches = {all: [], current: null};
+          branchInfo = {branches: [], current: null};
         }
 
         // Get commits count and latest commit
         try {
-          const log = await git.log();
-          const commitCount = log.total;
+          // Get total commit count
+          const commitCount = await this.gitService.getTotalCommitCount(
+            username,
+            repoName
+          );
           totalCommits += commitCount;
 
-          // Get current branch name
-          const currentBranch = branches?.current || branches?.all[0] || "main";
+          // Get latest commits for recent activity (only if there are commits)
+          const commits =
+            commitCount > 0
+              ? await this.gitService.getCommits(username, repoName, 1)
+              : [];
 
-          // Use the latest commit from the log we already fetched
-          // This is more reliable than querying from a specific branch
-          if (log.latest && log.total > 0) {
+          // Get current branch name
+          const currentBranch =
+            branchInfo?.current || branchInfo?.branches[0] || "main";
+
+          // Use the latest commit for recent activity
+          if (commits.length > 0) {
+            const latestCommit = commits[0];
             recentActivity.push({
               repo: repo.name,
               branch: currentBranch,
               lastCommit: {
-                hash: log.latest.hash,
-                message: log.latest.message,
-                author: log.latest.author_name || "Unknown",
-                date: log.latest.date,
+                hash: latestCommit.hash,
+                message: latestCommit.message,
+                author: latestCommit.author || "Unknown",
+                date: latestCommit.date,
               },
             });
           } else {
             // No commits found
+            const currentBranch =
+              branchInfo?.current || branchInfo?.branches[0] || "main";
             recentActivity.push({
               repo: repo.name,
               branch: currentBranch,
@@ -98,7 +107,7 @@ export class DashboardService {
           // Handle case where repo has no commits yet
           if (err?.message?.includes("does not have any commits yet")) {
             const currentBranch =
-              branches?.current || branches?.all[0] || "main";
+              branchInfo?.current || branchInfo?.branches[0] || "main";
             recentActivity.push({
               repo: repo.name,
               branch: currentBranch,
@@ -106,9 +115,13 @@ export class DashboardService {
             });
           } else {
             // Other error - repo might be empty or corrupted
+            console.error(
+              `Error getting commits for repo ${repo.name}:`,
+              err
+            );
             recentActivity.push({
               repo: repo.name,
-              branch: "main",
+              branch: branchInfo?.current || branchInfo?.branches[0] || "main",
               lastCommit: null,
             });
           }

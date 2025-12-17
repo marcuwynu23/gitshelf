@@ -1,11 +1,13 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import axios from "axios";
 import {Button, Input, Alert} from "~/components/ui";
+import {useAuthStore} from "~/stores/authStore";
 
 export const Register = () => {
   const navigate = useNavigate();
+  const register = useAuthStore((state) => state.register);
   const [formData, setFormData] = useState({
+    username: "",
     name: "",
     email: "",
     password: "",
@@ -39,17 +41,15 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual API endpoint
-      await axios.post("/api/auth/register", {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      await register(
+        formData.username,
+        formData.name,
+        formData.email,
+        formData.password
+      );
       navigate("/dashboard");
     } catch (err: any) {
-      setError(
-        err?.response?.data?.error || "Failed to register. Please try again."
-      );
+      setError(err.message || "Failed to register. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -78,6 +78,18 @@ export const Register = () => {
 
           {/* Register Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            <Input
+              label="Username"
+              type="text"
+              name="username"
+              placeholder="johndoe"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              autoComplete="username"
+              helperText="3-20 characters, letters, numbers, underscores, or hyphens"
+            />
+
             <Input
               label="Full Name"
               type="text"

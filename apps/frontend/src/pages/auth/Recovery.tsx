@@ -15,7 +15,6 @@ export const Recovery = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual API endpoint
       await axios.post("/api/auth/recovery", {email});
       setSuccess(true);
     } catch (err: any) {

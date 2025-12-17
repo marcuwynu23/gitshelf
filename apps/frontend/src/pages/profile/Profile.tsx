@@ -1,25 +1,21 @@
 import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
-import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs, Button, Input, Alert} from "~/components/ui";
+import {useAuthStore} from "~/stores/authStore";
 import {
   UserIcon,
   EnvelopeIcon,
   CalendarIcon,
 } from "@heroicons/react/24/outline";
 
-interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  avatar?: string;
-  createdAt: string;
-  bio?: string;
-}
-
 export const Profile = () => {
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const {
+    user: profile,
+    fetchProfile,
+    updateProfile,
+    changePassword,
+  } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,28 +31,31 @@ export const Profile = () => {
   });
 
   useEffect(() => {
-    const fetchProfile = async () => {
+    const loadProfile = async () => {
       try {
-        // TODO: Replace with actual API endpoint
-        const res = await axios.get<UserProfile>("/api/user/profile");
-        setProfile(res.data);
-        setFormData({
-          name: res.data.name,
-          email: res.data.email,
-          bio: res.data.bio || "",
-          currentPassword: "",
-          newPassword: "",
-          confirmPassword: "",
-        });
+        await fetchProfile();
       } catch (err: any) {
-        setError(err?.response?.data?.error || "Failed to load profile");
+        setError(err.message || "Failed to load profile");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProfile();
-  }, []);
+    loadProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        name: profile.name,
+        email: profile.email,
+        bio: profile.bio || "",
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    }
+  }, [profile]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -73,16 +72,14 @@ export const Profile = () => {
     setSuccess(null);
 
     try {
-      // TODO: Replace with actual API endpoint
-      await axios.put("/api/user/profile", {
+      await updateProfile({
         name: formData.name,
-        email: formData.email,
         bio: formData.bio,
       });
       setSuccess("Profile updated successfully");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to update profile");
+      setError(err.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -104,11 +101,7 @@ export const Profile = () => {
     setSuccess(null);
 
     try {
-      // TODO: Replace with actual API endpoint
-      await axios.put("/api/user/password", {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword,
-      });
+      await changePassword(formData.currentPassword, formData.newPassword);
       setSuccess("Password changed successfully");
       setFormData({
         ...formData,
@@ -118,7 +111,7 @@ export const Profile = () => {
       });
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to change password");
+      setError(err.message || "Failed to change password");
     } finally {
       setSaving(false);
     }

@@ -1,10 +1,11 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
-import axios from "axios";
 import {Button, Input, Alert} from "~/components/ui";
+import {useAuthStore} from "~/stores/authStore";
 
 export const Login = () => {
   const navigate = useNavigate();
+  const login = useAuthStore((state) => state.login);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -16,13 +17,10 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      // TODO: Replace with actual API endpoint
-      await axios.post("/api/auth/login", {email, password});
+      await login(email, password);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(
-        err?.response?.data?.error || "Failed to login. Please try again."
-      );
+      setError(err.message || "Failed to login. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -3,4 +3,7 @@ export * from "./RepoService";
 export * from "./GitHttpService";
 export * from "./GitSshService";
 export * from "./SshServerService";
-
+export * from "./SettingsService";
+export * from "./AuthService";
+export * from "./UserService";
+export * from "./DashboardService";

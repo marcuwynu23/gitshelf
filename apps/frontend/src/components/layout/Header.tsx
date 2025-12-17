@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from "react";
 import {Link, useNavigate} from "react-router-dom";
+import {useAuthStore} from "~/stores/authStore";
 import {
   MagnifyingGlassIcon,
   BellIcon,
@@ -28,10 +29,18 @@ interface NotificationItem {
   link?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
+export const Header: React.FC<HeaderProps> = ({
+  onSearch,
+  user: propUser,
+  actions,
+}) => {
   const navigate = useNavigate();
+  const authUser = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Use auth user if available, otherwise use prop
+  const user = authUser || propUser;
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -121,26 +130,12 @@ export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      // Call logout API endpoint if it exists
-      // await axios.post("/api/auth/logout");
-    } catch (err) {
-      // Even if logout API fails, continue with local cleanup
-      console.error("Logout error:", err);
-    } finally {
-      // Clear any stored auth data
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("user");
+  const logout = useAuthStore((state) => state.logout);
 
-      // Close the menu
-      setShowUserMenu(false);
-
-      // Redirect to login page
-      navigate("/auth/login");
-    }
+  const handleLogout = () => {
+    logout();
+    setShowUserMenu(false);
+    navigate("/auth/login");
   };
 
   return (
@@ -302,7 +297,9 @@ export const Header: React.FC<HeaderProps> = ({onSearch, user, actions}) => {
                 <p className="text-sm font-medium text-[#e8e8e8]">
                   {user?.name || "User"}
                 </p>
-                <p className="text-xs text-[#808080]">user@example.com</p>
+                <p className="text-xs text-[#808080]">
+                  {authUser?.email || user?.email || "user@example.com"}
+                </p>
               </div>
               <Link
                 to="/profile"

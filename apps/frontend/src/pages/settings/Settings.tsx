@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs} from "~/components/ui";
@@ -15,6 +15,7 @@ export const Settings = () => {
     "general" | "notifications" | "security" | "appearance"
   >("general");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,22 +40,78 @@ export const Settings = () => {
     sessionTimeout: "30",
   });
 
+  // Appearance settings
+  const [appearanceSettings, setAppearanceSettings] = useState({
+    theme: "dark",
+    fontSize: "medium",
+  });
+
+  // Fetch settings on component mount
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setFetching(true);
+        const response = await axios.get("/api/settings", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const settings = response.data;
+        
+        if (settings.general) {
+          setGeneralSettings(settings.general);
+        }
+        if (settings.notifications) {
+          setNotificationSettings(settings.notifications);
+        }
+        if (settings.security) {
+          setSecuritySettings(settings.security);
+        }
+        if (settings.appearance) {
+          setAppearanceSettings(settings.appearance);
+        }
+      } catch (err: any) {
+        // If 401, user is not authenticated - that's okay, use defaults
+        if (err?.response?.status !== 401) {
+          console.error("Failed to fetch settings:", err);
+          setError("Failed to load settings");
+        }
+      } finally {
+        setFetching(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const handleSave = async () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      // TODO: Replace with actual API endpoint
-      await axios.put("/api/settings", {
-        general: generalSettings,
-        notifications: notificationSettings,
-        security: securitySettings,
-      });
+      await axios.put(
+        "/api/settings",
+        {
+          general: generalSettings,
+          notifications: notificationSettings,
+          security: securitySettings,
+          appearance: appearanceSettings,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       setSuccess("Settings saved successfully");
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err?.response?.data?.error || "Failed to save settings");
+      if (err?.response?.status === 401) {
+        setError("Please log in to save settings");
+      } else {
+        setError(err?.response?.data?.error || "Failed to save settings");
+      }
     } finally {
       setLoading(false);
     }
@@ -103,7 +160,12 @@ export const Settings = () => {
 
         {/* Settings Content */}
         <div className="flex-1 overflow-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {fetching ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-[#b0b0b0]">Loading settings...</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Tabs Sidebar */}
             <div className="lg:col-span-1">
               <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-2">
@@ -358,9 +420,39 @@ export const Settings = () => {
                       <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
                         Appearance
                       </h2>
-                      <p className="text-sm text-[#b0b0b0]">
-                        Appearance settings coming soon...
-                      </p>
+                      <div className="space-y-4">
+                        <Select
+                          label="Theme"
+                          value={appearanceSettings.theme}
+                          onChange={(value) =>
+                            setAppearanceSettings({
+                              ...appearanceSettings,
+                              theme: value,
+                            })
+                          }
+                          options={[
+                            {value: "dark", label: "Dark"},
+                            {value: "light", label: "Light"},
+                            {value: "auto", label: "Auto"},
+                          ]}
+                        />
+
+                        <Select
+                          label="Font Size"
+                          value={appearanceSettings.fontSize}
+                          onChange={(value) =>
+                            setAppearanceSettings({
+                              ...appearanceSettings,
+                              fontSize: value,
+                            })
+                          }
+                          options={[
+                            {value: "small", label: "Small"},
+                            {value: "medium", label: "Medium"},
+                            {value: "large", label: "Large"},
+                          ]}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
@@ -374,6 +466,7 @@ export const Settings = () => {
               </div>
             </div>
           </div>
+          )}
         </div>
       </div>
     </MainLayout>

@@ -1,4 +1,5 @@
-import {Request, Response} from "express";
+import {Response} from "express";
+import {AuthRequest} from "../middleware/auth";
 import {RepoService} from "../services/RepoService";
 import {GitService} from "../services/GitService";
 import {getServerURL} from "../utils/serverUrl";
@@ -7,10 +8,15 @@ const repoService = new RepoService();
 const gitService = new GitService();
 
 export class RepoController {
-  async listRepos(req: Request, res: Response): Promise<void> {
+  async listRepos(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
       const httpBaseURL = getServerURL(req);
-      const repos = await repoService.listRepos(httpBaseURL);
+      const repos = await repoService.listRepos(req.username, httpBaseURL);
       res.json(repos);
     } catch (err) {
       console.error("GET /api/repos error:", err);
@@ -18,10 +24,15 @@ export class RepoController {
     }
   }
 
-  async createRepo(req: Request, res: Response): Promise<void> {
+  async createRepo(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
       const {name} = req.body as {name: string};
-      const repoName = await repoService.createRepo(name);
+      const repoName = await repoService.createRepo(req.username, name);
       res.json({message: "Repo created", name: repoName});
     } catch (err: any) {
       console.error("POST /api/repos error:", err);
@@ -36,16 +47,21 @@ export class RepoController {
     }
   }
 
-  async getRepoTree(req: Request, res: Response): Promise<void> {
+  async getRepoTree(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
       const repoName = req.params.name;
 
-      if (!repoService.repoExists(repoName)) {
+      if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
         return;
       }
 
-      const fileTree = await gitService.getFileTree(repoName);
+      const fileTree = await gitService.getFileTree(req.username, repoName);
       res.json(fileTree);
     } catch (err) {
       console.error("GET /api/repos/:name error:", err);

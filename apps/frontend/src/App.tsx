@@ -8,6 +8,7 @@ import {Recovery} from "./pages/auth/Recovery";
 import {Settings} from "./pages/settings/Settings";
 import {Profile} from "./pages/profile/Profile";
 import {Notification} from "./pages/notifications/Notification";
+import {ProtectedRoute} from "./components/ProtectedRoute";
 
 const App = () => {
   return (
@@ -18,13 +19,55 @@ const App = () => {
         <Route path="/auth/register" element={<Register />} />
         <Route path="/auth/recovery" element={<Recovery />} />
 
-        {/* Main Routes */}
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/repositories" element={<RepoListPage />} />
-        <Route path="/repository/:name" element={<RepoDetailPage />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/notifications" element={<Notification />} />
+        {/* Protected Main Routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/repositories"
+          element={
+            <ProtectedRoute>
+              <RepoListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/repository/:name"
+          element={
+            <ProtectedRoute>
+              <RepoDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <Notification />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Default Routes */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

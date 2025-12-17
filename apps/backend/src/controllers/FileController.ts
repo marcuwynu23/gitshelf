@@ -1,4 +1,5 @@
-import {Request, Response} from "express";
+import {Response} from "express";
+import {AuthRequest} from "../middleware/auth";
 import {GitService} from "../services/GitService";
 import {RepoService} from "../services/RepoService";
 
@@ -6,8 +7,13 @@ const gitService = new GitService();
 const repoService = new RepoService();
 
 export class FileController {
-  async getFileContent(req: Request, res: Response): Promise<void> {
+  async getFileContent(req: AuthRequest, res: Response): Promise<void> {
     try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
       const repoName = req.params.name;
       const filePath = req.query.filePath as string;
 
@@ -16,12 +22,16 @@ export class FileController {
         return;
       }
 
-      if (!repoService.repoExists(repoName)) {
+      if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
         return;
       }
 
-      const content = await gitService.getFileContent(repoName, filePath);
+      const content = await gitService.getFileContent(
+        req.username,
+        repoName,
+        filePath
+      );
       res.json({path: filePath, content});
     } catch (err: any) {
       console.error("GET /api/repos/:name/files error:", err);
@@ -33,4 +43,3 @@ export class FileController {
     }
   }
 }
-

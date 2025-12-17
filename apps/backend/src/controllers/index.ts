@@ -3,4 +3,7 @@ export * from "./FileController";
 export * from "./BranchController";
 export * from "./CommitController";
 export * from "./GitHttpController";
+export * from "./SettingsController";
 export * from "./DashboardController";
+export * from "./AuthController";
+export * from "./UserController";

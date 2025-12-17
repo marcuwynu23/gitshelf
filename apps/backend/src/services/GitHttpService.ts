@@ -3,19 +3,26 @@ import {promisify} from "util";
 import path from "path";
 import fs from "fs";
 import simpleGit from "simple-git";
-import {REPO_DIR} from "../utils/config";
+import {getUserRepoDir} from "../utils/config";
 
 const execAsync = promisify(exec);
 
 export class GitHttpService {
-  private getRepoPath(repoName: string): string {
-    return path.join(REPO_DIR, repoName);
+  private getRepoPath(username: string, repoName: string): string {
+    const repoDir = getUserRepoDir(username);
+    return path.join(repoDir, repoName);
   }
 
-  async getInfoRefs(repoName: string, service: string): Promise<string> {
+  async getInfoRefs(
+    username: string,
+    repoName: string,
+    service: string
+  ): Promise<string> {
     // Ensure repo name ends with .git
-    const normalizedRepoName = repoName.endsWith(".git") ? repoName : `${repoName}.git`;
-    const repoPath = this.getRepoPath(normalizedRepoName);
+    const normalizedRepoName = repoName.endsWith(".git")
+      ? repoName
+      : `${repoName}.git`;
+    const repoPath = this.getRepoPath(username, normalizedRepoName);
 
     if (!fs.existsSync(repoPath)) {
       throw new Error("Repository not found");
@@ -42,10 +49,16 @@ export class GitHttpService {
     }
   }
 
-  async handleUploadPack(repoName: string, rawBody: Buffer): Promise<any> {
+  async handleUploadPack(
+    username: string,
+    repoName: string,
+    rawBody: Buffer
+  ): Promise<any> {
     // Ensure repo name ends with .git
-    const normalizedRepoName = repoName.endsWith(".git") ? repoName : `${repoName}.git`;
-    const repoPath = this.getRepoPath(normalizedRepoName);
+    const normalizedRepoName = repoName.endsWith(".git")
+      ? repoName
+      : `${repoName}.git`;
+    const repoPath = this.getRepoPath(username, normalizedRepoName);
 
     if (!fs.existsSync(repoPath)) {
       throw new Error("Repository not found");
@@ -62,10 +75,16 @@ export class GitHttpService {
     return exec(cmd);
   }
 
-  async handleReceivePack(repoName: string, rawBody: Buffer): Promise<any> {
+  async handleReceivePack(
+    userId: string,
+    repoName: string,
+    rawBody: Buffer
+  ): Promise<any> {
     // Ensure repo name ends with .git
-    const normalizedRepoName = repoName.endsWith(".git") ? repoName : `${repoName}.git`;
-    const repoPath = this.getRepoPath(normalizedRepoName);
+    const normalizedRepoName = repoName.endsWith(".git")
+      ? repoName
+      : `${repoName}.git`;
+    const repoPath = this.getRepoPath(userId, normalizedRepoName);
 
     if (!fs.existsSync(repoPath)) {
       throw new Error("Repository not found");
@@ -82,4 +101,3 @@ export class GitHttpService {
     return exec(cmd);
   }
 }
-

@@ -3,12 +3,16 @@ import {RepoController} from "../controllers/RepoController";
 import {FileController} from "../controllers/FileController";
 import {BranchController} from "../controllers/BranchController";
 import {CommitController} from "../controllers/CommitController";
+import {authMiddleware} from "../middleware/auth";
 
 const router = Router();
 const repoController = new RepoController();
 const fileController = new FileController();
 const branchController = new BranchController();
 const commitController = new CommitController();
+
+// All repo routes require authentication
+router.use(authMiddleware);
 
 // Repository routes
 router.get("/", (req, res) => repoController.listRepos(req, res));
