@@ -1,18 +1,19 @@
 import {useState} from "react";
-import {ArchiveBoxIcon} from "@heroicons/react/24/outline";
+import {Link, useLocation} from "react-router-dom";
+import {
+  ArchiveBoxIcon,
+  CommandLineIcon,
+  LinkIcon,
+} from "@heroicons/react/24/outline";
 import type {RepoItem} from "~/props/Repos";
 
 interface RepoListProps {
   repos: RepoItem[];
   selectedRepo: string | null;
-  viewRepo: (name: string) => void;
 }
 
-export const RepoList: React.FC<RepoListProps> = ({
-  repos,
-  selectedRepo,
-  viewRepo,
-}) => {
+export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
+  const location = useLocation();
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = (value: string) => {
@@ -21,72 +22,97 @@ export const RepoList: React.FC<RepoListProps> = ({
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const displayName = (name: string) => name.replace(/\.git$/, ""); // remove .git
+  const displayName = (name: string) => name.replace(/\.git$/, "");
+  const getRepoUrl = (name: string) =>
+    `/repository/${encodeURIComponent(name)}`;
+
+  // Check if repo is active based on URL
+  const isRepoActive = (repoName: string) => {
+    if (selectedRepo) {
+      return selectedRepo === repoName;
+    }
+    const currentPath = location.pathname;
+    const repoPath = getRepoUrl(repoName);
+    return currentPath === repoPath;
+  };
+
+  if (repos.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[#808080] text-sm">No repositories found</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h2 className="text-sm text-white font-bold mb-3">Repositories</h2>
-
-      <ul className="space-y-2">
-        {repos.map((repo) => (
-          <li
+    <div className="space-y-1">
+      {repos.map((repo) => {
+        const isActive = isRepoActive(repo.name);
+        return (
+          <Link
             key={repo.name}
-            className={`flex items-center justify-between p-3border-b border-gray-200 cursor-pointer transition ${
-              selectedRepo === repo.name ? "underline border-white" : ""
+            to={getRepoUrl(repo.name)}
+            className={`group flex items-center justify-between p-3 rounded border cursor-pointer transition-colors ${
+              isActive
+                ? "bg-app-accent/10 border-app-accent"
+                : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d]"
             }`}
-            onClick={() => viewRepo(repo.name)}
+            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+              // Allow copy buttons to work without navigating
+              if ((e.target as HTMLElement).closest("button")) {
+                e.preventDefault();
+              }
+            }}
           >
             {/* Left: Icon + Repo Name */}
-            <div className="flex items-center gap-2">
-              <ArchiveBoxIcon className="w-5 h-5  text-white " />
-              <span className="font-bold text-xs text-white ">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0" />
+              <span className="font-medium text-sm text-[#e8e8e8] truncate">
                 {displayName(repo.name)}
               </span>
             </div>
 
-            {/* Right: SSH/HTTPS Buttons */}
-            <div className="flex gap-2">
-              {/* SSH Button */}
-              <div className="relative">
+            {/* Right: Copy Buttons */}
+            <div className="flex gap-1 flex-shrink-0">
+              {repo.sshAddress && (
                 <button
-                  title={repo.sshAddress ?? undefined}
-                  className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 font-bold bg-yellow-200  hover:bg-gray-200 text-[7pt]"
+                  title={repo.sshAddress}
+                  className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    repo.sshAddress && handleCopy(repo.sshAddress);
+                    handleCopy(repo.sshAddress!);
                   }}
                 >
-                  SSH
-                </button>
-                {copied === repo.sshAddress && (
-                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-black text-white shadow-md whitespace-nowrap">
-                    Copied!
+                  <CommandLineIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+                  <span className="text-xs text-[#808080] font-medium hidden sm:inline">
+                    SSH
                   </span>
-                )}
-              </div>
-
-              {/* HTTPS Button */}
-              <div className="relative">
+                </button>
+              )}
+              {repo.httpAddress && (
                 <button
-                  title={repo.httpAddress ?? undefined}
-                  className="flex items-center gap-1 px-2 py-0.5 bg-gray-100  font-bold  bg-red-200 hover:bg-gray-200 text-[7pt]"
+                  title={repo.httpAddress}
+                  className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    repo.httpAddress && handleCopy(repo.httpAddress);
+                    handleCopy(repo.httpAddress!);
                   }}
                 >
-                  HTTPS
-                </button>
-                {copied === repo.httpAddress && (
-                  <span className="absolute -top-6 left-1/2 -translate-x-1/2 px-2 py-1 text-xs bg-black text-white shadow-md whitespace-nowrap">
-                    Copied!
+                  <LinkIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+                  <span className="text-xs text-[#808080] font-medium hidden sm:inline">
+                    HTTPS
                   </span>
-                )}
-              </div>
+                </button>
+              )}
             </div>
-          </li>
-        ))}
-      </ul>
+          </Link>
+        );
+      })}
+      {copied && (
+        <div className="fixed bottom-4 right-4 bg-app-surface border border-[#3d3d3d] px-4 py-2 rounded shadow-lg">
+          <p className="text-sm text-[#e8e8e8]">Copied to clipboard!</p>
+        </div>
+      )}
     </div>
   );
 };

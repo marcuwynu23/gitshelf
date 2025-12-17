@@ -1,0 +1,178 @@
+import simpleGit, {SimpleGit} from "simple-git";
+import path from "path";
+import {REPO_DIR} from "../utils/config";
+import type {Commit} from "../models/Commit";
+import type {BranchInfo} from "../models/Branch";
+import type {FileNode, TreeNode} from "../models/FileNode";
+
+export class GitService {
+  private getRepoPath(repoName: string): string {
+    return path.join(REPO_DIR, repoName);
+  }
+
+  private getGitInstance(repoPath: string): SimpleGit {
+    return simpleGit(repoPath);
+  }
+
+  async hasCommits(repoName: string): Promise<boolean> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    try {
+      const log = await git.log({maxCount: 1});
+      return log.total > 0;
+    } catch (err: any) {
+      if (err?.message.includes("does not have any commits yet")) {
+        return false;
+      }
+      throw err;
+    }
+  }
+
+  async getFileTree(repoName: string): Promise<FileNode[]> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    const hasCommits = await this.hasCommits(repoName);
+    if (!hasCommits) {
+      return [];
+    }
+
+    // Get all files in the latest commit
+    const treeRaw = await git.raw(["ls-tree", "-r", "--name-only", "HEAD"]);
+    const allPaths = treeRaw.split("\n").filter(Boolean);
+
+    const root: TreeNode[] = [];
+
+    const findOrCreateFolder = (
+      nodes: TreeNode[],
+      name: string,
+      fullPath: string
+    ): TreeNode => {
+      let node = nodes.find((n) => n.name === name && n.type === "folder");
+      if (!node) {
+        node = {name, path: fullPath, type: "folder", children: []};
+        nodes.push(node);
+      }
+      return node;
+    };
+
+    const sortNodes = (nodes: TreeNode[]) => {
+      nodes.sort((a, b) => {
+        if (a.type === b.type) return a.name.localeCompare(b.name);
+        return a.type === "folder" ? -1 : 1; // folders first
+      });
+    };
+
+    allPaths.forEach((filePath) => {
+      const parts = filePath.split("/");
+      let currentLevel = root;
+
+      parts.forEach((part, index) => {
+        const isFile = index === parts.length - 1;
+        const fullPath = parts.slice(0, index + 1).join("/");
+
+        if (isFile) {
+          // Add file
+          currentLevel.push({name: part, path: fullPath, type: "file"});
+        } else {
+          // Add or get folder
+          const folderNode = findOrCreateFolder(currentLevel, part, fullPath);
+          currentLevel = folderNode.children!;
+        }
+
+        // Sort current level so folders come first
+        sortNodes(currentLevel);
+      });
+    });
+
+    // Sort root as well
+    sortNodes(root);
+
+    return root as FileNode[];
+  }
+
+  async getFileContent(repoName: string, filePath: string): Promise<string> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    // Get latest commit hash
+    let log;
+    try {
+      log = await git.log({n: 1});
+    } catch (err: any) {
+      if (err?.message.includes("does not have any commits yet")) {
+        throw new Error("No commits found");
+      }
+      throw err;
+    }
+
+    if (log.total === 0) {
+      throw new Error("No commits found");
+    }
+
+    const latestCommit = log.latest?.hash;
+
+    // Use 'git show' to get file content from the commit
+    const content = await git.show([`${latestCommit}:${filePath}`]);
+    return content;
+  }
+
+  async getBranches(repoName: string): Promise<BranchInfo> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    try {
+      const branchSummary = await git.branch();
+      return {
+        current: branchSummary.current || null,
+        branches: branchSummary.all || [],
+      };
+    } catch (err: any) {
+      // If repo has no commits, return empty branches
+      if (err?.message.includes("does not have any commits yet")) {
+        return {
+          current: null,
+          branches: [],
+        };
+      }
+      throw err;
+    }
+  }
+
+  async getCommits(repoName: string, maxCount = 20): Promise<Commit[]> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    try {
+      const log = await git.log({maxCount});
+      return log.all.map((c) => ({
+        hash: c.hash,
+        message: c.message,
+        author: c.author_name,
+        date: c.date,
+      }));
+    } catch (err: any) {
+      if (err?.message.includes("does not have any commits yet")) {
+        return [];
+      }
+      throw err;
+    }
+  }
+
+  async getCurrentBranch(repoName: string): Promise<string | null> {
+    const repoPath = this.getRepoPath(repoName);
+    const git = this.getGitInstance(repoPath);
+
+    try {
+      const branchSummary = await git.branch();
+      return branchSummary.current || null;
+    } catch (err: any) {
+      if (err?.message.includes("does not have any commits yet")) {
+        return null;
+      }
+      throw err;
+    }
+  }
+}
+

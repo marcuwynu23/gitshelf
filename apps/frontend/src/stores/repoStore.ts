@@ -6,25 +6,30 @@ import type {RepoItem} from "~/props/Repos";
 interface RepoStore {
   repos: RepoItem[];
   selectedRepo: string | null;
+  selectedFile: string | null;
   fileTree: FileNode[];
   repoName: string;
   fileContent: Record<string, string>; // store file contents keyed by path
 
   setRepoName: (v: string) => void;
+  setSelectedFile: (filePath: string | null) => void;
   fetchRepos: () => Promise<void>;
   createRepo: () => Promise<void>;
   viewRepo: (name: string) => Promise<void>;
   fetchFileContent: (filePath: string) => Promise<void>; // new action
+  clearSelectedRepo: () => void;
 }
 
 export const useRepoStore = create<RepoStore>((set, get) => ({
   repos: [],
   selectedRepo: null,
+  selectedFile: null,
   fileTree: [],
   repoName: "",
   fileContent: {},
 
   setRepoName: (v) => set({repoName: v}),
+  setSelectedFile: (filePath) => set({selectedFile: filePath}),
 
   fetchRepos: async () => {
     try {
@@ -52,11 +57,30 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   viewRepo: async (name) => {
     try {
       const res = await axios.get(`/api/repos/${name}`);
-      set({fileTree: res.data, selectedRepo: name, fileContent: {}}); // reset content
+      set({
+        fileTree: res.data,
+        selectedRepo: name,
+        selectedFile: null,
+        fileContent: {},
+      }); // reset content and file
     } catch (err) {
       console.error(err);
-      set({fileTree: [], selectedRepo: null, fileContent: {}});
+      set({
+        fileTree: [],
+        selectedRepo: null,
+        selectedFile: null,
+        fileContent: {},
+      });
     }
+  },
+
+  clearSelectedRepo: () => {
+    set({
+      selectedRepo: null,
+      selectedFile: null,
+      fileTree: [],
+      fileContent: {},
+    });
   },
 
   fetchFileContent: async (filePath: string) => {

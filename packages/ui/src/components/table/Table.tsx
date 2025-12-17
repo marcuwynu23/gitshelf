@@ -1,4 +1,3 @@
-// packages/ui/src/Table.tsx
 import {ReactNode} from "react";
 
 interface TableProps<T> {
@@ -16,35 +15,35 @@ export function Table<T>({
 }: TableProps<T>) {
   if (!items || items.length === 0) {
     return (
-      <p className={`text-gray-500 italic ${className}`}>{emptyMessage}</p>
+      <p className={`text-white/60 italic ${className}`}>{emptyMessage}</p>
     );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className={`min-w-full divide-y divide-gray-200 ${className}`}>
-        <thead className="bg-gray-50">
+    <div className="overflow-x-auto bg-[#1f1f1f] rounded-lg">
+      <table className={`min-w-full ${className}`}>
+        <thead>
           <tr>
             {columns.map((col, idx) => (
               <th
                 key={idx}
-                className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wider"
               >
                 {col.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody>
           {items.map((item, rowIndex) => (
             <tr
               key={rowIndex}
-              className="hover:bg-gray-100 transition-colors duration-200"
+              className="hover:bg-[#181818] transition-colors duration-200"
             >
               {columns.map((col, colIndex) => (
                 <td
                   key={colIndex}
-                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-700"
+                  className="px-6 py-4 whitespace-nowrap text-sm text-white/90"
                 >
                   {col.render(item)}
                 </td>

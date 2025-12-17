@@ -5,6 +5,7 @@ import {
   CodeBracketIcon,
   PhotoIcon,
   Cog6ToothIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 
 export interface FileNode {
@@ -26,7 +27,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   level = 0,
 }) => {
   return (
-    <ul className="pl-0">
+    <ul className="space-y-0.5">
       {nodes.map((node) => (
         <FileNodeItem
           key={node.path}
@@ -44,118 +45,123 @@ const FileNodeItem: React.FC<{
   onFileClick?: (filePath: string) => void;
   level: number;
 }> = ({node, onFileClick, level}) => {
-  const [open, setOpen] = useState(false);
-  const indent = `${level * 1}rem`;
+  const [open, setOpen] = useState(level === 0);
+  const indent = level * 16;
 
-  // --- File icon/color mapping ---
+  // File icon/color mapping with theme colors
   const getFileAppearance = (name: string) => {
     const ext = name.split(".").pop()?.toLowerCase() ?? "";
-    let color = "#e5e7eb"; // default gray
-    let icon = <DocumentIcon className="w-5 h-5 mr-2 text-white" />;
+    let icon = <DocumentIcon className="w-4 h-4 text-white/60" />;
+    let textColor = "text-white/90";
 
-    const map: Record<string, {color: string; icon: any}> = {
+    const map: Record<string, {icon: any; textColor: string}> = {
       js: {
-        color: "#facc15",
-        icon: <CodeBracketIcon className="w-5 h-5 mr-2 text-yellow-400" />,
+        icon: <CodeBracketIcon className="w-4 h-4 text-yellow-400" />,
+        textColor: "text-yellow-400",
       },
       ts: {
-        color: "#3b82f6",
-        icon: <CodeBracketIcon className="w-5 h-5 mr-2 text-blue-500" />,
+        icon: <CodeBracketIcon className="w-4 h-4 text-blue-400" />,
+        textColor: "text-blue-400",
       },
       jsx: {
-        color: "#facc15",
-        icon: <CodeBracketIcon className="w-5 h-5 mr-2 text-yellow-400" />,
+        icon: <CodeBracketIcon className="w-4 h-4 text-yellow-400" />,
+        textColor: "text-yellow-400",
       },
       tsx: {
-        color: "#3b82f6",
-        icon: <CodeBracketIcon className="w-5 h-5 mr-2 text-blue-500" />,
+        icon: <CodeBracketIcon className="w-4 h-4 text-blue-400" />,
+        textColor: "text-blue-400",
       },
       json: {
-        color: "#34d399",
-        icon: <DocumentIcon className="w-5 h-5 mr-2 text-green-400" />,
+        icon: <DocumentIcon className="w-4 h-4 text-green-400" />,
+        textColor: "text-green-400",
       },
       md: {
-        color: "#60a5fa",
-        icon: <DocumentIcon className="w-5 h-5 mr-2 text-blue-400" />,
+        icon: <DocumentIcon className="w-4 h-4 text-blue-400" />,
+        textColor: "text-blue-400",
       },
       png: {
-        color: "#f472b6",
-        icon: <PhotoIcon className="w-5 h-5 mr-2 text-pink-400" />,
+        icon: <PhotoIcon className="w-4 h-4 text-pink-400" />,
+        textColor: "text-pink-400",
       },
       jpg: {
-        color: "#f472b6",
-        icon: <PhotoIcon className="w-5 h-5 mr-2 text-pink-400" />,
+        icon: <PhotoIcon className="w-4 h-4 text-pink-400" />,
+        textColor: "text-pink-400",
       },
       jpeg: {
-        color: "#f472b6",
-        icon: <PhotoIcon className="w-5 h-5 mr-2 text-pink-400" />,
+        icon: <PhotoIcon className="w-4 h-4 text-pink-400" />,
+        textColor: "text-pink-400",
       },
       svg: {
-        color: "#f472b6",
-        icon: <PhotoIcon className="w-5 h-5 mr-2 text-pink-400" />,
+        icon: <PhotoIcon className="w-4 h-4 text-pink-400" />,
+        textColor: "text-pink-400",
       },
       gif: {
-        color: "#f472b6",
-        icon: <PhotoIcon className="w-5 h-5 mr-2 text-pink-400" />,
+        icon: <PhotoIcon className="w-4 h-4 text-pink-400" />,
+        textColor: "text-pink-400",
       },
       env: {
-        color: "#a3e635",
-        icon: <Cog6ToothIcon className="w-5 h-5 mr-2 text-lime-400" />,
+        icon: <Cog6ToothIcon className="w-4 h-4 text-lime-400" />,
+        textColor: "text-lime-400",
       },
       config: {
-        color: "#a3e635",
-        icon: <Cog6ToothIcon className="w-5 h-5 mr-2 text-lime-400" />,
+        icon: <Cog6ToothIcon className="w-4 h-4 text-lime-400" />,
+        textColor: "text-lime-400",
       },
       yaml: {
-        color: "#a3e635",
-        icon: <Cog6ToothIcon className="w-5 h-5 mr-2 text-lime-400" />,
+        icon: <Cog6ToothIcon className="w-4 h-4 text-lime-400" />,
+        textColor: "text-lime-400",
       },
       yml: {
-        color: "#a3e635",
-        icon: <Cog6ToothIcon className="w-5 h-5 mr-2 text-lime-400" />,
+        icon: <Cog6ToothIcon className="w-4 h-4 text-lime-400" />,
+        textColor: "text-lime-400",
       },
     };
 
-    return map[ext] ?? {color, icon};
+    return map[ext] ?? {icon, textColor};
   };
 
-  // --- Folder icon/color mapping ---
+  // Folder icon/color mapping
   const getFolderAppearance = (name: string) => {
     const lower = name.toLowerCase();
-    let color = "#d1d5db"; // default gray
-    let icon = <FolderIcon className="w-5 h-5 mr-2 text-gray-300" />;
+    let icon = <FolderIcon className="w-4 h-4 text-white/70" />;
+    let textColor = "text-white/90";
 
     if (lower.includes("src")) {
-      color = "#93c5fd"; // blue
-      icon = <FolderIcon className="w-5 h-5 mr-2 text-blue-300" />;
+      icon = <FolderIcon className="w-4 h-4 text-blue-400" />;
+      textColor = "text-blue-400";
     } else if (lower.includes("assets")) {
-      color = "#f472b6"; // pink
-      icon = <FolderIcon className="w-5 h-5 mr-2 text-pink-400" />;
+      icon = <FolderIcon className="w-4 h-4 text-pink-400" />;
+      textColor = "text-pink-400";
     } else if (lower.includes("public")) {
-      color = "#34d399"; // green
-      icon = <FolderIcon className="w-5 h-5 mr-2 text-green-400" />;
+      icon = <FolderIcon className="w-4 h-4 text-green-400" />;
+      textColor = "text-green-400";
     } else if (lower.includes("config") || lower.includes("settings")) {
-      color = "#a78bfa"; // purple
-      icon = <FolderIcon className="w-5 h-5 mr-2 text-purple-400" />;
+      icon = <FolderIcon className="w-4 h-4 text-purple-400" />;
+      textColor = "text-purple-400";
     } else if (lower.includes("node_modules")) {
-      color = "#fbbf24"; // yellow
-      icon = <FolderIcon className="w-5 h-5 mr-2 text-yellow-400" />;
+      icon = <FolderIcon className="w-4 h-4 text-yellow-400" />;
+      textColor = "text-yellow-400";
     }
 
-    return {color, icon};
+    return {icon, textColor};
   };
 
   if (node.type === "folder") {
-    const {color, icon} = getFolderAppearance(node.name);
+    const {icon, textColor} = getFolderAppearance(node.name);
     return (
-      <li className="mb-1">
+      <li>
         <div
-          className="flex items-center cursor-pointer select-none"
-          style={{paddingLeft: indent, color}}
+          className="flex items-center gap-1.5 py-1 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer select-none transition-colors"
+          style={{paddingLeft: `${indent}px`}}
           onClick={() => setOpen(!open)}
         >
+          <ChevronRightIcon
+            className={`w-3 h-3 text-white/40 transition-transform ${
+              open ? "rotate-90" : ""
+            }`}
+          />
           {icon}
-          <span className="text-xs">{node.name}</span>
+          <span className={`text-sm font-medium ${textColor}`}>{node.name}</span>
         </div>
         {open && node.children && (
           <FileTree
@@ -168,18 +174,16 @@ const FileNodeItem: React.FC<{
     );
   }
 
-  const {color, icon} = getFileAppearance(node.name);
+  const {icon, textColor} = getFileAppearance(node.name);
 
   return (
     <li
-      className="flex items-center mb-1 cursor-pointer"
-      style={{paddingLeft: indent}}
+      className="flex items-center gap-1.5 py-1 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer transition-colors"
+      style={{paddingLeft: `${indent + 20}px`}}
       onClick={() => onFileClick && onFileClick(node.path)}
     >
       {icon}
-      <span className="text-xs" style={{color}}>
-        {node.name}
-      </span>
+      <span className={`text-sm ${textColor}`}>{node.name}</span>
     </li>
   );
 };
