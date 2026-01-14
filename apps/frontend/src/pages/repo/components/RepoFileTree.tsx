@@ -1,12 +1,12 @@
-import {useState, useEffect} from "react";
-import {useRepoStore} from "~/stores/repoStore";
-import type {FC} from "react";
+import { CodeBracketIcon, EyeIcon } from "@heroicons/react/24/outline";
 import MonacoEditor from "@monaco-editor/react";
+import type { FileNode } from "@myapp/ui";
+import { FileTree } from "@myapp/ui";
+import type { FC } from "react";
+import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import {FileTree} from "@myapp/ui";
-import type {FileNode} from "@myapp/ui";
-import {Button} from "~/components/ui";
-import {EyeIcon, CodeBracketIcon} from "@heroicons/react/24/outline";
+import { Button } from "~/components/ui";
+import { useRepoStore } from "~/stores/repoStore";
 
 export interface RepoFileTreeProps {
   selectedRepo: string | null;
@@ -14,11 +14,7 @@ export interface RepoFileTreeProps {
   currentBranch: string | null;
 }
 
-export const RepoFileTree: FC<RepoFileTreeProps> = ({
-  selectedRepo,
-  fileTree,
-  currentBranch,
-}) => {
+export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, currentBranch }) => {
   const fetchFileContent = useRepoStore((state) => state.fetchFileContent);
   const fileContent = useRepoStore((state) => state.fileContent);
   const selectedFile = useRepoStore((state) => state.selectedFile);
@@ -26,6 +22,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
 
   const [viewMode, setViewMode] = useState<"preview" | "raw">("preview");
   const [readmeFile, setReadmeFile] = useState<string | null>(null);
+  const [panelView, setPanelView] = useState<"files" | "readme">("files");
 
   const handleFileClick = async (filePath: string) => {
     await fetchFileContent(filePath);
@@ -33,14 +30,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     setViewMode("preview");
   };
 
-  const displayName = (name: string) => name.replace(/\.git$/, "");
+  
 
   // Check if README.md exists in root
   useEffect(() => {
     if (!selectedFile && fileTree.length) {
-      const readmeNode = fileTree.find(
-        (node) => node.type === "file" && /^README\.md$/i.test(node.name)
-      );
+      const readmeNode = fileTree.find((node) => node.type === "file" && /^README\.md$/i.test(node.name));
       if (readmeNode) {
         setReadmeFile(readmeNode.path);
         fetchFileContent(readmeNode.path);
@@ -50,35 +45,55 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     }
   }, [fileTree, selectedFile, fetchFileContent]);
 
+  // Normalize fileTree nodes to ensure `path` exists for keys and nested children
+  const normalizeNodes = (nodes: FileNode[], parentPath = ""): FileNode[] => {
+    return nodes.map((n) => {
+      const path = n.path || (parentPath ? `${parentPath}/${n.name}` : n.name);
+      const children = n.children && n.children.length ? normalizeNodes(n.children, path) : undefined;
+      return { ...n, path, children };
+    });
+  };
+
+  const normalizedTree = Array.isArray(fileTree) ? normalizeNodes(fileTree) : [];
+
+  // Debug logs to help identify mount/unmount and data state
+  useEffect(() => {
+    console.log("RepoFileTree mounted/updated", {
+      selectedRepo,
+      selectedFile,
+      normalizedTreeLength: normalizedTree.length,
+    });
+    return () => console.log("RepoFileTree unmounted", { selectedRepo });
+  }, [selectedRepo, selectedFile, normalizedTree.length]);
+
+  // Default panel when README appears
+  useEffect(() => {
+    if (readmeFile && fileContent[readmeFile]) {
+      setPanelView("readme");
+    } else {
+      setPanelView("files");
+    }
+  }, [readmeFile, fileContent]);
+
   if (selectedFile) {
     const content = fileContent[selectedFile] || "";
     const isMarkdown = selectedFile.endsWith(".md");
 
     return (
-      <div className="w-full h-full flex flex-col">
+      <div className="flex-1 w-full h-full flex flex-col">
         {/* File Header */}
         <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pb-4 border-b border-[#3d3d3d]">
           <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg font-semibold text-[#e8e8e8] truncate">
-              {selectedFile.split("/").pop() || selectedFile}
-            </h2>
+            <h2 className="text-base sm:text-lg font-semibold text-[#e8e8e8] truncate">{selectedFile.split("/").pop() || selectedFile}</h2>
           </div>
 
           {isMarkdown && (
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
-                variant={viewMode === "preview" ? "primary" : "secondary"}
-                size="sm"
-                onClick={() => setViewMode("preview")}
-              >
+              <Button variant={viewMode === "preview" ? "primary" : "secondary"} size="sm" onClick={() => setViewMode("preview")}>
                 <EyeIcon className="w-4 h-4" />
                 <span className="hidden sm:inline">Preview</span>
               </Button>
-              <Button
-                variant={viewMode === "raw" ? "primary" : "secondary"}
-                size="sm"
-                onClick={() => setViewMode("raw")}
-              >
+              <Button variant={viewMode === "raw" ? "primary" : "secondary"} size="sm" onClick={() => setViewMode("raw")}>
                 <CodeBracketIcon className="w-4 h-4" />
                 <span className="hidden sm:inline">Raw</span>
               </Button>
@@ -95,24 +110,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
               </div>
             ) : (
               <div className="h-full">
-                <MonacoEditor
-                  height="100%"
-                  language="markdown"
-                  theme="vs-dark"
-                  value={content}
-                  options={{readOnly: true}}
-                />
+                <MonacoEditor height="100%" language="markdown" theme="vs-dark" value={content} options={{ readOnly: true }} />
               </div>
             )
           ) : (
             <div className="h-full">
-              <MonacoEditor
-                height="100%"
-                language="text"
-                theme="vs-dark"
-                value={content}
-                options={{readOnly: true}}
-              />
+              <MonacoEditor height="100%" language="text" theme="vs-dark" value={content} options={{ readOnly: true }} />
             </div>
           )}
         </div>
@@ -121,31 +124,46 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* File Tree Section */}
-      <div className="flex-1 overflow-auto mb-6">
-        {fileTree.length ? (
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-4">
-            <FileTree nodes={fileTree} onFileClick={handleFileClick} />
-          </div>
+    <div className="flex-1 h-full flex flex-col">
+      {/* Panel switcher (README / Files) - defaults to README when present */}
+      {readmeFile && fileContent[readmeFile] && (
+        <div className="mb-4 flex gap-2">
+          <button
+            onClick={() => setPanelView("readme")}
+            className={`px-3 py-1 rounded ${panelView === "readme" ? "bg-app-accent text-black" : "bg-app-surface"}`}
+          >
+            README
+          </button>
+          <button
+            onClick={() => setPanelView("files")}
+            className={`px-3 py-1 rounded ${panelView === "files" ? "bg-app-accent text-black" : "bg-app-surface"}`}
+          >
+            Files
+          </button>
+        </div>
+      )}
+
+      {/* Main panel area */}
+      <div className="flex-1 min-h-0 overflow-auto mb-6">
+        {panelView === "files" ? (
+          normalizedTree.length ? (
+            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-4">
+              <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
+            </div>
+          ) : (
+            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-8 text-center">
+              <p className="text-[#808080] text-sm">No files found</p>
+            </div>
+          )
         ) : (
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-8 text-center">
-            <p className="text-[#808080] text-sm">No files found</p>
+          <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+            <h3 className="text-sm font-semibold text-[#e8e8e8] mb-4 uppercase tracking-wider">README</h3>
+            <div className="markdown-body max-h-96 overflow-auto">
+              <ReactMarkdown>{fileContent[readmeFile!]}</ReactMarkdown>
+            </div>
           </div>
         )}
       </div>
-
-      {/* README Preview */}
-      {readmeFile && fileContent[readmeFile] && (
-        <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-          <h3 className="text-sm font-semibold text-[#e8e8e8] mb-4 uppercase tracking-wider">
-            README
-          </h3>
-          <div className="markdown-body">
-            <ReactMarkdown>{fileContent[readmeFile]}</ReactMarkdown>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

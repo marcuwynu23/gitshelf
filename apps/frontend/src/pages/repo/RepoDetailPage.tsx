@@ -94,7 +94,7 @@ export const RepoDetailPage = () => {
         rightSidebarFooter={rightSidebarFooter}
       >
         <RepoDetail repoName={repoName} isArchived={repoMetadata?.archived || false} />
-      </MainLayout>
+    </MainLayout>
 
       <RepoSettingsModal
         isOpen={isSettingsModalOpen}

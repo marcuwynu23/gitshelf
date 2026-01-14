@@ -1,7 +1,7 @@
-import {create} from "zustand";
 import axios from "axios";
-import type {FileNode} from "~/props/FileNode";
-import type {RepoItem} from "~/props/Repos";
+import { create } from "zustand";
+import type { FileNode } from "~/props/FileNode";
+import type { RepoItem } from "~/props/Repos";
 
 interface RepoStore {
   repos: RepoItem[];
@@ -28,21 +28,21 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   repoName: "",
   fileContent: {},
 
-  setRepoName: (v) => set({repoName: v}),
-  setSelectedFile: (filePath) => set({selectedFile: filePath}),
+  setRepoName: (v) => set({ repoName: v }),
+  setSelectedFile: (filePath) => set({ selectedFile: filePath }),
 
   fetchRepos: async () => {
     try {
       const res = await axios.get("/api/repos");
       console.log(res.data);
-      set({repos: res.data});
+      set({ repos: res.data });
     } catch (err) {
       console.error(err);
     }
   },
 
   createRepo: async (title?: string, description?: string) => {
-    const {repoName, fetchRepos} = get();
+    const { repoName, fetchRepos } = get();
     if (!repoName.trim()) return;
 
     try {
@@ -51,7 +51,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         title: title || undefined,
         description: description || undefined,
       });
-      set({repoName: ""});
+      set({ repoName: "" });
       fetchRepos();
     } catch (err) {
       console.error(err);
@@ -60,9 +60,9 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
 
   viewRepo: async (name) => {
     try {
-      // API expects repo name with .git
-      const nameWithGit = name.includes('.git') ? name : `${name}.git`;
-      const res = await axios.get(`/api/repos/${nameWithGit}`);
+      // API expects repo name with .git; encode to support names with slashes
+      const nameWithGit = name.includes(".git") ? name : `${name}.git`;
+      const res = await axios.get(`/api/repos/${encodeURIComponent(nameWithGit)}`);
       set({
         fileTree: res.data,
         selectedRepo: name,
@@ -90,19 +90,15 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   },
 
   fetchFileContent: async (filePath: string) => {
-    const {selectedRepo, fileContent} = get();
+    const { selectedRepo, fileContent } = get();
     if (!selectedRepo) return;
 
     try {
       // API expects repo name with .git
-      const repoWithGit = selectedRepo.includes('.git') ? selectedRepo : `${selectedRepo}.git`;
-      const res = await axios.get(
-        `/api/repos/${repoWithGit}/files?filePath=${encodeURIComponent(
-          filePath
-        )}`
-      );
+      const repoWithGit = selectedRepo.includes(".git") ? selectedRepo : `${selectedRepo}.git`;
+      const res = await axios.get(`/api/repos/${encodeURIComponent(repoWithGit)}/files?filePath=${encodeURIComponent(filePath)}`);
       console.log(res.data);
-      set({fileContent: {...fileContent, [filePath]: res.data.content}});
+      set({ fileContent: { ...fileContent, [filePath]: res.data.content } });
     } catch (err) {
       console.error(err);
     }
