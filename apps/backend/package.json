@@ -15,7 +15,9 @@
     "express": "^5.1.0",
     "ssh2": "^1.15.0",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "sequelize": "^6.37.0",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

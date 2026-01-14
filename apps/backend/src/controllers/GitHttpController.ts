@@ -9,6 +9,14 @@ const authService = new AuthService();
 const extractUsernameAndRepo = async (
   req: Request
 ): Promise<{username: string; repo: string} | null> => {
+  // Handle /repository/:username/:repo format - both username and repo are in path params
+  if (req.path.startsWith('/repository/') && req.params.username && req.params.repo) {
+    return {
+      username: req.params.username,
+      repo: req.params.repo,
+    };
+  }
+
   // First, try to get username from path parameter (for username-based routes like /:username/:repo)
   if (req.params.username && req.params.repo) {
     return {
@@ -37,15 +45,16 @@ const extractUsernameAndRepo = async (
   // Fallback: Parse from URL path
   // Git requests come as: /username/repo.git/info/refs or /username/repo.git/git-upload-pack
   const pathParts = req.path.split("/").filter(Boolean);
-  
+
   // Check if we have at least username and repo in the path
   if (pathParts.length >= 2) {
     const firstPart = pathParts[0];
     const secondPart = pathParts[1];
-    
+
     // Check if first part looks like a username (not a Git endpoint)
     if (
       firstPart !== "api" &&
+      firstPart !== "repository" &&
       firstPart !== "info" &&
       firstPart !== "git-upload-pack" &&
       firstPart !== "git-receive-pack" &&

@@ -1,45 +1,37 @@
-import fs from "fs";
-import path from "path";
-import {User, UserPublic} from "../models/User";
+import { Op } from "sequelize";
+import { sequelize } from "../config/database";
+import { User, UserPublic } from "../models/User";
+import { UserModel } from "../models/sequelize/User";
 
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
-
-// Ensure data directory exists
-const dataDir = path.dirname(USERS_FILE);
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, {recursive: true});
-}
-
-// Initialize users file if it doesn't exist
-if (!fs.existsSync(USERS_FILE)) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify([], null, 2));
+// Helper function to convert Sequelize model to User interface
+function modelToUser(model: UserModel): User {
+  return {
+    id: model.id,
+    username: model.username,
+    name: model.name,
+    email: model.email,
+    password: model.password,
+    bio: model.bio || undefined,
+    avatar: model.avatar || undefined,
+    createdAt: model.createdAt.toISOString(),
+    updatedAt: model.updatedAt.toISOString(),
+  };
 }
 
 export class UserService {
-  private getUsers(): User[] {
-    try {
-      const data = fs.readFileSync(USERS_FILE, "utf-8");
-      return JSON.parse(data);
-    } catch (err) {
-      return [];
-    }
-  }
-
-  private saveUsers(users: User[]): void {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-  }
-
   async findById(id: string): Promise<User | null> {
-    const users = this.getUsers();
-    const user = users.find((u) => u.id === id) || null;
+    const userModel = await UserModel.findByPk(id);
+    if (!userModel) {
+      return null;
+    }
 
     // Migrate old users without username (generate from email)
-    if (user && !user.username) {
-      const username = user.email
+    if (!userModel.username) {
+      const username = userModel.email
         .split("@")[0]
         .toLowerCase()
         .replace(/[^a-z0-9_-]/g, "");
-      const baseUsername = username || `user${user.id.slice(-6)}`;
+      const baseUsername = username || `user${userModel.id.slice(-6)}`;
       let finalUsername = baseUsername;
       let counter = 1;
 
@@ -49,34 +41,32 @@ export class UserService {
         counter++;
       }
 
-      // Directly update the user in the array and save (bypassing update method's username restriction)
-      const userIndex = users.findIndex((u) => u.id === id);
-      if (userIndex !== -1) {
-        users[userIndex] = {
-          ...users[userIndex],
-          username: finalUsername,
-          updatedAt: new Date().toISOString(),
-        };
-        this.saveUsers(users);
-        return users[userIndex];
-      }
+      userModel.username = finalUsername;
+      await userModel.save();
     }
 
-    return user;
+    return modelToUser(userModel);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const users = this.getUsers();
-    const user =
-      users.find((u) => u.email.toLowerCase() === email.toLowerCase()) || null;
+    const userModel = await UserModel.findOne({
+      where: sequelize.where(
+        sequelize.fn("LOWER", sequelize.col("UserModel.email")),
+        email.toLowerCase()
+      ),
+    });
+
+    if (!userModel) {
+      return null;
+    }
 
     // Migrate old users without username
-    if (user && !user.username) {
-      const username = user.email
+    if (!userModel.username) {
+      const username = userModel.email
         .split("@")[0]
         .toLowerCase()
         .replace(/[^a-z0-9_-]/g, "");
-      const baseUsername = username || `user${user.id.slice(-6)}`;
+      const baseUsername = username || `user${userModel.id.slice(-6)}`;
       let finalUsername = baseUsername;
       let counter = 1;
 
@@ -86,36 +76,31 @@ export class UserService {
         counter++;
       }
 
-      // Directly update the user in the array and save (bypassing update method's username restriction)
-      const userIndex = users.findIndex((u) => u.id === user.id);
-      if (userIndex !== -1) {
-        users[userIndex] = {
-          ...users[userIndex],
-          username: finalUsername,
-          updatedAt: new Date().toISOString(),
-        };
-        this.saveUsers(users);
-        return users[userIndex];
-      }
+      userModel.username = finalUsername;
+      await userModel.save();
     }
 
-    return user;
+    return modelToUser(userModel);
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const users = this.getUsers();
-    return (
-      users.find(
-        (u) => u.username && u.username.toLowerCase() === username.toLowerCase()
-      ) || null
-    );
+    const userModel = await UserModel.findOne({
+      where: sequelize.where(
+        sequelize.fn("LOWER", sequelize.col("UserModel.username")),
+        username.toLowerCase()
+      ),
+    });
+
+    if (!userModel) {
+      return null;
+    }
+
+    return modelToUser(userModel);
   }
 
   async create(
     userData: Omit<User, "id" | "createdAt" | "updatedAt">
   ): Promise<User> {
-    const users = this.getUsers();
-
     // Check if email already exists
     if (await this.findByEmail(userData.email)) {
       throw new Error("Email already registered");
@@ -133,45 +118,43 @@ export class UserService {
       );
     }
 
-    const newUser: User = {
-      ...userData,
+    const newUserModel = await UserModel.create({
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      username: userData.username,
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      bio: userData.bio,
+      avatar: userData.avatar,
+    });
 
-    users.push(newUser);
-    this.saveUsers(users);
-    return newUser;
+    return modelToUser(newUserModel);
   }
 
   async update(
     id: string,
     updates: Partial<Omit<User, "id" | "createdAt" | "email" | "username">>
   ): Promise<User> {
-    const users = this.getUsers();
-    const userIndex = users.findIndex((u) => u.id === id);
+    const userModel = await UserModel.findByPk(id);
 
-    if (userIndex === -1) {
+    if (!userModel) {
       throw new Error("User not found");
     }
 
-    users[userIndex] = {
-      ...users[userIndex],
+    await userModel.update({
       ...updates,
-      updatedAt: new Date().toISOString(),
-    };
+      updatedAt: new Date(),
+    });
 
-    this.saveUsers(users);
-    return users[userIndex];
+    return modelToUser(userModel);
   }
 
   async updatePassword(id: string, newPassword: string): Promise<void> {
-    await this.update(id, {password: newPassword});
+    await this.update(id, { password: newPassword });
   }
 
   toPublic(user: User): UserPublic {
-    const {password, ...publicUser} = user;
+    const { password, ...publicUser } = user;
     return publicUser;
   }
 }

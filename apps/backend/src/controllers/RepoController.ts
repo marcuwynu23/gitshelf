@@ -31,8 +31,8 @@ export class RepoController {
         return;
       }
 
-      const {name} = req.body as {name: string};
-      const repoName = await repoService.createRepo(req.username, name);
+      const {name, title, description} = req.body as {name: string; title?: string; description?: string};
+      const repoName = await repoService.createRepo(req.username, name, title, description);
       res.json({message: "Repo created", name: repoName});
     } catch (err: any) {
       console.error("POST /api/repos error:", err);
@@ -44,6 +44,28 @@ export class RepoController {
       } else {
         res.status(500).json({error: "Internal server error"});
       }
+    }
+  }
+
+  async getRepoMetadata(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      const metadata = await repoService.getRepoMetadata(req.username, repoName);
+      
+      if (!metadata) {
+        res.status(404).json({error: "Repo metadata not found"});
+        return;
+      }
+
+      res.json(metadata);
+    } catch (err) {
+      console.error("GET /api/repos/:name/metadata error:", err);
+      res.status(500).json({error: "Internal server error"});
     }
   }
 
@@ -66,6 +88,50 @@ export class RepoController {
     } catch (err) {
       console.error("GET /api/repos/:name error:", err);
       res.status(500).json({error: "Internal server error"});
+    }
+  }
+
+  async deleteRepo(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      await repoService.deleteRepo(req.username, repoName);
+      res.json({message: "Repo deleted successfully"});
+    } catch (err: any) {
+      console.error("DELETE /api/repos/:name error:", err);
+      if (
+        err.message === "Repo not found"
+      ) {
+        res.status(404).json({error: err.message});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
+    }
+  }
+
+  async archiveRepo(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      await repoService.archiveRepo(req.username, repoName);
+      res.json({message: "Repo archived successfully"});
+    } catch (err: any) {
+      console.error("PATCH /api/repos/:name/archive error:", err);
+      if (
+        err.message === "Repo not found"
+      ) {
+        res.status(404).json({error: err.message});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
     }
   }
 }

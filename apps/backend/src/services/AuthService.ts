@@ -1,14 +1,13 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import {UserService} from "./UserService";
-import {UserPublic} from "../models/User";
+import { UserPublic } from "../models/User";
+import { UserService } from "./UserService";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || "your-secret-key-change-in-production";
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
 
 export interface LoginCredentials {
-  email: string;
+  username: string;
   password: string;
 }
 
@@ -58,17 +57,17 @@ export class AuthService {
   }
 
   async login(credentials: LoginCredentials): Promise<AuthResult> {
-    const user = await this.userService.findByEmail(credentials.email);
+    const user = await this.userService.findByUsername(credentials.username);
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new Error("Invalid username or password");
     }
 
     // Verify password
     const isValid = await bcrypt.compare(credentials.password, user.password);
 
     if (!isValid) {
-      throw new Error("Invalid email or password");
+      throw new Error("Invalid username or password");
     }
 
     // Generate token
@@ -100,14 +99,14 @@ export class AuthService {
   }
 
   generateToken(userId: string): string {
-    return jwt.sign({userId}, JWT_SECRET, {
+    return jwt.sign({ userId }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
   }
 
-  verifyToken(token: string): {userId: string} | null {
+  verifyToken(token: string): { userId: string } | null {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as {userId: string};
+      const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
       return decoded;
     } catch (err) {
       return null;

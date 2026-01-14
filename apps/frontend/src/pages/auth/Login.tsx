@@ -6,7 +6,7 @@ import {useAuthStore} from "~/stores/authStore";
 export const Login = () => {
   const navigate = useNavigate();
   const login = useAuthStore((state) => state.login);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(username, password);
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to login. Please try again.");
@@ -50,13 +50,13 @@ export const Login = () => {
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              label="Username"
+              type="text"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
 
             <Input
