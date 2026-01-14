@@ -13,6 +13,7 @@ import {RepoSettingsModal} from "./components/RepoSettingsModal";
 interface RepoMetadata {
   title?: string;
   description?: string;
+  archived?: boolean;
 }
 
 export const RepoDetailPage = () => {
@@ -92,7 +93,7 @@ export const RepoDetailPage = () => {
         rightSidebar={rightSidebar}
         rightSidebarFooter={rightSidebarFooter}
       >
-        <RepoDetail repoName={repoName} />
+        <RepoDetail repoName={repoName} isArchived={repoMetadata?.archived || false} />
       </MainLayout>
 
       <RepoSettingsModal
@@ -101,6 +102,7 @@ export const RepoDetailPage = () => {
         repoName={repoName}
         repoMetadata={repoMetadata}
         onMetadataUpdate={setRepoMetadata}
+        isArchived={repoMetadata?.archived || false}
       />
     </>
   );

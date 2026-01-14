@@ -4,4 +4,5 @@ export interface RepoItem {
   httpAddress: string | null;
   title?: string;
   description?: string;
+  archived?: boolean;
 }

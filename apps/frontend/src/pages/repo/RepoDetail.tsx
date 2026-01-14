@@ -3,12 +3,14 @@ import {useBranchStore} from "~/stores/branchStore";
 import {useRepoStore} from "~/stores/repoStore";
 import {RepoFileTree} from "./components/RepoFileTree";
 import {Breadcrumbs} from "~/components/ui";
+import {Badge} from "~/components/ui/Badge";
 
 interface RepoDetailProps {
   repoName: string;
+  isArchived?: boolean;
 }
 
-export const RepoDetail: React.FC<RepoDetailProps> = ({repoName}) => {
+export const RepoDetail: React.FC<RepoDetailProps> = ({repoName, isArchived = false}) => {
   const {fileTree, selectedFile, setSelectedFile, viewRepo} = useRepoStore();
   const {currentBranch} = useBranchStore();
 
@@ -73,11 +75,18 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({repoName}) => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
         <div className="min-w-0 flex-1">
-          <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1 truncate">
-            {selectedFile
-              ? selectedFile.split("/").pop() || selectedFile
-              : displayName(repoName)}
-          </h1>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] truncate">
+              {selectedFile
+                ? selectedFile.split("/").pop() || selectedFile
+                : displayName(repoName)}
+            </h1>
+            {isArchived && !selectedFile && (
+              <Badge variant="neutral" size="sm">
+                Archived
+              </Badge>
+            )}
+          </div>
           {currentBranch && !selectedFile && (
             <p className="text-xs sm:text-sm text-[#b0b0b0] truncate">
               Branch:{" "}

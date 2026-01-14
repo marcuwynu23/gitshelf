@@ -23,7 +23,7 @@ export class RepoService {
       where: { username },
     });
     const metadataMap = new Map(
-      repoMetadata.map((r: RepoModel) => [r.name, { title: r.title, description: r.description }])
+      repoMetadata.map((r: RepoModel) => [r.name, { title: r.title, description: r.description, archived: r.archived }])
     );
 
     const repos = fs
@@ -43,6 +43,7 @@ export class RepoService {
           httpAddress: `${httpBaseURL}/repository/${repo}`, // Repository-based path
           title: metadata?.title,
           description: metadata?.description,
+          archived: metadata?.archived || false,
         };
       });
 
@@ -92,7 +93,7 @@ export class RepoService {
     return repoNameWithGit;
   }
 
-  async getRepoMetadata(username: string, repoName: string): Promise<{ title?: string; description?: string } | null> {
+  async getRepoMetadata(username: string, repoName: string): Promise<{ title?: string; description?: string; archived?: boolean } | null> {
     // @ts-ignore - Sequelize static methods are available after init()
     const repo = await RepoModel.findOne({
       where: {
@@ -108,6 +109,7 @@ export class RepoService {
     return {
       title: repo.title || undefined,
       description: repo.description || undefined,
+      archived: repo.archived || false,
     };
   }
 
@@ -177,6 +179,24 @@ export class RepoService {
     // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
       { archived: true },
+      {
+        where: {
+          username,
+          name: repoName,
+        },
+      }
+    );
+  }
+
+  async unarchiveRepo(username: string, repoName: string): Promise<void> {
+    if (!this.repoExists(username, repoName)) {
+      throw new Error("Repo not found");
+    }
+
+    // Update the database to mark as unarchived
+    // @ts-ignore - Sequelize static methods are available after init()
+    await RepoModel.update(
+      { archived: false },
       {
         where: {
           username,

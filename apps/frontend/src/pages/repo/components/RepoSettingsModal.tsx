@@ -23,6 +23,7 @@ interface RepoSettingsModalProps {
   repoName: string;
   repoMetadata?: RepoMetadata | null;
   onMetadataUpdate?: (metadata: RepoMetadata) => void;
+  isArchived?: boolean;
 }
 
 export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
@@ -31,12 +32,14 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   repoName,
   repoMetadata,
   onMetadataUpdate,
+  isArchived = false,
 }) => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [showRenameForm, setShowRenameForm] = useState(false);
   const [showRenameConfirm, setShowRenameConfirm] = useState(false);
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
@@ -65,18 +68,31 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     }
   }, [repoMetadata, isOpen, repoName]);
 
-  const handleArchive = async () => {
+  const handleArchiveUnarchiveClick = () => {
+    setShowArchiveConfirm(true);
+  };
+
+  const handleArchiveUnarchiveConfirm = async () => {
     setIsArchiving(true);
     setError(null);
     try {
       // API expects repo name with .git
       const repoNameWithGit = repoName.includes('.git') ? repoName : `${repoName}.git`;
-      await axios.patch(`/api/repos/${encodeURIComponent(repoNameWithGit)}/archive`);
+
+      if (isArchived) {
+        // Unarchive the repository
+        await axios.patch(`/api/repos/${encodeURIComponent(repoNameWithGit)}/unarchive`);
+      } else {
+        // Archive the repository
+        await axios.patch(`/api/repos/${encodeURIComponent(repoNameWithGit)}/archive`);
+      }
+
       onClose();
       // Refresh the page or update state
       window.location.reload();
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to archive repository");
+      const action = isArchived ? "unarchive" : "archive";
+      setError(err.response?.data?.error || `Failed to ${action} repository`);
     } finally {
       setIsArchiving(false);
     }
@@ -182,6 +198,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     setShowEditForm(false);
     setShowRenameForm(false);
     setShowRenameConfirm(false);
+    setShowArchiveConfirm(false);
     setDeleteConfirmText("");
     setError(null);
   };
@@ -195,10 +212,10 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={showRenameConfirm ? "Confirm Rename" : "Repository Settings"}
+      title={showRenameConfirm ? "Confirm Rename" : showArchiveConfirm ? "Confirm Archive" : "Repository Settings"}
       size="md"
     >
-      {error && !showRenameConfirm && (
+      {error && !showRenameConfirm && !showArchiveConfirm && (
         <Alert variant="error">
           {error}
         </Alert>
@@ -250,6 +267,71 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
               className="flex-1"
             >
               {isUpdating ? "Renaming..." : "Confirm Rename"}
+            </Button>
+          </div>
+        </div>
+      ) :
+
+      /* Archive Confirmation */
+      showArchiveConfirm ? (
+        <div className="space-y-4">
+          <div className="flex items-start space-x-3 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
+            <ArchiveBoxIcon className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-medium text-blue-400">
+                {isArchived ? "Unarchive Repository" : "Archive Repository"}
+              </h3>
+              <div className="mt-2 text-sm text-[#b0b0b0]">
+                <p className="mb-2">
+                  You are about to {isArchived ? "unarchive" : "archive"} <strong className="text-[#e8e8e8]">{repoName}</strong>
+                </p>
+                {isArchived ? (
+                  <div>
+                    <p className="mb-2">
+                      Unarchiving will:
+                    </p>
+                    <ul className="list-disc list-inside ml-4 mb-2">
+                      <li>Show the repository in the main list again</li>
+                      <li>Make it visible to all users</li>
+                      <li>Restore normal repository access</li>
+                    </ul>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="mb-2">
+                      Archiving will:
+                    </p>
+                    <ul className="list-disc list-inside ml-4 mb-2">
+                      <li>Hide the repository from the main list</li>
+                      <li>Keep all code and history intact</li>
+                      <li>Allow unarchiving later if needed</li>
+                    </ul>
+                    <p>
+                      You can unarchive repositories from the settings page.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex space-x-3">
+            <Button
+              variant="secondary"
+              onClick={() => setShowArchiveConfirm(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleArchiveUnarchiveConfirm}
+              disabled={isArchiving}
+              className="flex-1"
+            >
+              {isArchiving
+                ? (isArchived ? "Unarchiving..." : "Archiving...")
+                : (isArchived ? "Unarchive Repository" : "Archive Repository")
+              }
             </Button>
           </div>
         </div>
@@ -376,12 +458,12 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
 
             <Button
               variant="secondary"
-              onClick={handleArchive}
+              onClick={handleArchiveUnarchiveClick}
               disabled={isArchiving}
               className="w-full justify-start"
             >
               <ArchiveBoxIcon className="w-4 h-4 mr-2" />
-              {isArchiving ? "Archiving..." : "Archive Repository"}
+              {isArchived ? "Unarchive Repository" : "Archive Repository"}
             </Button>
 
             <Button

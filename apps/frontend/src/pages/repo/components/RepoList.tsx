@@ -6,6 +6,7 @@ import {
   LinkIcon,
   ArrowRightIcon,
 } from "@heroicons/react/24/outline";
+import {Badge} from "~/components/ui/Badge";
 import type {RepoItem} from "~/props/Repos";
 
 interface RepoListProps {
@@ -62,9 +63,16 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
             {/* Left: Icon + Repo Name */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0" />
-              <span className="font-medium text-sm text-[#e8e8e8] truncate">
-                {displayName(repo.title || repo.name)}
-              </span>
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="font-medium text-sm text-[#e8e8e8] truncate">
+                  {displayName(repo.title || repo.name)}
+                </span>
+                {repo.archived && (
+                  <Badge variant="neutral" size="sm" className="text-xs">
+                    Archived
+                  </Badge>
+                )}
+              </div>
             </div>
 
             {/* Right: Action Buttons */}

@@ -159,6 +159,28 @@ export class RepoController {
     }
   }
 
+  async unarchiveRepo(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      await repoService.unarchiveRepo(req.username, repoName);
+      res.json({message: "Repo unarchived successfully"});
+    } catch (err: any) {
+      console.error("PATCH /api/repos/:name/unarchive error:", err);
+      if (
+        err.message === "Repo not found"
+      ) {
+        res.status(404).json({error: err.message});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
+    }
+  }
+
   async renameRepo(req: AuthRequest, res: Response): Promise<void> {
     try {
       console.log('Rename request received:', req.params.name, req.body);
