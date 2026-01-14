@@ -81,29 +81,31 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({ repoName, isArchived = f
   })();
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full w-full flex flex-col px-4 sm:px-6 lg:px-8">
       {/* Page Header (compact) with breadcrumbs on the right */}
-      <div className="flex items-center justify-between gap-4 mb-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-lg sm:text-xl font-semibold text-text-primary truncate">
-              {selectedFile ? selectedFile.split("/").pop() || selectedFile : displayName(repoName)}
-            </h1>
-            {isArchived && !selectedFile && (
-              <Badge variant="neutral" size="sm">
-                Archived
-              </Badge>
+      <div className="sticky top-0 z-40 bg-app-bg border-b border-app-border py-3 mb-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <h1 className="text-lg sm:text-xl font-semibold text-text-primary truncate">
+                {selectedFile ? selectedFile.split("/").pop() || selectedFile : displayName(repoName)}
+              </h1>
+              {isArchived && !selectedFile && (
+                <Badge variant="neutral" size="sm">
+                  Archived
+                </Badge>
+              )}
+            </div>
+            {currentBranch && !selectedFile && (
+              <p className="text-xs text-text-tertiary mt-1">
+                Branch: <span className="text-app-accent font-medium">{currentBranch}</span>
+              </p>
             )}
           </div>
-          {currentBranch && !selectedFile && (
-            <p className="text-xs text-text-tertiary mt-1">
-              Branch: <span className="text-app-accent font-medium">{currentBranch}</span>
-            </p>
-          )}
-        </div>
 
-        <div className="flex-shrink-0 ml-4">
-          <Breadcrumbs items={breadcrumbs} />
+          <div className="flex-shrink-0 ml-4">
+            <Breadcrumbs items={breadcrumbs} />
+          </div>
         </div>
       </div>
 

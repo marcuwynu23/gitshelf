@@ -1,6 +1,6 @@
-import {ReactNode} from "react";
-import {Sidebar} from "./Sidebar";
-import {Header} from "./Header";
+import { ReactNode } from "react";
+import { Header } from "./Header";
+import { Sidebar } from "./Sidebar";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -27,27 +27,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar */}
-        <Sidebar
-          activeItem={activeSidebarItem}
-          onItemClick={onSidebarItemClick}
-        />
+        <Sidebar activeItem={activeSidebarItem} onItemClick={onSidebarItemClick} />
 
         {/* Main Content */}
         <main className="flex-1 overflow-auto bg-app-bg">
-          <div className="px-8 py-6 h-full max-w-[1600px] mx-auto">
-            {children}
-          </div>
+          <div className="px-4 py-6 h-full w-full">{children}</div>
         </main>
 
         {/* Right Sidebar (Contextual) */}
         {rightSidebar && (
-          <aside className="w-72 bg-app-surface border-l border-[#3d3d3d] flex flex-col">
+          <aside className="w-70 bg-app-surface border-l border-app-border flex flex-col">
             <div className="flex-1 overflow-auto p-5">{rightSidebar}</div>
-            {rightSidebarFooter && (
-              <div className="border-t border-[#3d3d3d] p-4">
-                {rightSidebarFooter}
-              </div>
-            )}
+            {rightSidebarFooter && <div className="border-t border-app-border p-4">{rightSidebarFooter}</div>}
           </aside>
         )}
       </div>

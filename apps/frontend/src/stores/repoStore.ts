@@ -1,6 +1,6 @@
+import type { FileNode } from "@myapp/ui";
 import axios from "axios";
 import { create } from "zustand";
-import type { FileNode } from "~/props/FileNode";
 import type { RepoItem } from "~/props/Repos";
 
 interface RepoStore {
@@ -10,9 +10,11 @@ interface RepoStore {
   fileTree: FileNode[];
   repoName: string;
   fileContent: Record<string, string>; // store file contents keyed by path
+  isLoading: boolean;
 
   setRepoName: (v: string) => void;
   setSelectedFile: (filePath: string | null) => void;
+  setIsLoading: (v: boolean) => void;
   fetchRepos: () => Promise<void>;
   createRepo: (title?: string, description?: string) => Promise<void>;
   viewRepo: (name: string) => Promise<void>;
@@ -27,9 +29,11 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   fileTree: [],
   repoName: "",
   fileContent: {},
+  isLoading: false,
 
   setRepoName: (v) => set({ repoName: v }),
   setSelectedFile: (filePath) => set({ selectedFile: filePath }),
+  setIsLoading: (v) => set({ isLoading: v }),
 
   fetchRepos: async () => {
     try {
@@ -59,6 +63,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   },
 
   viewRepo: async (name) => {
+    set({ isLoading: true });
     try {
       // API expects repo name with .git; encode to support names with slashes
       const nameWithGit = name.includes(".git") ? name : `${name}.git`;
@@ -77,6 +82,8 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         selectedFile: null,
         fileContent: {},
       });
+    } finally {
+      set({ isLoading: false });
     }
   },
 
@@ -86,6 +93,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
       selectedFile: null,
       fileTree: [],
       fileContent: {},
+      isLoading: false,
     });
   },
 
