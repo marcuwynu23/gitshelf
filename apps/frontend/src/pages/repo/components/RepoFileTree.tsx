@@ -30,8 +30,6 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
     setViewMode("preview");
   };
 
-  
-
   // Check if README.md exists in root
   useEffect(() => {
     if (!selectedFile && fileTree.length) {
@@ -78,15 +76,68 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
   if (selectedFile) {
     const content = fileContent[selectedFile] || "";
     const isMarkdown = selectedFile.endsWith(".md");
+    const getLanguageFromFilename = (name: string) => {
+      const ext = name.split(".").pop()?.toLowerCase() || "";
+      switch (ext) {
+        case "ts":
+        case "tsx":
+          return "typescript";
+        case "js":
+        case "jsx":
+          return "javascript";
+        case "mjs":
+          return "javascript";
+        case "cjs":
+          return "javascript";
+        case "py":
+          return "python";
+        case "java":
+          return "java";
+        case "go":
+          return "go";
+        case "cs":
+          return "csharp";
+        case "cpp":
+        case "cc":
+        case "cxx":
+          return "cpp";
+        case "c":
+          return "c";
+        case "rs":
+          return "rust";
+        case "rb":
+          return "ruby";
+        case "php":
+          return "php";
+        case "json":
+          return "json";
+        case "css":
+          return "css";
+        case "scss":
+          return "scss";
+        case "html":
+        case "htm":
+          return "html";
+        case "xml":
+          return "xml";
+        case "sh":
+        case "bash":
+          return "shell";
+        case "yml":
+        case "yaml":
+          return "yaml";
+        case "md":
+          return "markdown";
+        default:
+          return "plaintext";
+      }
+    };
+    const language = isMarkdown ? "markdown" : getLanguageFromFilename(selectedFile);
 
     return (
       <div className="flex-1 w-full h-full flex flex-col">
         {/* File Header */}
-        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pb-4 border-b border-[#3d3d3d]">
-          <div className="min-w-0 flex-1">
-            <h2 className="text-base sm:text-lg font-semibold text-[#e8e8e8] truncate">{selectedFile.split("/").pop() || selectedFile}</h2>
-          </div>
-
+        <div className="mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pb-2">
           {isMarkdown && (
             <div className="flex items-center gap-2 flex-shrink-0">
               <Button variant={viewMode === "preview" ? "primary" : "secondary"} size="sm" onClick={() => setViewMode("preview")}>
@@ -110,12 +161,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
               </div>
             ) : (
               <div className="h-full">
-                <MonacoEditor height="100%" language="markdown" theme="vs-dark" value={content} options={{ readOnly: true }} />
+                <MonacoEditor height="100%" language={language} theme="vs-dark" value={content} options={{ readOnly: true }} />
               </div>
             )
           ) : (
             <div className="h-full">
-              <MonacoEditor height="100%" language="text" theme="vs-dark" value={content} options={{ readOnly: true }} />
+              <MonacoEditor height="100%" language={language} theme="vs-dark" value={content} options={{ readOnly: true }} />
             </div>
           )}
         </div>
