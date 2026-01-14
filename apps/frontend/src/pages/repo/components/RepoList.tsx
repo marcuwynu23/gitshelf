@@ -1,9 +1,10 @@
 import {useState} from "react";
-import {Link, useLocation} from "react-router-dom";
+import {useNavigate, useLocation} from "react-router-dom";
 import {
   ArchiveBoxIcon,
   CommandLineIcon,
   LinkIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import type {RepoItem} from "~/props/Repos";
 
@@ -14,6 +15,7 @@ interface RepoListProps {
 
 export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = (value: string) => {
@@ -49,34 +51,44 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
       {repos.map((repo) => {
         const isActive = isRepoActive(repo.name);
         return (
-          <Link
+          <div
             key={repo.name}
-            to={getRepoUrl(repo.name)}
             className={`group flex items-center justify-between p-3 rounded border cursor-pointer transition-colors ${
               isActive
                 ? "bg-app-accent/10 border-app-accent"
                 : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d]"
             }`}
-            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
-              // Allow copy buttons to work without navigating
-              if ((e.target as HTMLElement).closest("button")) {
-                e.preventDefault();
-              }
-            }}
           >
             {/* Left: Icon + Repo Name */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0" />
               <span className="font-medium text-sm text-[#e8e8e8] truncate">
-                {displayName(repo.name)}
+                {displayName(repo.title || repo.name)}
               </span>
             </div>
 
-            {/* Right: Copy Buttons */}
+            {/* Right: Action Buttons */}
             <div className="flex gap-1 flex-shrink-0">
+              {/* Open Button */}
+              <button
+                title="Open repository"
+                className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(getRepoUrl(repo.name));
+                }}
+              >
+                <ArrowRightIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+                <span className="text-xs text-[#808080] font-medium hidden sm:inline">
+                  Open
+                </span>
+              </button>
+
+              {/* Copy Buttons */}
               {repo.sshAddress && (
                 <button
                   title={repo.sshAddress}
+                  data-copy="ssh"
                   className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -92,6 +104,7 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
               {repo.httpAddress && (
                 <button
                   title={repo.httpAddress}
+                  data-copy="http"
                   className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -105,7 +118,7 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
                 </button>
               )}
             </div>
-          </Link>
+          </div>
         );
       })}
       {copied && (
