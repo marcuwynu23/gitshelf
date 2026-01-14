@@ -32,8 +32,10 @@ export const RepoDetailPage = () => {
       fetchBranches(repoName);
       
       // Fetch repo metadata
+      // API expects repo name with .git
+      const repoNameWithGit = repoName.includes('.git') ? repoName : `${repoName}.git`;
       axios
-        .get(`/api/repos/${encodeURIComponent(repoName)}/metadata`)
+        .get(`/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`)
         .then((res) => {
           setRepoMetadata(res.data);
         })
@@ -97,6 +99,8 @@ export const RepoDetailPage = () => {
         isOpen={isSettingsModalOpen}
         onClose={() => setIsSettingsModalOpen(false)}
         repoName={repoName}
+        repoMetadata={repoMetadata}
+        onMetadataUpdate={setRepoMetadata}
       />
     </>
   );

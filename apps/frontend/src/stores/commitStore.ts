@@ -12,7 +12,9 @@ export const useCommitStore = create<CommitStore>((set) => ({
 
   fetchCommits: async (repo) => {
     try {
-      const res = await axios.get(`/api/repos/${repo}/commits`);
+      // API expects repo name with .git
+      const repoWithGit = repo.includes('.git') ? repo : `${repo}.git`;
+      const res = await axios.get(`/api/repos/${repoWithGit}/commits`);
       set({commits: res.data || []});
     } catch (err) {
       console.error("Error fetching commits:", err);
