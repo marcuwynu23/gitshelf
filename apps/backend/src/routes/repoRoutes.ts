@@ -18,6 +18,8 @@ router.use(authMiddleware);
 router.get("/", (req, res) => repoController.listRepos(req, res));
 router.post("/", (req, res) => repoController.createRepo(req, res));
 router.get("/:name/metadata", (req, res) => repoController.getRepoMetadata(req, res));
+router.put("/:name/metadata", (req, res) => repoController.updateRepoMetadata(req, res));
+router.patch("/:name/rename", (req, res) => repoController.renameRepo(req, res));
 router.get("/:name", (req, res) => repoController.getRepoTree(req, res));
 router.delete("/:name", (req, res) => repoController.deleteRepo(req, res));
 router.patch("/:name/archive", (req, res) => repoController.archiveRepo(req, res));

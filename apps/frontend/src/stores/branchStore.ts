@@ -13,7 +13,9 @@ export const useBranchStore = create<BranchStore>((set) => ({
 
   fetchBranches: async (repo) => {
     try {
-      const res = await axios.get(`/api/repos/${repo}/branches`);
+      // API expects repo name with .git
+      const repoWithGit = repo.includes('.git') ? repo : `${repo}.git`;
+      const res = await axios.get(`/api/repos/${repoWithGit}/branches`);
       set({
         branches: res.data.branches || [],
         currentBranch: res.data.current || null,

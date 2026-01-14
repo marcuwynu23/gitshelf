@@ -60,7 +60,9 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
 
   viewRepo: async (name) => {
     try {
-      const res = await axios.get(`/api/repos/${name}`);
+      // API expects repo name with .git
+      const nameWithGit = name.includes('.git') ? name : `${name}.git`;
+      const res = await axios.get(`/api/repos/${nameWithGit}`);
       set({
         fileTree: res.data,
         selectedRepo: name,
@@ -92,8 +94,10 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
     if (!selectedRepo) return;
 
     try {
+      // API expects repo name with .git
+      const repoWithGit = selectedRepo.includes('.git') ? selectedRepo : `${selectedRepo}.git`;
       const res = await axios.get(
-        `/api/repos/${selectedRepo}/files?filePath=${encodeURIComponent(
+        `/api/repos/${repoWithGit}/files?filePath=${encodeURIComponent(
           filePath
         )}`
       );

@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import simpleGit, {SimpleGit} from "simple-git";
 import {getUserRepoDir} from "../utils/config";
+import {getServerURL} from "../utils/serverUrl";
 import type {RepoItem} from "../models/Repo";
 import {RepoModel} from "../models/sequelize/Repo";
 
@@ -39,7 +40,7 @@ export class RepoService {
         return {
           name: repo,
           sshAddress,
-          httpAddress: `${httpBaseURL}/repository/${username}/${repo}`, // Repository-based path with username
+          httpAddress: `${httpBaseURL}/repository/${repo}`, // Repository-based path
           title: metadata?.title,
           description: metadata?.description,
         };
@@ -56,6 +57,19 @@ export class RepoService {
     const repoNameWithGit = `${name}.git`;
     const repoDir = getUserRepoDir(username);
     const repoPath = path.join(repoDir, repoNameWithGit);
+
+    // Check if repo exists in database
+    // @ts-ignore - Sequelize static methods are available after init()
+    const existingRepo = await RepoModel.findOne({
+      where: {
+        username,
+        name: repoNameWithGit,
+      },
+    });
+
+    if (existingRepo) {
+      throw new Error("Repo exists");
+    }
 
     if (fs.existsSync(repoPath)) {
       throw new Error("Repo exists");
@@ -94,6 +108,31 @@ export class RepoService {
     return {
       title: repo.title || undefined,
       description: repo.description || undefined,
+    };
+  }
+
+  async updateRepoMetadata(username: string, repoName: string, title?: string | null, description?: string | null): Promise<{ title?: string; description?: string }> {
+    // @ts-ignore - Sequelize static methods are available after init()
+    const [affectedCount] = await RepoModel.update(
+      {
+        title: title || null,
+        description: description || null,
+      },
+      {
+        where: {
+          username,
+          name: repoName,
+        },
+      }
+    );
+
+    if (affectedCount === 0) {
+      throw new Error("Repo not found");
+    }
+
+    return {
+      title: title || undefined,
+      description: description || undefined,
     };
   }
 
@@ -145,5 +184,64 @@ export class RepoService {
         },
       }
     );
+  }
+
+  async renameRepo(username: string, oldRepoName: string, newRepoName: string, httpBaseURL: string): Promise<RepoItem> {
+    console.log('Service: Checking if repo exists:', username, oldRepoName);
+    if (!this.repoExists(username, oldRepoName)) {
+      throw new Error("Repo not found");
+    }
+
+    const newRepoNameWithGit = `${newRepoName}.git`;
+    const repoDir = getUserRepoDir(username);
+    const oldRepoPath = path.join(repoDir, oldRepoName);
+    const newRepoPath = path.join(repoDir, newRepoNameWithGit);
+
+    // Check if new name already exists in database
+    // @ts-ignore - Sequelize static methods are available after init()
+    const existingRepo = await RepoModel.findOne({
+      where: {
+        username,
+        name: newRepoNameWithGit,
+      },
+    });
+
+    if (existingRepo) {
+      throw new Error("New repo name already exists");
+    }
+
+    // Check if new name already exists on file system
+    if (fs.existsSync(newRepoPath)) {
+      throw new Error("New repo name already exists");
+    }
+
+    console.log('Renaming directory:', oldRepoPath, '->', newRepoPath);
+    // Rename the directory
+    fs.renameSync(oldRepoPath, newRepoPath);
+    console.log('Directory renamed successfully');
+
+    console.log('Updating database record');
+    // Update database record (only name changes for rename)
+    // @ts-ignore - Sequelize static methods are available after init()
+    await RepoModel.update(
+      {
+        name: newRepoNameWithGit,
+      },
+      {
+        where: {
+          username,
+          name: oldRepoName,
+        },
+      }
+    );
+    console.log('Database updated successfully');
+
+    // Return updated repo info
+    const result = {
+      name: newRepoNameWithGit,
+      httpAddress: `${httpBaseURL}/repository/${newRepoNameWithGit}`,
+    };
+    console.log('Returning result:', result);
+    return result;
   }
 }
