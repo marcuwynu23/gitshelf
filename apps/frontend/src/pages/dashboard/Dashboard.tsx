@@ -2,7 +2,8 @@ import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
-import {Breadcrumbs} from "~/components/ui";
+import {Breadcrumbs, Badge} from "~/components/ui";
+import {DashboardSkeleton} from "./components/DashboardSkeleton";
 import {
   FolderIcon,
   CodeBracketIcon,
@@ -19,6 +20,7 @@ interface DashboardStats {
     name: string;
     sshAddress: string | null;
     httpAddress: string;
+    archived?: boolean;
   }>;
   recentActivity: Array<{
     repo: string;
@@ -78,9 +80,7 @@ export const Dashboard = () => {
   if (loading) {
     return (
       <MainLayout activeSidebarItem="dashboard">
-        <div className="h-full flex items-center justify-center">
-          <p className="text-[#b0b0b0]">Loading dashboard...</p>
-        </div>
+        <DashboardSkeleton />
       </MainLayout>
     );
   }
@@ -192,9 +192,16 @@ export const Dashboard = () => {
                   >
                     <div className="flex items-center gap-3">
                       <FolderIcon className="w-4 h-4 text-[#b0b0b0] flex-shrink-0" />
-                      <span className="text-sm text-[#e8e8e8] truncate">
-                        {displayName(repo.name)}
-                      </span>
+                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        <span className="text-sm text-[#e8e8e8] truncate">
+                          {displayName(repo.name)}
+                        </span>
+                        {repo.archived && (
+                          <Badge variant="neutral" size="sm" className="text-xs w-fit">
+                            Archived
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </Link>
                 ))}

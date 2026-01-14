@@ -1,9 +1,23 @@
-import {useEffect} from "react";
+import {useEffect, Suspense, lazy} from "react";
 import {useBranchStore} from "~/stores/branchStore";
 import {useRepoStore} from "~/stores/repoStore";
-import {RepoFileTree} from "./components/RepoFileTree";
 import {Breadcrumbs} from "~/components/ui";
 import {Badge} from "~/components/ui/Badge";
+
+// Lazy load the heavy RepoFileTree component
+const RepoFileTree = lazy(() => import("./components/RepoFileTree").then(module => ({ default: module.RepoFileTree })));
+
+// Loading component for RepoFileTree
+const RepoFileTreeLoading = () => (
+  <div className="flex-1 overflow-auto">
+    <div className="flex items-center justify-center py-12">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-app-accent mx-auto mb-4"></div>
+        <p className="text-sm text-[#b0b0b0]">Loading repository files...</p>
+      </div>
+    </div>
+  </div>
+);
 
 interface RepoDetailProps {
   repoName: string;
@@ -99,13 +113,13 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({repoName, isArchived = fa
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <Suspense fallback={<RepoFileTreeLoading />}>
         <RepoFileTree
           selectedRepo={repoName}
           fileTree={fileTree}
           currentBranch={currentBranch}
         />
-      </div>
+      </Suspense>
     </div>
   );
 };

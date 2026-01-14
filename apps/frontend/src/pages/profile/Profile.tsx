@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs, Button, Input, Alert} from "~/components/ui";
+import {ProfileSkeleton} from "./components/ProfileSkeleton";
 import {useAuthStore} from "~/stores/authStore";
 import {
   UserIcon,
@@ -125,10 +126,8 @@ export const Profile = () => {
 
   if (loading) {
     return (
-      <MainLayout activeSidebarItem="settings">
-        <div className="h-full flex items-center justify-center">
-          <p className="text-[#b0b0b0]">Loading profile...</p>
-        </div>
+      <MainLayout activeSidebarItem="profile">
+        <ProfileSkeleton />
       </MainLayout>
     );
   }

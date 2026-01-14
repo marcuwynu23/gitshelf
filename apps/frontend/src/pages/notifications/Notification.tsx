@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs, Button, Badge} from "~/components/ui";
+import {NotificationsSkeleton} from "./components/NotificationsSkeleton";
 import {
   BellIcon,
   CheckIcon,
@@ -161,10 +162,8 @@ export const Notification = () => {
 
   if (loading) {
     return (
-      <MainLayout activeSidebarItem="dashboard">
-        <div className="h-full flex items-center justify-center">
-          <p className="text-[#b0b0b0]">Loading notifications...</p>
-        </div>
+      <MainLayout activeSidebarItem="notifications">
+        <NotificationsSkeleton />
       </MainLayout>
     );
   }

@@ -7,3 +7,4 @@ export {Radio} from "./Radio";
 export {Alert} from "./Alert";
 export {Badge} from "./Badge";
 export {Breadcrumbs} from "./Breadcrumbs";
+export {Skeleton} from "./Skeleton";

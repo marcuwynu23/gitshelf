@@ -39,6 +39,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Skeleton loading animation */
+.skeleton-loading {
+  background: linear-gradient(90deg, #3d3d3d 25%, #4a4a4a 50%, #3d3d3d 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
 /* Markdown body styling */
 .markdown-body {
   color: var(--color-text-primary);

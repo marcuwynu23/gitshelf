@@ -292,32 +292,32 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
           {showUserMenu && (
-            <div className="absolute right-0 mt-1 w-48 bg-app-surface border border-[#3d3d3d] rounded shadow-lg py-1 z-50">
-              <div className="px-3 py-2 border-b border-[#3d3d3d]">
-                <p className="text-sm font-medium text-[#e8e8e8]">
+            <div className="absolute right-0 mt-1 w-48 sm:w-56 lg:w-64 bg-app-surface border border-[#3d3d3d] rounded shadow-lg py-1 z-50">
+              <div className="px-3 py-2 border-b border-[#3d3d3d] min-w-0">
+                <p className="text-sm font-medium text-[#e8e8e8] truncate">
                   {user?.name || "User"}
                 </p>
-                <p className="text-xs text-[#808080]">
-                  {authUser?.email || user?.email || "user@example.com"}
+                <p className="text-xs text-[#808080] truncate" title={authUser?.email || "user@example.com"}>
+                  {authUser?.email || "user@example.com"}
                 </p>
               </div>
               <Link
                 to="/profile"
                 onClick={() => setShowUserMenu(false)}
-                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
+                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
               >
                 Profile
               </Link>
               <Link
                 to="/settings"
                 onClick={() => setShowUserMenu(false)}
-                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
+                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
               >
                 Settings
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors"
+                className="w-full text-left px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
               >
                 Sign out
               </button>

@@ -42,7 +42,7 @@ export const Login = () => {
 
           {/* Error Alert */}
           {error && (
-            <Alert variant="error" className="mb-4">
+            <Alert variant="error">
               {error}
             </Alert>
           )}

@@ -1,4 +1,4 @@
-import {ReactNode} from "react";
+import type {ReactNode} from "react";
 
 interface SkeletonProps {
   className?: string;
@@ -10,14 +10,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   children,
 }) => {
   return (
-    <div
-      className={`animate-pulse bg-[#3d3d3d] rounded ${className}`}
-      style={{
-        background: 'linear-gradient(90deg, #3d3d3d 25%, #4a4a4a 50%, #3d3d3d 75%)',
-        backgroundSize: '200% 100%',
-        animation: 'shimmer 1.5s infinite',
-      }}
-    >
+    <div className={`skeleton-loading bg-[#3d3d3d] rounded ${className}`}>
       {children}
     </div>
   );

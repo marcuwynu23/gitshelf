@@ -17,6 +17,7 @@ export class RepoController {
 
       const httpBaseURL = getServerURL(req);
       const repos = await repoService.listRepos(req.username, httpBaseURL);
+    console.log('Repos:', repos);
       res.json(repos);
     } catch (err) {
       console.error("GET /api/repos error:", err);

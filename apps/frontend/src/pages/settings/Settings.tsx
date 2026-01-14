@@ -3,6 +3,7 @@ import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs} from "~/components/ui";
 import {Button, Select, Alert} from "~/components/ui";
+import {SettingsSkeleton} from "./components/SettingsSkeleton";
 import {
   Cog6ToothIcon,
   BellIcon,
@@ -161,9 +162,7 @@ export const Settings = () => {
         {/* Settings Content */}
         <div className="flex-1 overflow-auto">
           {fetching ? (
-            <div className="flex items-center justify-center py-12">
-              <p className="text-[#b0b0b0]">Loading settings...</p>
-            </div>
+            <SettingsSkeleton />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Tabs Sidebar */}

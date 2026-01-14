@@ -40,7 +40,7 @@ export class RepoService {
         return {
           name: repo,
           sshAddress,
-          httpAddress: `${httpBaseURL}/repository/${repo}`, // Repository-based path
+          httpAddress: `${httpBaseURL}/repository/${username}/${repo}`, // Repository-based path
           title: metadata?.title,
           description: metadata?.description,
           archived: metadata?.archived || false,
