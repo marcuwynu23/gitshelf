@@ -15,7 +15,7 @@ interface AuthStore {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   register: (
     username: string,
     name: string,
@@ -45,9 +45,9 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   token: localStorage.getItem("token"),
   isAuthenticated: !!localStorage.getItem("token"),
 
-  login: async (email: string, password: string) => {
+  login: async (username: string, password: string) => {
     try {
-      const res = await axios.post("/api/auth/login", {email, password});
+      const res = await axios.post("/api/auth/login", {username, password});
       const {user, token} = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));

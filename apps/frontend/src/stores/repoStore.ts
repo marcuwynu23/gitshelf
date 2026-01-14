@@ -14,7 +14,7 @@ interface RepoStore {
   setRepoName: (v: string) => void;
   setSelectedFile: (filePath: string | null) => void;
   fetchRepos: () => Promise<void>;
-  createRepo: () => Promise<void>;
+  createRepo: (title?: string, description?: string) => Promise<void>;
   viewRepo: (name: string) => Promise<void>;
   fetchFileContent: (filePath: string) => Promise<void>; // new action
   clearSelectedRepo: () => void;
@@ -41,12 +41,16 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
     }
   },
 
-  createRepo: async () => {
+  createRepo: async (title?: string, description?: string) => {
     const {repoName, fetchRepos} = get();
     if (!repoName.trim()) return;
 
     try {
-      await axios.post("/api/repos", {name: repoName});
+      await axios.post("/api/repos", {
+        name: repoName,
+        title: title || undefined,
+        description: description || undefined,
+      });
       set({repoName: ""});
       fetchRepos();
     } catch (err) {

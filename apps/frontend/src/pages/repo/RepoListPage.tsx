@@ -9,6 +9,8 @@ export const RepoListPage = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newRepoName, setNewRepoName] = useState("");
+  const [newRepoTitle, setNewRepoTitle] = useState("");
+  const [newRepoDescription, setNewRepoDescription] = useState("");
 
   useEffect(() => {
     fetchRepos();
@@ -17,8 +19,10 @@ export const RepoListPage = () => {
   const handleCreateRepo = () => {
     if (newRepoName.trim()) {
       setRepoName(newRepoName.trim());
-      createRepo();
+      createRepo(newRepoTitle.trim() || undefined, newRepoDescription.trim() || undefined);
       setNewRepoName("");
+      setNewRepoTitle("");
+      setNewRepoDescription("");
       setShowCreateModal(false);
     }
   };
@@ -60,16 +64,8 @@ export const RepoListPage = () => {
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
           <div className="space-y-6">
-            {/* Repo List Card */}
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
-                All Repositories
-              </h2>
-              <RepoList repos={repos} selectedRepo={null} />
-            </div>
-
-            {/* Welcome Section */}
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+              {/* Welcome Section */}
+              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
               <h2 className="text-xl font-semibold text-[#e8e8e8] mb-4">
                 Welcome to RepoHub
               </h2>
@@ -89,6 +85,15 @@ export const RepoListPage = () => {
                 </ul>
               </div>
             </div>
+            {/* Repo List Card */}
+            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                All Repositories
+              </h2>
+              <RepoList repos={repos} selectedRepo={null} />
+            </div>
+
+          
           </div>
         </div>
       </div>
@@ -99,6 +104,8 @@ export const RepoListPage = () => {
         onClose={() => {
           setShowCreateModal(false);
           setNewRepoName("");
+          setNewRepoTitle("");
+          setNewRepoDescription("");
         }}
         title="Create New Repository"
         footer={
@@ -108,6 +115,8 @@ export const RepoListPage = () => {
               onClick={() => {
                 setShowCreateModal(false);
                 setNewRepoName("");
+                setNewRepoTitle("");
+                setNewRepoDescription("");
               }}
               className="w-full sm:w-auto"
             >
@@ -119,17 +128,32 @@ export const RepoListPage = () => {
           </>
         }
       >
-        <Input
-          label="Repository Name"
-          placeholder="my-repository"
-          value={newRepoName}
-          onChange={(e) => setNewRepoName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleCreateRepo();
-            }
-          }}
-        />
+        <div className="space-y-4">
+          <Input
+            label="Repository Name"
+            placeholder="my-repository"
+            value={newRepoName}
+            onChange={(e) => setNewRepoName(e.target.value)}
+            required
+          />
+          <Input
+            label="Title (optional)"
+            placeholder="My Awesome Repository"
+            value={newRepoTitle}
+            onChange={(e) => setNewRepoTitle(e.target.value)}
+          />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+              Description (optional)
+            </label>
+            <textarea
+              className="h-20 w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+              placeholder="A brief description of your repository"
+              value={newRepoDescription}
+              onChange={(e) => setNewRepoDescription(e.target.value)}
+            />
+          </div>
+        </div>
       </Modal>
     </MainLayout>
   );

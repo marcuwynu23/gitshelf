@@ -30,10 +30,10 @@ export class GitHttpService {
 
     if (service === "git-upload-pack" || service === "git-receive-pack") {
       // Git smart HTTP protocol
-      // git-upload-pack and git-receive-pack are standalone executables, not git subcommands
-      // Use absolute path and proper quoting for Windows compatibility
+      // Use git command with subcommand instead of direct executable
       const absoluteRepoPath = path.resolve(repoPath);
-      const cmd = `${service} --stateless-rpc --advertise-refs "${absoluteRepoPath}"`;
+      const subcommand = service.replace("git-", "");
+      const cmd = `git ${subcommand} --stateless-rpc --advertise-refs "${absoluteRepoPath}"`;
       try {
         const {stdout} = await execAsync(cmd);
         return stdout;
@@ -68,10 +68,9 @@ export class GitHttpService {
       throw new Error("Request body required");
     }
 
-    // Use absolute path for Windows compatibility
-    // git-upload-pack is a standalone executable, not a git subcommand
+    // Use git command with upload-pack subcommand
     const absoluteRepoPath = path.resolve(repoPath);
-    const cmd = `git-upload-pack --stateless-rpc "${absoluteRepoPath}"`;
+    const cmd = `git upload-pack --stateless-rpc "${absoluteRepoPath}"`;
     return exec(cmd);
   }
 
@@ -94,10 +93,9 @@ export class GitHttpService {
       throw new Error("Request body required");
     }
 
-    // Use absolute path for Windows compatibility
-    // git-receive-pack is a standalone executable, not a git subcommand
+    // Use git command with receive-pack subcommand
     const absoluteRepoPath = path.resolve(repoPath);
-    const cmd = `git-receive-pack --stateless-rpc "${absoluteRepoPath}"`;
+    const cmd = `git receive-pack --stateless-rpc "${absoluteRepoPath}"`;
     return exec(cmd);
   }
 }

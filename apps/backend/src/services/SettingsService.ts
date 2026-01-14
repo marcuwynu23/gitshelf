@@ -1,19 +1,5 @@
-import fs from "fs";
-import path from "path";
-import {UserSettings, UpdateSettingsRequest} from "../models/Settings";
-
-const SETTINGS_FILE = path.join(process.cwd(), "data", "settings.json");
-
-// Ensure data directory exists
-const dataDir = path.dirname(SETTINGS_FILE);
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, {recursive: true});
-}
-
-// Initialize settings file if it doesn't exist
-if (!fs.existsSync(SETTINGS_FILE)) {
-  fs.writeFileSync(SETTINGS_FILE, JSON.stringify([], null, 2));
-}
+import { UserSettings, UpdateSettingsRequest } from "../models/Settings";
+import { SettingsModel } from "../models/sequelize/Settings";
 
 // Default settings
 const DEFAULT_GENERAL = {
@@ -39,95 +25,89 @@ const DEFAULT_APPEARANCE = {
   fontSize: "medium",
 };
 
+// Helper function to convert Sequelize model to UserSettings interface
+function modelToSettings(model: SettingsModel): UserSettings {
+  return {
+    userId: model.userId,
+    general: model.general as UserSettings["general"],
+    notifications: model.notifications as UserSettings["notifications"],
+    security: model.security as UserSettings["security"],
+    appearance: model.appearance as UserSettings["appearance"],
+    createdAt: model.createdAt.toISOString(),
+    updatedAt: model.updatedAt.toISOString(),
+  };
+}
+
 export class SettingsService {
-  private getSettings(): UserSettings[] {
-    try {
-      const data = fs.readFileSync(SETTINGS_FILE, "utf-8");
-      return JSON.parse(data);
-    } catch (err) {
-      return [];
-    }
-  }
-
-  private saveSettings(settings: UserSettings[]): void {
-    fs.writeFileSync(SETTINGS_FILE, JSON.stringify(settings, null, 2));
-  }
-
   async getByUserId(userId: string): Promise<UserSettings> {
-    const allSettings = this.getSettings();
-    const userSettings = allSettings.find((s) => s.userId === userId);
+    let settingsModel = await SettingsModel.findOne({
+      where: { userId },
+    });
 
-    if (userSettings) {
-      return userSettings;
+    if (!settingsModel) {
+      // Create default settings if user has no settings
+      settingsModel = await SettingsModel.create({
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        userId,
+        general: DEFAULT_GENERAL,
+        notifications: DEFAULT_NOTIFICATIONS,
+        security: DEFAULT_SECURITY,
+        appearance: DEFAULT_APPEARANCE,
+      });
     }
 
-    // Return default settings if user has no settings
-    return this.createDefaultSettings(userId);
+    return modelToSettings(settingsModel);
   }
 
   async update(userId: string, updates: UpdateSettingsRequest): Promise<UserSettings> {
-    const allSettings = this.getSettings();
-    const settingsIndex = allSettings.findIndex((s) => s.userId === userId);
+    let settingsModel = await SettingsModel.findOne({
+      where: { userId },
+    });
 
-    let userSettings: UserSettings;
-
-    if (settingsIndex === -1) {
+    if (!settingsModel) {
       // Create new settings with defaults
-      userSettings = this.createDefaultSettings(userId);
-      allSettings.push(userSettings);
-    } else {
-      userSettings = allSettings[settingsIndex];
+      settingsModel = await SettingsModel.create({
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        userId,
+        general: DEFAULT_GENERAL,
+        notifications: DEFAULT_NOTIFICATIONS,
+        security: DEFAULT_SECURITY,
+        appearance: DEFAULT_APPEARANCE,
+      });
     }
 
     // Merge updates
-    if (updates.general) {
-      userSettings.general = {
-        ...userSettings.general,
-        ...updates.general,
-      };
-    }
+    const currentGeneral = settingsModel.general as UserSettings["general"];
+    const currentNotifications = settingsModel.notifications as UserSettings["notifications"];
+    const currentSecurity = settingsModel.security as UserSettings["security"];
+    const currentAppearance = settingsModel.appearance as UserSettings["appearance"];
 
-    if (updates.notifications) {
-      userSettings.notifications = {
-        ...userSettings.notifications,
-        ...updates.notifications,
-      };
-    }
+    await settingsModel.update({
+      general: updates.general
+        ? { ...currentGeneral, ...updates.general }
+        : currentGeneral,
+      notifications: updates.notifications
+        ? { ...currentNotifications, ...updates.notifications }
+        : currentNotifications,
+      security: updates.security
+        ? { ...currentSecurity, ...updates.security }
+        : currentSecurity,
+      appearance: updates.appearance
+        ? { ...currentAppearance, ...updates.appearance }
+        : currentAppearance,
+      updatedAt: new Date(),
+    });
 
-    if (updates.security) {
-      userSettings.security = {
-        ...userSettings.security,
-        ...updates.security,
-      };
-    }
-
-    if (updates.appearance) {
-      userSettings.appearance = {
-        ...userSettings.appearance,
-        ...updates.appearance,
-      };
-    }
-
-    userSettings.updatedAt = new Date().toISOString();
-
-    // Update or add to array
-    if (settingsIndex === -1) {
-      allSettings.push(userSettings);
-    } else {
-      allSettings[settingsIndex] = userSettings;
-    }
-
-    this.saveSettings(allSettings);
-    return userSettings;
+    return modelToSettings(settingsModel);
   }
 
   private createDefaultSettings(userId: string): UserSettings {
     return {
       userId,
-      general: {...DEFAULT_GENERAL},
-      notifications: {...DEFAULT_NOTIFICATIONS},
-      security: {...DEFAULT_SECURITY},
-      appearance: {...DEFAULT_APPEARANCE},
+      general: { ...DEFAULT_GENERAL },
+      notifications: { ...DEFAULT_NOTIFICATIONS },
+      security: { ...DEFAULT_SECURITY },
+      appearance: { ...DEFAULT_APPEARANCE },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
