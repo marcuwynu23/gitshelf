@@ -11,7 +11,7 @@ export const RepoSettingsFooter: React.FC<RepoSettingsFooterProps> = ({
   return (
     <div className="flex justify-center">
       <Button
-        variant="ghost"
+ 
         size="sm"
         onClick={onSettingsClick}
         className="text-[#b0b0b0] hover:text-[#e8e8e8] hover:bg-[#353535]"
