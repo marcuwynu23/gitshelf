@@ -12,19 +12,20 @@
   --color-warning: #fbbc04;
   --color-error: #ea4335;
   --color-info: #4285f4;
-  
+
   --color-text-primary: #e8e8e8;
   --color-text-secondary: #b0b0b0;
   --color-text-tertiary: #808080;
-  
+
   --font-family-sans: "Inter", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
   --font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
 }
 
 * {
   font-family: var(--font-family-sans);
-  font-weight: 400;
 }
+
+
 
 code,
 .consolas {
@@ -50,6 +51,7 @@ body {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }

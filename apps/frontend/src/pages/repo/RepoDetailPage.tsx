@@ -1,14 +1,14 @@
-import {useEffect, useState} from "react";
-import {useParams, useNavigate} from "react-router-dom";
 import axios from "axios";
-import {useBranchStore} from "~/stores/branchStore";
-import {useCommitStore} from "~/stores/commitStore";
-import {MainLayout} from "~/components/layout/MainLayout";
-import {BranchList} from "./components/BranchList";
-import {CommitList} from "./components/CommitList";
-import {RepoDetail} from "./RepoDetail";
-import {RepoSettingsFooter} from "./components/RepoSettingsFooter";
-import {RepoSettingsModal} from "./components/RepoSettingsModal";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { MainLayout } from "~/components/layout/MainLayout";
+import { useBranchStore } from "~/stores/branchStore";
+import { useCommitStore } from "~/stores/commitStore";
+import { BranchList } from "./components/BranchList";
+import { CommitList } from "./components/CommitList";
+import { RepoSettingsFooter } from "./components/RepoSettingsFooter";
+import { RepoSettingsModal } from "./components/RepoSettingsModal";
+import { RepoDetail } from "./RepoDetail";
 
 interface RepoMetadata {
   title?: string;
@@ -17,10 +17,10 @@ interface RepoMetadata {
 }
 
 export const RepoDetailPage = () => {
-  const {name} = useParams<{name: string}>();
+  const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
-  const {commits, fetchCommits} = useCommitStore();
-  const {branches, currentBranch, fetchBranches} = useBranchStore();
+  const { commits, fetchCommits } = useCommitStore();
+  const { branches, currentBranch, fetchBranches } = useBranchStore();
   const [repoMetadata, setRepoMetadata] = useState<RepoMetadata | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
@@ -31,10 +31,10 @@ export const RepoDetailPage = () => {
     if (repoName) {
       fetchCommits(repoName);
       fetchBranches(repoName);
-      
+
       // Fetch repo metadata
       // API expects repo name with .git
-      const repoNameWithGit = repoName.includes('.git') ? repoName : `${repoName}.git`;
+      const repoNameWithGit = repoName.includes(".git") ? repoName : `${repoName}.git`;
       axios
         .get(`/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`)
         .then((res) => {
@@ -64,17 +64,9 @@ export const RepoDetailPage = () => {
       {/* Repo Info Section */}
       {(repoMetadata?.title || repoMetadata?.description) && (
         <div className="bg-app-surface rounded-lg">
-          {repoMetadata.title && (
-            <h3 className="text-lg font-semibold text-[#e8e8e8] mb-1">
-              {repoMetadata.title}
-            </h3>
-          )}
-          <hr className="border-app-border my-2"/>
-          {repoMetadata.description && (
-            <p className="text-xs text-[#b0b0b0] whitespace-pre-wrap">
-              {repoMetadata.description}
-            </p>
-          )}
+          {repoMetadata.title && <h3 className="text-lg font-semibold text-[#e8e8e8] mb-1">{repoMetadata.title}</h3>}
+          <hr className="border-app-border my-2" />
+          {repoMetadata.description && <p className="text-xs text-[#b0b0b0] whitespace-pre-wrap">{repoMetadata.description}</p>}
         </div>
       )}
       <BranchList branches={branches} currentBranch={currentBranch || null} />
@@ -82,19 +74,13 @@ export const RepoDetailPage = () => {
     </div>
   );
 
-  const rightSidebarFooter = (
-    <RepoSettingsFooter onSettingsClick={() => setIsSettingsModalOpen(true)} />
-  );
+  const rightSidebarFooter = <RepoSettingsFooter onSettingsClick={() => setIsSettingsModalOpen(true)} />;
 
   return (
     <>
-      <MainLayout
-        activeSidebarItem="repos"
-        rightSidebar={rightSidebar}
-        rightSidebarFooter={rightSidebarFooter}
-      >
-        <RepoDetail repoName={repoName} isArchived={repoMetadata?.archived || false} />
-    </MainLayout>
+      <MainLayout activeSidebarItem="repos" rightSidebar={rightSidebar} rightSidebarFooter={rightSidebarFooter}>
+        <RepoDetail repoName={repoName} repoTitle={repoMetadata?.title} isArchived={repoMetadata?.archived || false} />
+      </MainLayout>
 
       <RepoSettingsModal
         isOpen={isSettingsModalOpen}

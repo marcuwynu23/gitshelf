@@ -21,10 +21,11 @@ const RepoFileTreeLoading = () => (
 
 interface RepoDetailProps {
   repoName: string;
+  repoTitle?: string;
   isArchived?: boolean;
 }
 
-export const RepoDetail: React.FC<RepoDetailProps> = ({ repoName, isArchived = false }) => {
+export const RepoDetail: React.FC<RepoDetailProps> = ({ repoName, repoTitle, isArchived = false }) => {
   const { fileTree, selectedFile, setSelectedFile, viewRepo } = useRepoStore();
   const { currentBranch } = useBranchStore();
 
@@ -87,9 +88,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({ repoName, isArchived = f
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
-              <h1 className="text-lg sm:text-xl font-semibold text-text-primary truncate">
-                {selectedFile ? selectedFile.split("/").pop() || selectedFile : displayName(repoName)}
-              </h1>
+              <p className="text-xl sm:text-lg font-bold">{selectedFile ? selectedFile.split("/").pop() || selectedFile : repoTitle}</p>
               {isArchived && !selectedFile && (
                 <Badge variant="neutral" size="sm">
                   Archived
