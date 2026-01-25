@@ -25,7 +25,6 @@ Repohub is a lightweight Git repository manager built with **Node.js/Express** f
 - **File Explorer:** Browse repository contents with a folder/file tree view.
 - **Commits Viewer:** See the latest commits of a repository.
 - **Lightweight & Local:** Runs entirely on your local machine or server.
-- **TailwindCSS UI:** Clean and responsive frontend.
 
 ---
 
@@ -92,7 +91,7 @@ pnpm dev
 - **POST** `/api/repos` - Create a new repository.
 
   ```json
-  {"name": "repo-name"}
+  { "name": "repo-name" }
   ```
 
 - **GET** `/api/repos/:name` - Get file tree of a repository.
