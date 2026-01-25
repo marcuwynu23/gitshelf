@@ -132,4 +132,6 @@ pnpm dev
 
 ## License
 
-MIT License
+This project is source-available and free for personal, educational, and non-commercial use only.
+
+Commercial use — including use by companies, organizations, startups, SaaS offerings, or revenue-generating services — is not permitted without prior written permission.
