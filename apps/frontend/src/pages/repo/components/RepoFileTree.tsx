@@ -13,10 +13,10 @@ const globalFetchedFiles: Record<string, boolean> = {};
 export interface RepoFileTreeProps {
   selectedRepo: string | null;
   fileTree: FileNode[];
-  currentBranch: string | null;
+  branchOrCommit?: string;
 }
 
-export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, currentBranch }) => {
+export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, branchOrCommit }) => {
   const fetchFileContent = useRepoStore((state) => state.fetchFileContent);
   const fileContent = useRepoStore((state) => state.fileContent);
   const selectedFile = useRepoStore((state) => state.selectedFile);
@@ -34,13 +34,13 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
   }, [fileTree]);
 
   // default panel: show README when present, otherwise show files
-  const [panelView, setPanelView] = useState<"files" | "readme" | "cicd">("files");
+  const [panelView, setPanelView] = useState<"files" | "readme">("files");
   const [docTab, setDocTab] = useState<"readme" | "license">("readme");
   const isLoading = useRepoStore((s) => s.isLoading);
   // using module-level `globalFetchedFiles` instead of per-mount ref
 
   const handleFileClick = async (filePath: string) => {
-    await fetchFileContent(filePath);
+    await fetchFileContent(filePath, branchOrCommit);
     setSelectedFile(filePath);
     setViewMode("preview");
   };
@@ -75,12 +75,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
     globalFetchedFiles[target] = true;
     (async () => {
       try {
-        await fetchFileContent(target);
+        await fetchFileContent(target, branchOrCommit);
       } catch {
         globalFetchedFiles[target] = false;
       }
     })();
-  }, [panelView, docTab, readmeFile, licenseFile, fileContent, fetchFileContent]);
+  }, [panelView, docTab, readmeFile, licenseFile, fileContent, fetchFileContent, branchOrCommit]);
 
   // Default panel when README appears
   // (removed earlier auto-panel effect to avoid cascading setState)
@@ -111,6 +111,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, cu
         fileContent={fileContent}
         fetchFileContent={fetchFileContent}
         globalFetchedFiles={globalFetchedFiles}
+        branchOrCommit={branchOrCommit}
       />
 
       {/* Main panel area */}

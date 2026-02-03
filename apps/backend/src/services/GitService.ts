@@ -1,9 +1,9 @@
 import path from "path";
-import simpleGit, {SimpleGit} from "simple-git";
-import type {BranchInfo} from "../models/Branch";
-import type {Commit} from "../models/Commit";
-import type {FileNode, TreeNode} from "../models/FileNode";
-import {getUserRepoDir} from "../utils/config";
+import simpleGit, { SimpleGit } from "simple-git";
+import type { BranchInfo } from "../models/Branch";
+import type { Commit } from "../models/Commit";
+import type { FileNode, TreeNode } from "../models/FileNode";
+import { getUserRepoDir } from "../utils/config";
 
 export class GitService {
   private getRepoPath(username: string, repoName: string): string {
@@ -20,7 +20,7 @@ export class GitService {
     const git = this.getGitInstance(repoPath);
 
     try {
-      const log = await git.log({maxCount: 1});
+      const log = await git.log({ maxCount: 1 });
       return log.total > 0;
     } catch (err: any) {
       if (err?.message.includes("does not have any commits yet")) {
@@ -30,11 +30,7 @@ export class GitService {
     }
   }
 
-  async getFileTree(
-    username: string,
-    repoName: string,
-    branch?: string,
-  ): Promise<FileNode[]> {
+  async getFileTree(username: string, repoName: string, branch?: string): Promise<FileNode[]> {
     const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
@@ -60,24 +56,15 @@ export class GitService {
     }
 
     // List files from that ref
-    const treeRaw = await git.raw([
-      "ls-tree",
-      "-r",
-      "--name-only",
-      resolvedBranch,
-    ]);
+    const treeRaw = await git.raw(["ls-tree", "-r", "--name-only", resolvedBranch]);
     const allPaths = treeRaw.split("\n").filter(Boolean);
 
     const root: TreeNode[] = [];
 
-    const findOrCreateFolder = (
-      nodes: TreeNode[],
-      name: string,
-      fullPath: string,
-    ): TreeNode => {
+    const findOrCreateFolder = (nodes: TreeNode[], name: string, fullPath: string): TreeNode => {
       let node = nodes.find((n) => n.name === name && n.type === "folder");
       if (!node) {
-        node = {name, path: fullPath, type: "folder", children: []};
+        node = { name, path: fullPath, type: "folder", children: [] };
         nodes.push(node);
       }
       return node;
@@ -105,14 +92,7 @@ export class GitService {
 
           try {
             // IMPORTANT: include the ref so git logs the correct branch/commit, not default HEAD
-            const logRaw = await git.raw([
-              "log",
-              "-1",
-              "--pretty=format:%s||%cI",
-              resolvedBranch,
-              "--",
-              filePath,
-            ]);
+            const logRaw = await git.raw(["log", "-1", "--pretty=format:%s||%cI", resolvedBranch, "--", filePath]);
 
             if (logRaw) {
               const p = logRaw.split("||");
@@ -143,35 +123,44 @@ export class GitService {
     return root as FileNode[];
   }
 
-  async getFileContent(
-    username: string,
-    repoName: string,
-    filePath: string,
-  ): Promise<string> {
+  async getFileContent(username: string, repoName: string, filePath: string, branchOrCommit?: string): Promise<string> {
     const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
-    // Get latest commit hash
-    let log;
-    try {
-      log = await git.log({n: 1});
-    } catch (err: any) {
-      if (err?.message.includes("does not have any commits yet")) {
+    let ref: string;
+
+    if (branchOrCommit) {
+      ref = branchOrCommit;
+    } else {
+      // Fallback to latest commit on HEAD
+      let log;
+      try {
+        log = await git.log({ n: 1 });
+      } catch (err: any) {
+        if (err?.message?.includes("does not have any commits yet")) {
+          throw new Error("No commits found");
+        }
+        throw err;
+      }
+
+      if (!log.latest?.hash) {
         throw new Error("No commits found");
+      }
+
+      ref = log.latest.hash;
+    }
+
+    try {
+      return await git.show([`${ref}:${filePath}`]);
+    } catch (err: any) {
+      if (err?.message?.includes("Path") && err?.message?.includes("does not exist")) {
+        throw new Error("File not found in the specified ref");
+      }
+      if (err?.message?.includes("bad revision")) {
+        throw new Error("Invalid branch or commit reference");
       }
       throw err;
     }
-
-    if (log.total === 0) {
-      throw new Error("No commits found");
-    }
-
-    const latestCommit = log.latest?.hash;
-
-    // Use 'git show' to get file content from the commit
-    const content = await git.show([`${latestCommit}:${filePath}`]);
-
-    return content;
   }
 
   async getBranches(username: string, repoName: string): Promise<BranchInfo> {
@@ -195,10 +184,7 @@ export class GitService {
         .sort((a, b) => a.localeCompare(b));
 
       // keep current branch first (no duplication)
-      const sorted =
-        current && branches.includes(current)
-          ? [current, ...branches.filter((b) => b !== current)]
-          : branches;
+      const sorted = current && branches.includes(current) ? [current, ...branches.filter((b) => b !== current)] : branches;
 
       return {
         current,
@@ -215,16 +201,12 @@ export class GitService {
     }
   }
 
-  async getCommits(
-    username: string,
-    repoName: string,
-    maxCount = 20,
-  ): Promise<Commit[]> {
+  async getCommits(username: string, repoName: string, maxCount = 20): Promise<Commit[]> {
     const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
     try {
-      const log = await git.log({maxCount});
+      const log = await git.log({ maxCount });
       return log.all.map((c) => ({
         hash: c.hash,
         message: c.message,
@@ -239,10 +221,7 @@ export class GitService {
     }
   }
 
-  async getTotalCommitCount(
-    username: string,
-    repoName: string,
-  ): Promise<number> {
+  async getTotalCommitCount(username: string, repoName: string): Promise<number> {
     const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 
@@ -257,10 +236,7 @@ export class GitService {
     }
   }
 
-  async getCurrentBranch(
-    username: string,
-    repoName: string,
-  ): Promise<string | null> {
+  async getCurrentBranch(username: string, repoName: string): Promise<string | null> {
     const repoPath = this.getRepoPath(username, repoName);
     const git = this.getGitInstance(repoPath);
 

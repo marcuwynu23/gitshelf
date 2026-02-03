@@ -1,8 +1,8 @@
-import {Response} from "express";
-import {AuthRequest} from "../middleware/auth";
-import {GitService} from "../services/GitService";
-import {RepoService} from "../services/RepoService";
-import {isSingleParam} from "./helpers";
+import { Response } from "express";
+import { AuthRequest } from "../middleware/auth";
+import { GitService } from "../services/GitService";
+import { RepoService } from "../services/RepoService";
+import { isSingleParam } from "./helpers";
 
 const gitService = new GitService();
 const repoService = new RepoService();
@@ -11,24 +11,26 @@ export class FileController {
   async getFileContent(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.username) {
-        res.status(401).json({error: "Unauthorized"});
+        res.status(401).json({ error: "Unauthorized" });
         return;
       }
 
       const repoName = req.params.name;
       const filePath = req.query.filePath as string;
+      const branchOrCommit = req.query.branchOrCommit as string | undefined;
 
       if (!filePath) {
-        res.status(400).json({error: "filePath required"});
+        res.status(400).json({ error: "filePath required" });
         return;
       }
+
       if (!isSingleParam(repoName)) {
-        res.status(400).json({error: "Invalid repo name"});
+        res.status(400).json({ error: "Invalid repo name" });
         return;
       }
 
       if (!repoService.repoExists(req.username, repoName)) {
-        res.status(404).json({error: "Repo not found"});
+        res.status(404).json({ error: "Repo not found" });
         return;
       }
 
@@ -36,15 +38,27 @@ export class FileController {
         req.username,
         repoName,
         filePath,
+        branchOrCommit, // ✅ optional ref passed through
       );
-      res.json({path: filePath, content});
+
+      res.json({
+        path: filePath,
+        ref: branchOrCommit ?? "HEAD",
+        content,
+      });
     } catch (err: any) {
       console.error("GET /api/repos/:name/files error:", err);
-      if (err.message === "No commits found") {
-        res.status(404).json({error: err.message});
-      } else {
-        res.status(500).json({error: "Internal server error"});
+
+      if (
+        err.message === "No commits found" ||
+        err.message === "Invalid branch or commit reference" ||
+        err.message === "File not found in the specified ref"
+      ) {
+        res.status(404).json({ error: err.message });
+        return;
       }
+
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 }

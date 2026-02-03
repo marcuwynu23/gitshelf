@@ -1,7 +1,7 @@
-import type {FileNode} from "@myapp/ui";
+import type { FileNode } from "@myapp/ui";
 import axios from "axios";
-import {create} from "zustand";
-import type {RepoItem} from "~/props/Repos";
+import { create } from "zustand";
+import type { RepoItem } from "~/props/Repos";
 
 interface RepoStore {
   repos: RepoItem[];
@@ -18,7 +18,7 @@ interface RepoStore {
   fetchRepos: () => Promise<void>;
   createRepo: (title?: string, description?: string) => Promise<void>;
   viewRepo: (name: string, branchOrCommit?: string) => Promise<void>;
-  fetchFileContent: (filePath: string) => Promise<void>; // new action
+  fetchFileContent: (filePath: string, branchOrCommit?: string) => Promise<void>; // new action
   clearSelectedRepo: () => void;
 }
 
@@ -31,22 +31,22 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   fileContent: {},
   isLoading: false,
 
-  setRepoName: (v) => set({repoName: v}),
-  setSelectedFile: (filePath) => set({selectedFile: filePath}),
-  setIsLoading: (v) => set({isLoading: v}),
+  setRepoName: (v) => set({ repoName: v }),
+  setSelectedFile: (filePath) => set({ selectedFile: filePath }),
+  setIsLoading: (v) => set({ isLoading: v }),
 
   fetchRepos: async () => {
     try {
       const res = await axios.get("/api/repos");
       console.log(res.data);
-      set({repos: res.data});
+      set({ repos: res.data });
     } catch (err) {
       console.error(err);
     }
   },
 
   createRepo: async (title?: string, description?: string) => {
-    const {repoName, fetchRepos} = get();
+    const { repoName, fetchRepos } = get();
     if (!repoName.trim()) return;
 
     try {
@@ -55,7 +55,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         title: title || undefined,
         description: description || undefined,
       });
-      set({repoName: ""});
+      set({ repoName: "" });
       fetchRepos();
     } catch (err) {
       console.error(err);
@@ -63,7 +63,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   },
 
   viewRepo: async (name, branchOrCommit) => {
-    set({isLoading: true});
+    set({ isLoading: true });
     try {
       // API expects repo name with .git; encode to support names with slashes
       const nameWithGit = name.includes(".git") ? name : `${name}.git`;
@@ -85,7 +85,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         fileContent: {},
       });
     } finally {
-      set({isLoading: false});
+      set({ isLoading: false });
     }
   },
 
@@ -99,20 +99,24 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
     });
   },
 
-  fetchFileContent: async (filePath: string) => {
-    const {selectedRepo, fileContent} = get();
+  fetchFileContent: async (filePath: string, branchOrCommit?: string) => {
+    const { selectedRepo, fileContent } = get();
     if (!selectedRepo) return;
 
     try {
-      // API expects repo name with .git
-      const repoWithGit = selectedRepo.includes(".git")
-        ? selectedRepo
-        : `${selectedRepo}.git`;
-      const res = await axios.get(
-        `/api/repos/${encodeURIComponent(repoWithGit)}/files?filePath=${encodeURIComponent(filePath)}`,
-      );
-      console.log(res.data);
-      set({fileContent: {...fileContent, [filePath]: res.data.content}});
+      const repoWithGit = selectedRepo.includes(".git") ? selectedRepo : `${selectedRepo}.git`;
+
+      const params = new URLSearchParams({ filePath });
+      if (branchOrCommit) params.set("branchOrCommit", branchOrCommit);
+
+      const res = await axios.get(`/api/repos/${encodeURIComponent(repoWithGit)}/files?${params.toString()}`);
+
+      set({
+        fileContent: {
+          ...(fileContent ?? {}),
+          [filePath]: res.data.content,
+        },
+      });
     } catch (err) {
       console.error(err);
     }

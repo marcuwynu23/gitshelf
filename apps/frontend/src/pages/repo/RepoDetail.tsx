@@ -1,9 +1,10 @@
 // RepoDetail.tsx
-import {Suspense, lazy, useEffect, useMemo, useState} from "react";
-import {Breadcrumbs} from "~/components/ui";
-import {Badge} from "~/components/ui/Badge";
-import {useRepoStore} from "~/stores/repoStore";
-import {useCommitStore} from "~/stores/commitStore";
+import { Suspense, lazy, useEffect, useMemo, useState } from "react";
+import { Breadcrumbs } from "~/components/ui";
+import { Badge } from "~/components/ui/Badge";
+import { useCommitStore } from "~/stores/commitStore";
+import { useRepoStore } from "~/stores/repoStore";
+import { useCodeViewStore } from "~/stores/useCodeViewStore";
 
 const RepoFileTree = lazy(() =>
   import("./components/RepoFileTree").then((module) => ({
@@ -34,20 +35,14 @@ interface RepoDetailProps {
 
 const isFullSha = (s: string) => /^[0-9a-f]{40}$/i.test(s);
 
-export const RepoDetail: React.FC<RepoDetailProps> = ({
-  repoName,
-  repoTitle,
-  isArchived = false,
-  branches,
-  currentBranch,
-  setCurrentBranch,
-}) => {
+export const RepoDetail: React.FC<RepoDetailProps> = ({ repoName, repoTitle, isArchived = false, branches, currentBranch, setCurrentBranch }) => {
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
   const [viewQuery, setViewQuery] = useState("");
-  const {fileTree, selectedFile, setSelectedFile, viewRepo} = useRepoStore();
-  const {commits, fetchCommits} = useCommitStore();
+  const { fileTree, selectedFile, setSelectedFile, viewRepo } = useRepoStore();
+  const { commits, fetchCommits } = useCommitStore();
 
-  const [viewRef, setViewRef] = useState<string>(""); // branch or commit hash; empty => default
+  const viewRef = useCodeViewStore((s) => s.viewRef);
+  const setViewRef = useCodeViewStore((s) => s.setViewRef);
 
   const displayName = (name: string) => name.replace(/\.git$/, "");
 
@@ -78,9 +73,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     const curr = (currentBranch ?? "").trim();
     if (!curr) return list.sort((a, b) => a.localeCompare(b));
 
-    const rest = list
-      .filter((b) => b !== curr)
-      .sort((a, b) => a.localeCompare(b));
+    const rest = list.filter((b) => b !== curr).sort((a, b) => a.localeCompare(b));
     return [curr, ...rest];
   }, [branches, currentBranch]);
 
@@ -98,9 +91,8 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   }, [commits]);
 
   const breadcrumbs = useMemo(() => {
-    const crumbs: Array<{label: string; href?: string; onClick?: () => void}> =
-      [];
-    crumbs.push({label: "Repositories", href: "/"});
+    const crumbs: Array<{ label: string; href?: string; onClick?: () => void }> = [];
+    crumbs.push({ label: "Repositories", href: "/" });
     crumbs.push({
       label: displayName(repoName),
       onClick: selectedFile ? () => setSelectedFile(null) : undefined,
@@ -110,19 +102,15 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
       const pathParts = selectedFile.split("/").filter(Boolean);
       pathParts.forEach((part, index) => {
         if (index < pathParts.length - 1) {
-          crumbs.push({label: part, onClick: () => setSelectedFile(null)});
+          crumbs.push({ label: part, onClick: () => setSelectedFile(null) });
         } else {
-          crumbs.push({label: part});
+          crumbs.push({ label: part });
         }
       });
     }
 
     return crumbs;
   }, [repoName, selectedFile, setSelectedFile]);
-
-  const effectiveRef = viewRef.trim().length
-    ? viewRef.trim()
-    : (currentBranch ?? "HEAD");
 
   const onChangeView = (next: string) => {
     const ref = next.trim();
@@ -142,11 +130,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <div className="flex items-center gap-3">
-              <p className="text-xl sm:text-lg font-bold">
-                {selectedFile
-                  ? selectedFile.split("/").pop() || selectedFile
-                  : repoTitle}
-              </p>
+              <p className="text-xl sm:text-lg font-bold">{selectedFile ? selectedFile.split("/").pop() || selectedFile : repoTitle}</p>
               {isArchived && !selectedFile && (
                 <Badge variant="neutral" size="sm">
                   Archived
@@ -170,9 +154,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
                           const isSha = /^[0-9a-f]{40}$/i.test(v);
                           if (isSha) {
-                            const commit = normalizedCommits.find(
-                              (c) => c.hash.trim() === v,
-                            );
+                            const commit = normalizedCommits.find((c) => c.hash.trim() === v);
                             if (commit) {
                               const short = v.slice(0, 7);
                               const msg = (commit.message ?? "").trim();
@@ -201,7 +183,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
                     {isViewMenuOpen && (
                       <div
-                        className="absolute z-50 mt-2 w-[360px] max-w-full bg-app-surface border border-app-border rounded-lg shadow-lg overflow-hidden"
+                        className="absolute z-50 mt-2 w-90 max-w-full bg-app-surface border border-app-border rounded-lg shadow-lg overflow-hidden"
                         role="menu"
                       >
                         <div className="p-2 border-b border-app-border">
@@ -223,29 +205,15 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                               setIsViewMenuOpen(false);
                             }}
                           >
-                            <span className="truncate">
-                              Default ({currentBranch ?? "auto"})
-                            </span>
-                            {viewRef.trim() === "" && (
-                              <span className="text-[10px] text-text-tertiary">
-                                active
-                              </span>
-                            )}
+                            <span className="truncate">Default ({currentBranch ?? "auto"})</span>
+                            {viewRef.trim() === "" && <span className="text-[10px] text-text-tertiary">active</span>}
                           </button>
 
-                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary">
-                            Branches
-                          </div>
+                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary">Branches</div>
 
                           {normalizedBranches
                             .filter((b) => b !== (currentBranch ?? "").trim())
-                            .filter(
-                              (b) =>
-                                !viewQuery.trim() ||
-                                b
-                                  .toLowerCase()
-                                  .includes(viewQuery.trim().toLowerCase()),
-                            )
+                            .filter((b) => !viewQuery.trim() || b.toLowerCase().includes(viewQuery.trim().toLowerCase()))
                             .map((b) => (
                               <button
                                 key={`branch:${b}`}
@@ -262,9 +230,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                               </button>
                             ))}
 
-                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary border-t border-app-border">
-                            Commits
-                          </div>
+                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary border-t border-app-border">Commits</div>
 
                           {normalizedCommits
                             .filter((c) => {
@@ -296,9 +262,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                                   }}
                                 >
                                   <span className="truncate">{label}</span>
-                                  <span className="text-[10px] text-text-tertiary">
-                                    {short}
-                                  </span>
+                                  <span className="text-[10px] text-text-tertiary">{short}</span>
                                 </button>
                               );
                             })}
@@ -311,19 +275,14 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
             )}
           </div>
 
-          <div className="flex-shrink-0 ml-4">
+          <div className="shrink-0 ml-4">
             <Breadcrumbs items={breadcrumbs} />
           </div>
         </div>
       </div>
 
       <Suspense fallback={<RepoFileTreeLoading />}>
-        <RepoFileTree
-          key={`${repoName}:${viewRef.trim() || "default"}`}
-          selectedRepo={repoName}
-          fileTree={fileTree}
-          currentBranch={effectiveRef}
-        />
+        <RepoFileTree key={`${repoName}:${viewRef.trim() || "default"}`} selectedRepo={repoName} fileTree={fileTree} branchOrCommit={viewRef} />
       </Suspense>
     </div>
   );
