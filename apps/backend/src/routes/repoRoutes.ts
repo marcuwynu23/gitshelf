@@ -1,9 +1,9 @@
-import {Router} from "express";
-import {RepoController} from "../controllers/RepoController";
-import {FileController} from "../controllers/FileController";
-import {BranchController} from "../controllers/BranchController";
-import {CommitController} from "../controllers/CommitController";
-import {authMiddleware} from "../middleware/auth";
+import { Router } from "express";
+import { BranchController } from "../controllers/BranchController";
+import { CommitController } from "../controllers/CommitController";
+import { FileController } from "../controllers/FileController";
+import { RepoController } from "../controllers/RepoController";
+import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
 const repoController = new RepoController();
@@ -26,21 +26,13 @@ router.delete("/:name", (req, res) => repoController.deleteRepo(req, res));
 router.patch("/:name/archive", (req, res) => repoController.archiveRepo(req, res));
 
 // File routes
-router.get("/:name/files", (req, res) =>
-  fileController.getFileContent(req, res)
-);
+router.get("/:name/files", (req, res) => fileController.getFileContent(req, res));
 
 // Branch routes
-router.get("/:name/branches", (req, res) =>
-  branchController.getBranches(req, res)
-);
-router.get("/:name/current-branch", (req, res) =>
-  branchController.getCurrentBranch(req, res)
-);
+router.get("/:name/branches", (req, res) => branchController.getBranches(req, res));
+router.get("/:name/current-branch", (req, res) => branchController.getCurrentBranch(req, res));
 
 // Commit routes
-router.get("/:name/commits", (req, res) =>
-  commitController.getCommits(req, res)
-);
+router.get("/:name/commits", (req, res) => commitController.getCommits(req, res));
 
 export default router;
