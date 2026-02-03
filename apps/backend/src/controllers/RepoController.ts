@@ -3,12 +3,10 @@ import {AuthRequest} from "../middleware/auth";
 import {RepoService} from "../services/RepoService";
 import {GitService} from "../services/GitService";
 import {getServerURL} from "../utils/serverUrl";
+import {isSingleParam} from "./helpers";
 
 const repoService = new RepoService();
 const gitService = new GitService();
-function isSingleParam(param: string | string[] | undefined): param is string {
-  return typeof param === "string";
-}
 
 export class RepoController {
   async listRepos(req: AuthRequest, res: Response): Promise<void> {

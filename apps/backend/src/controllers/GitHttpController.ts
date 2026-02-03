@@ -6,34 +6,42 @@ const gitHttpService = new GitHttpService();
 const authService = new AuthService();
 
 // Helper to extract username and repo from request
-const extractUsernameAndRepo = async (
-  req: Request
+
+const isSingle = (v: unknown): v is string =>
+  typeof v === "string" && v.length > 0;
+
+export const extractUsernameAndRepo = async (
+  req: Request,
 ): Promise<{username: string; repo: string} | null> => {
-  // Handle /repository/:username/:repo format - both username and repo are in path params
-  if (req.path.startsWith('/repository/') && req.params.username && req.params.repo) {
+  // /repository/:username/:repo
+  if (
+    req.path.startsWith("/repository/") &&
+    isSingle(req.params.username) &&
+    isSingle(req.params.repo)
+  ) {
     return {
       username: req.params.username,
       repo: req.params.repo,
     };
   }
 
-  // First, try to get username from path parameter (for username-based routes like /:username/:repo)
-  if (req.params.username && req.params.repo) {
+  // /:username/:repo
+  if (isSingle(req.params.username) && isSingle(req.params.repo)) {
     return {
       username: req.params.username,
       repo: req.params.repo,
     };
   }
 
-  // If no username in path, try to get from JWT token (for routes like /:repo)
+  // /:repo (username from JWT)
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith("Bearer ")) {
+  if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.substring(7);
     const decoded = authService.verifyToken(token);
-    if (decoded) {
-      // Get user to retrieve username
+
+    if (decoded && isSingle(req.params.repo)) {
       const user = await authService.getUserById(decoded.userId);
-      if (user && req.params.repo) {
+      if (user) {
         return {
           username: user.username,
           repo: req.params.repo,
@@ -42,31 +50,28 @@ const extractUsernameAndRepo = async (
     }
   }
 
-  // Fallback: Parse from URL path
-  // Git requests come as: /username/repo.git/info/refs or /username/repo.git/git-upload-pack
+  // Git-style URLs:
+  // /username/repo.git/info/refs
+  // /username/repo.git/git-upload-pack
   const pathParts = req.path.split("/").filter(Boolean);
 
-  // Check if we have at least username and repo in the path
   if (pathParts.length >= 2) {
-    const firstPart = pathParts[0];
-    const secondPart = pathParts[1];
+    const [username, repo] = pathParts;
 
-    // Check if first part looks like a username (not a Git endpoint)
     if (
-      firstPart !== "api" &&
-      firstPart !== "repository" &&
-      firstPart !== "info" &&
-      firstPart !== "git-upload-pack" &&
-      firstPart !== "git-receive-pack" &&
-      secondPart &&
-      !secondPart.startsWith("info") &&
-      !secondPart.startsWith("git-")
+      isSingle(username) &&
+      isSingle(repo) &&
+      ![
+        "api",
+        "repository",
+        "info",
+        "git-upload-pack",
+        "git-receive-pack",
+      ].includes(username) &&
+      !repo.startsWith("info") &&
+      !repo.startsWith("git-")
     ) {
-      // Format: /username/repo.git/info/refs or /username/repo.git/git-upload-pack
-      return {
-        username: firstPart,
-        repo: secondPart,
-      };
+      return {username, repo};
     }
   }
 
@@ -76,11 +81,16 @@ const extractUsernameAndRepo = async (
 export class GitHttpController {
   async getInfoRefs(req: Request, res: Response): Promise<void> {
     try {
-      console.log(`[GitHttp] getInfoRefs - path: ${req.path}, params:`, req.params);
-      
+      console.log(
+        `[GitHttp] getInfoRefs - path: ${req.path}, params:`,
+        req.params,
+      );
+
       const userAndRepo = await extractUsernameAndRepo(req);
       if (!userAndRepo) {
-        console.log(`[GitHttp] Failed to extract username and repo from path: ${req.path}`);
+        console.log(
+          `[GitHttp] Failed to extract username and repo from path: ${req.path}`,
+        );
         res.status(404).send("Repository not found");
         return;
       }
@@ -89,14 +99,14 @@ export class GitHttpController {
       const service = req.query.service as string;
 
       console.log(
-        `[GitHttp] getInfoRefs: username=${username}, repo=${repoName}, service=${service}`
+        `[GitHttp] getInfoRefs: username=${username}, repo=${repoName}, service=${service}`,
       );
 
       if (service === "git-upload-pack" || service === "git-receive-pack") {
         const stdout = await gitHttpService.getInfoRefs(
           username,
           repoName,
-          service
+          service,
         );
 
         res.setHeader("Content-Type", `application/x-${service}-advertisement`);
@@ -139,13 +149,13 @@ export class GitHttpController {
       console.log(
         `[GitHttp] handleUploadPack: username=${username}, repo=${repoName}, bodySize=${
           rawBody?.length || 0
-        }`
+        }`,
       );
 
       const childProcess = await gitHttpService.handleUploadPack(
         username,
         repoName,
-        rawBody
+        rawBody,
       );
 
       res.setHeader("Content-Type", "application/x-git-upload-pack-result");
@@ -209,7 +219,7 @@ export class GitHttpController {
       const childProcess = await gitHttpService.handleReceivePack(
         username,
         repoName,
-        rawBody
+        rawBody,
       );
 
       res.setHeader("Content-Type", "application/x-git-receive-pack-result");

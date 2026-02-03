@@ -2,6 +2,7 @@ import {Response} from "express";
 import {AuthRequest} from "../middleware/auth";
 import {GitService} from "../services/GitService";
 import {RepoService} from "../services/RepoService";
+import {isSingleParam} from "./helpers";
 
 const gitService = new GitService();
 const repoService = new RepoService();
@@ -21,6 +22,10 @@ export class FileController {
         res.status(400).json({error: "filePath required"});
         return;
       }
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
 
       if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
@@ -30,7 +35,7 @@ export class FileController {
       const content = await gitService.getFileContent(
         req.username,
         repoName,
-        filePath
+        filePath,
       );
       res.json({path: filePath, content});
     } catch (err: any) {
