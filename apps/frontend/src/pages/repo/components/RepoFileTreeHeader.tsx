@@ -1,8 +1,8 @@
-import { CodeBracketIcon, Cog6ToothIcon, DocumentTextIcon } from "@heroicons/react/24/outline";
-import type { FC } from "react";
+import {CodeBracketIcon, DocumentTextIcon} from "@heroicons/react/24/outline";
+import type {FC} from "react";
 
 type Props = {
-  panelView: "files" | "readme" | "cicd";
+  panelView: "files" | "readme";
   setPanelView: (v: "files" | "readme" | "cicd") => void;
   docTab: "readme" | "license";
   setDocTab: (t: "readme" | "license") => void;
@@ -32,7 +32,9 @@ export const RepoFileTreeHeader: FC<Props> = ({
             onClick={() => setPanelView("files")}
             aria-pressed={panelView === "files"}
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-              panelView === "files" ? "bg-white/5 text-text-primary" : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
+              panelView === "files"
+                ? "bg-white/5 text-text-primary"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
             }`}
           >
             <CodeBracketIcon className="w-4 h-4" />
@@ -43,25 +45,19 @@ export const RepoFileTreeHeader: FC<Props> = ({
             onClick={() => setPanelView("readme")}
             aria-pressed={panelView === "readme"}
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-              panelView === "readme" ? "bg-white/5 text-text-primary" : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
+              panelView === "readme"
+                ? "bg-white/5 text-text-primary"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
             <span>Documentation</span>
           </button>
-          <button
-            onClick={() => setPanelView("cicd")}
-            aria-pressed={panelView === "cicd"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-              panelView === "cicd" ? "bg-white/5 text-text-primary" : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
-            }`}
-          >
-            <Cog6ToothIcon className="w-4 h-4" />
-            <span>CI/CD Workflows</span>
-          </button>
         </div>
 
-        <div className="flex items-center gap-2">{/* subtle helper area (could hold repo actions) */}</div>
+        <div className="flex items-center gap-2">
+          {/* subtle helper area (could hold repo actions) */}
+        </div>
       </div>
 
       {panelView === "readme" && (readmeFile || licenseFile) && (
@@ -70,7 +66,11 @@ export const RepoFileTreeHeader: FC<Props> = ({
             <button
               onClick={async () => {
                 setDocTab("readme");
-                if (readmeFile && !fileContent[readmeFile] && !globalFetchedFiles[readmeFile]) {
+                if (
+                  readmeFile &&
+                  !fileContent[readmeFile] &&
+                  !globalFetchedFiles[readmeFile]
+                ) {
                   try {
                     await fetchFileContent(readmeFile);
                   } catch {
@@ -79,7 +79,9 @@ export const RepoFileTreeHeader: FC<Props> = ({
                 }
               }}
               className={`text-sm font-medium transition-colors ${
-                docTab === "readme" ? "border-b-2 border-app-accent text-text-primary pb-1" : "text-text-tertiary hover:text-text-primary"
+                docTab === "readme"
+                  ? "border-b-2 border-app-accent text-text-primary pb-1"
+                  : "text-text-tertiary hover:text-text-primary"
               }`}
             >
               README
@@ -90,7 +92,11 @@ export const RepoFileTreeHeader: FC<Props> = ({
             <button
               onClick={async () => {
                 setDocTab("license");
-                if (licenseFile && !fileContent[licenseFile] && !globalFetchedFiles[licenseFile]) {
+                if (
+                  licenseFile &&
+                  !fileContent[licenseFile] &&
+                  !globalFetchedFiles[licenseFile]
+                ) {
                   try {
                     await fetchFileContent(licenseFile);
                   } catch {
@@ -99,7 +105,9 @@ export const RepoFileTreeHeader: FC<Props> = ({
                 }
               }}
               className={`text-sm font-medium transition-colors ${
-                docTab === "license" ? "border-b-2 border-app-accent text-text-primary pb-1" : "text-text-tertiary hover:text-text-primary"
+                docTab === "license"
+                  ? "border-b-2 border-app-accent text-text-primary pb-1"
+                  : "text-text-tertiary hover:text-text-primary"
               }`}
             >
               LICENSE
@@ -107,8 +115,6 @@ export const RepoFileTreeHeader: FC<Props> = ({
           )}
         </div>
       )}
-
-      {panelView == "cicd" && <></>}
     </div>
   );
 };

@@ -1,7 +1,7 @@
+// RepoDetail.tsx
 import {Suspense, lazy, useEffect, useMemo, useState} from "react";
 import {Breadcrumbs} from "~/components/ui";
 import {Badge} from "~/components/ui/Badge";
-import {useBranchStore} from "~/stores/branchStore";
 import {useRepoStore} from "~/stores/repoStore";
 import {useCommitStore} from "~/stores/commitStore";
 
@@ -26,15 +26,25 @@ interface RepoDetailProps {
   repoName: string;
   repoTitle?: string;
   isArchived?: boolean;
+
+  branches: string[];
+  currentBranch: string | null;
+  setCurrentBranch: (branch: string) => void; // ⬅️ string onl
 }
+
+const isFullSha = (s: string) => /^[0-9a-f]{40}$/i.test(s);
 
 export const RepoDetail: React.FC<RepoDetailProps> = ({
   repoName,
   repoTitle,
   isArchived = false,
+  branches,
+  currentBranch,
+  setCurrentBranch,
 }) => {
+  const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
+  const [viewQuery, setViewQuery] = useState("");
   const {fileTree, selectedFile, setSelectedFile, viewRepo} = useRepoStore();
-  const {branches, currentBranch, fetchBranches} = useBranchStore();
   const {commits, fetchCommits} = useCommitStore();
 
   const [viewRef, setViewRef] = useState<string>(""); // branch or commit hash; empty => default
@@ -42,9 +52,8 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   const displayName = (name: string) => name.replace(/\.git$/, "");
 
   useEffect(() => {
-    fetchBranches(repoName);
     fetchCommits(repoName);
-  }, [repoName, fetchBranches, fetchCommits]);
+  }, [repoName, fetchCommits]);
 
   useEffect(() => {
     const ref = viewRef.trim();
@@ -77,7 +86,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
   const normalizedCommits = useMemo(() => {
     const uniq = new Set<string>();
-    const list = (commits ?? [])
+    return (commits ?? [])
       .filter((c) => c && typeof c.hash === "string" && c.hash.trim().length)
       .filter((c) => {
         const h = c.hash.trim();
@@ -85,36 +94,23 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
         uniq.add(h);
         return true;
       })
-      .slice(0, 50); // keep the dropdown usable
-
-    return list;
+      .slice(0, 50);
   }, [commits]);
 
   const breadcrumbs = useMemo(() => {
     const crumbs: Array<{label: string; href?: string; onClick?: () => void}> =
       [];
-
     crumbs.push({label: "Repositories", href: "/"});
-
     crumbs.push({
       label: displayName(repoName),
-      onClick: selectedFile
-        ? () => {
-            setSelectedFile(null);
-          }
-        : undefined,
+      onClick: selectedFile ? () => setSelectedFile(null) : undefined,
     });
 
     if (selectedFile) {
       const pathParts = selectedFile.split("/").filter(Boolean);
       pathParts.forEach((part, index) => {
         if (index < pathParts.length - 1) {
-          crumbs.push({
-            label: part,
-            onClick: () => {
-              setSelectedFile(null);
-            },
-          });
+          crumbs.push({label: part, onClick: () => setSelectedFile(null)});
         } else {
           crumbs.push({label: part});
         }
@@ -124,15 +120,21 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     return crumbs;
   }, [repoName, selectedFile, setSelectedFile]);
 
-  const shortRef = (ref: string) => {
-    if (!ref) return ref;
-    // shorten commit SHAs, leave branch names untouched
-    return /^[0-9a-f]{40}$/i.test(ref) ? ref.slice(0, 7) : ref;
-  };
-
   const effectiveRef = viewRef.trim().length
     ? viewRef.trim()
     : (currentBranch ?? "HEAD");
+
+  const onChangeView = (next: string) => {
+    const ref = next.trim();
+    setSelectedFile(null);
+    setViewRef(ref);
+
+    // If selected value is a branch name, update store currentBranch
+    // If commit SHA (or empty/default), don't change currentBranch
+    if (ref && normalizedBranches.includes(ref) && !isFullSha(ref)) {
+      setCurrentBranch(ref);
+    }
+  };
 
   return (
     <div className="h-full w-full flex flex-col px-4 sm:px-6 lg:px-8">
@@ -154,56 +156,156 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
             {!selectedFile && (
               <div className="mt-2 flex items-center gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <label
-                    className="text-xs text-text-tertiary"
-                    htmlFor="refSelect"
-                  >
-                    View
-                  </label>
-                  <select
-                    id="refSelect"
-                    className="text-xs bg-app-bg border border-app-border rounded px-2 py-1 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent"
-                    value={viewRef}
-                    onChange={(e) => {
-                      setSelectedFile(null);
-                      setViewRef(e.target.value);
-                    }}
-                  >
-                    <option value="">
-                      Default ({currentBranch ?? "auto"})
-                    </option>
+                <div className="relative">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="w-[360px] max-w-full text-left text-xs bg-app-bg border border-app-border rounded px-3 py-2 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent flex items-center justify-between gap-2"
+                      onClick={() => setIsViewMenuOpen((v) => !v)}
+                    >
+                      <span className="truncate">
+                        {(() => {
+                          const v = viewRef.trim();
+                          if (!v) return `Default (${currentBranch ?? "auto"})`;
 
-                    <optgroup label="Branches">
-                      {normalizedBranches
-                        .filter((b) => b !== (currentBranch ?? "").trim())
-                        .map((b) => (
-                          <option key={`branch:${b}`} value={b}>
-                            {b}
-                          </option>
-                        ))}
-                    </optgroup>
+                          const isSha = /^[0-9a-f]{40}$/i.test(v);
+                          if (isSha) {
+                            const commit = normalizedCommits.find(
+                              (c) => c.hash.trim() === v,
+                            );
+                            if (commit) {
+                              const short = v.slice(0, 7);
+                              const msg = (commit.message ?? "").trim();
+                              return msg ? `${short} — ${msg}` : short;
+                            }
+                            return v.slice(0, 7);
+                          }
 
-                    <optgroup label="Commits">
-                      {normalizedCommits.map((c) => {
-                        const short = c.hash.trim().slice(0, 7);
-                        const msg = (c.message ?? "").trim();
-                        const date = (c.date ?? "").trim();
-                        const label = [short, msg ? `— ${msg}` : ""]
-                          .filter(Boolean)
-                          .join(" ");
+                          return v;
+                        })()}
+                      </span>
 
-                        return (
-                          <option
-                            key={`commit:${c.hash}`}
-                            value={c.hash.trim()}
+                      <svg
+                        className={`h-4 w-4 shrink-0 transition-transform ${isViewMenuOpen ? "rotate-180" : ""}`}
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+
+                    {isViewMenuOpen && (
+                      <div
+                        className="absolute z-50 mt-2 w-[360px] max-w-full bg-app-surface border border-app-border rounded-lg shadow-lg overflow-hidden"
+                        role="menu"
+                      >
+                        <div className="p-2 border-b border-app-border">
+                          <input
+                            value={viewQuery}
+                            onChange={(e) => setViewQuery(e.target.value)}
+                            placeholder="Search branch or commit..."
+                            className="w-full text-xs bg-app-bg border border-app-border rounded px-2 py-2 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent"
+                          />
+                        </div>
+
+                        <div className="max-h-[320px] overflow-auto">
+                          <button
+                            type="button"
+                            className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
+                            onClick={() => {
+                              setSelectedFile(null);
+                              setViewRef("");
+                              setIsViewMenuOpen(false);
+                            }}
                           >
-                            {label}
-                          </option>
-                        );
-                      })}
-                    </optgroup>
-                  </select>
+                            <span className="truncate">
+                              Default ({currentBranch ?? "auto"})
+                            </span>
+                            {viewRef.trim() === "" && (
+                              <span className="text-[10px] text-text-tertiary">
+                                active
+                              </span>
+                            )}
+                          </button>
+
+                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary">
+                            Branches
+                          </div>
+
+                          {normalizedBranches
+                            .filter((b) => b !== (currentBranch ?? "").trim())
+                            .filter(
+                              (b) =>
+                                !viewQuery.trim() ||
+                                b
+                                  .toLowerCase()
+                                  .includes(viewQuery.trim().toLowerCase()),
+                            )
+                            .map((b) => (
+                              <button
+                                key={`branch:${b}`}
+                                type="button"
+                                className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
+                                onClick={() => {
+                                  setSelectedFile(null);
+                                  setViewRef(b);
+                                  onChangeView(b);
+                                  setIsViewMenuOpen(false);
+                                }}
+                              >
+                                <span className="truncate">{b}</span>
+                              </button>
+                            ))}
+
+                          <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary border-t border-app-border">
+                            Commits
+                          </div>
+
+                          {normalizedCommits
+                            .filter((c) => {
+                              const q = viewQuery.trim().toLowerCase();
+                              if (!q) return true;
+                              return (
+                                c.hash.toLowerCase().includes(q) ||
+                                (c.message ?? "").toLowerCase().includes(q) ||
+                                (c.author ?? "").toLowerCase().includes(q)
+                              );
+                            })
+                            .slice(0, 50)
+                            .map((c) => {
+                              const full = c.hash.trim();
+                              const short = full.slice(0, 7);
+                              const msg = (c.message ?? "").trim();
+                              const label = msg ? `${short} — ${msg}` : short;
+
+                              return (
+                                <button
+                                  key={`commit:${full}`}
+                                  type="button"
+                                  className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
+                                  onClick={() => {
+                                    setSelectedFile(null);
+                                    setViewRef(full);
+                                    onChangeView(full);
+                                    setIsViewMenuOpen(false);
+                                  }}
+                                >
+                                  <span className="truncate">{label}</span>
+                                  <span className="text-[10px] text-text-tertiary">
+                                    {short}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

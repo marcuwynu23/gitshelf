@@ -4,6 +4,7 @@ import axios from "axios";
 interface BranchStore {
   branches: string[];
   currentBranch: string | null;
+  setCurrentBranch: (branch: string) => void;
   fetchBranches: (repo: string) => Promise<void>;
 }
 
@@ -11,10 +12,12 @@ export const useBranchStore = create<BranchStore>((set) => ({
   branches: [],
   currentBranch: null,
 
+  setCurrentBranch: (branch: string) => set({currentBranch: branch}),
+
   fetchBranches: async (repo) => {
     try {
       // API expects repo name with .git
-      const repoWithGit = repo.includes('.git') ? repo : `${repo}.git`;
+      const repoWithGit = repo.includes(".git") ? repo : `${repo}.git`;
       const res = await axios.get(`/api/repos/${repoWithGit}/branches`);
       set({
         branches: res.data.branches || [],

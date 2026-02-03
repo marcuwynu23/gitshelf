@@ -19,7 +19,10 @@ export const RepoListPage = () => {
   const handleCreateRepo = () => {
     if (newRepoName.trim()) {
       setRepoName(newRepoName.trim());
-      createRepo(newRepoTitle.trim() || undefined, newRepoDescription.trim() || undefined);
+      createRepo(
+        newRepoTitle.trim() || undefined,
+        newRepoDescription.trim() || undefined,
+      );
       setNewRepoName("");
       setNewRepoTitle("");
       setNewRepoDescription("");
@@ -63,37 +66,39 @@ export const RepoListPage = () => {
 
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
-          <div className="space-y-6">
-              {/* Welcome Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* LEFT: Repo List */}
+            <div className="lg:col-span-2">
               <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-              <h2 className="text-xl font-semibold text-[#e8e8e8] mb-4">
-                Welcome to RepoHub
-              </h2>
-              <p className="text-[#b0b0b0] mb-4">
-                RepoHub is a lightweight, self-hosted Git repository hub that
-                allows you to manage and explore repositories easily.
-              </p>
-              <div className="space-y-2">
-                <h3 className="text-sm font-semibold text-[#e8e8e8] mb-2">
-                  Features:
-                </h3>
-                <ul className="list-disc list-inside space-y-1 text-[#b0b0b0] text-sm">
-                  <li>Browse and manage Git repositories</li>
-                  <li>View commit history and branch information</li>
-                  <li>Explore file trees and view file contents</li>
-                  <li>Full privacy and control over your code</li>
-                </ul>
+                <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                  All Repositories
+                </h2>
+                <RepoList repos={repos} selectedRepo={null} />
               </div>
             </div>
-            {/* Repo List Card */}
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
-                All Repositories
-              </h2>
-              <RepoList repos={repos} selectedRepo={null} />
+            {/* RIGHT: Welcome Section */}
+            <div className="lg:col-span-1">
+              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6 h-full">
+                <h2 className="text-xl font-semibold text-[#e8e8e8] mb-4">
+                  Welcome to RepoHub
+                </h2>
+                <p className="text-[#b0b0b0] mb-4">
+                  RepoHub is a lightweight, self-hosted Git repository hub that
+                  allows you to manage and explore repositories easily.
+                </p>
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-[#e8e8e8] mb-2">
+                    Features:
+                  </h3>
+                  <ul className="list-disc list-inside space-y-1 text-[#b0b0b0] text-sm">
+                    <li>Browse and manage Git repositories</li>
+                    <li>View commit history and branch information</li>
+                    <li>Explore file trees and view file contents</li>
+                    <li>Full privacy and control over your code</li>
+                  </ul>
+                </div>
+              </div>
             </div>
-
-          
           </div>
         </div>
       </div>
