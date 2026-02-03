@@ -6,6 +6,9 @@ import {getServerURL} from "../utils/serverUrl";
 
 const repoService = new RepoService();
 const gitService = new GitService();
+function isSingleParam(param: string | string[] | undefined): param is string {
+  return typeof param === "string";
+}
 
 export class RepoController {
   async listRepos(req: AuthRequest, res: Response): Promise<void> {
@@ -17,7 +20,7 @@ export class RepoController {
 
       const httpBaseURL = getServerURL(req);
       const repos = await repoService.listRepos(req.username, httpBaseURL);
-    console.log('Repos:', repos);
+      console.log("Repos:", repos);
       res.json(repos);
     } catch (err) {
       console.error("GET /api/repos error:", err);
@@ -32,8 +35,17 @@ export class RepoController {
         return;
       }
 
-      const {name, title, description} = req.body as {name: string; title?: string; description?: string};
-      const repoName = await repoService.createRepo(req.username, name, title, description);
+      const {name, title, description} = req.body as {
+        name: string;
+        title?: string;
+        description?: string;
+      };
+      const repoName = await repoService.createRepo(
+        req.username,
+        name,
+        title,
+        description,
+      );
       res.json({message: "Repo created", name: repoName});
     } catch (err: any) {
       console.error("POST /api/repos error:", err);
@@ -56,7 +68,16 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
-      const metadata = await repoService.getRepoMetadata(req.username, repoName);
+
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
+
+      const metadata = await repoService.getRepoMetadata(
+        req.username,
+        repoName,
+      );
 
       if (!metadata) {
         res.status(404).json({error: "Repo metadata not found"});
@@ -78,15 +99,26 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
-      const { title, description } = req.body as { title?: string | null; description?: string | null };
 
-      const updatedMetadata = await repoService.updateRepoMetadata(req.username, repoName, title, description);
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
+      const {title, description} = req.body as {
+        title?: string | null;
+        description?: string | null;
+      };
+
+      const updatedMetadata = await repoService.updateRepoMetadata(
+        req.username,
+        repoName,
+        title,
+        description,
+      );
       res.json(updatedMetadata);
     } catch (err: any) {
       console.error("PUT /api/repos/:name/metadata error:", err);
-      if (
-        err.message === "Repo not found"
-      ) {
+      if (err.message === "Repo not found") {
         res.status(404).json({error: err.message});
       } else {
         res.status(500).json({error: "Internal server error"});
@@ -102,13 +134,32 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
 
       if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
         return;
       }
 
-      const fileTree = await gitService.getFileTree(req.username, repoName);
+      const refParam = req.query.branchOrCommit;
+      let branchOrCommit: string | undefined;
+
+      if (typeof refParam === "string") {
+        branchOrCommit = refParam.trim() || undefined;
+      } else if (Array.isArray(refParam)) {
+        res.status(400).json({error: "Invalid branchOrCommit"});
+        return;
+      }
+
+      const fileTree = await gitService.getFileTree(
+        req.username,
+        repoName,
+        branchOrCommit,
+      );
+
       res.json(fileTree);
     } catch (err) {
       console.error("GET /api/repos/:name error:", err);
@@ -124,13 +175,15 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
       await repoService.deleteRepo(req.username, repoName);
       res.json({message: "Repo deleted successfully"});
     } catch (err: any) {
       console.error("DELETE /api/repos/:name error:", err);
-      if (
-        err.message === "Repo not found"
-      ) {
+      if (err.message === "Repo not found") {
         res.status(404).json({error: err.message});
       } else {
         res.status(500).json({error: "Internal server error"});
@@ -146,13 +199,15 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
       await repoService.archiveRepo(req.username, repoName);
       res.json({message: "Repo archived successfully"});
     } catch (err: any) {
       console.error("PATCH /api/repos/:name/archive error:", err);
-      if (
-        err.message === "Repo not found"
-      ) {
+      if (err.message === "Repo not found") {
         res.status(404).json({error: err.message});
       } else {
         res.status(500).json({error: "Internal server error"});
@@ -168,13 +223,15 @@ export class RepoController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
       await repoService.unarchiveRepo(req.username, repoName);
       res.json({message: "Repo unarchived successfully"});
     } catch (err: any) {
       console.error("PATCH /api/repos/:name/unarchive error:", err);
-      if (
-        err.message === "Repo not found"
-      ) {
+      if (err.message === "Repo not found") {
         res.status(404).json({error: err.message});
       } else {
         res.status(500).json({error: "Internal server error"});
@@ -184,16 +241,26 @@ export class RepoController {
 
   async renameRepo(req: AuthRequest, res: Response): Promise<void> {
     try {
-      console.log('Rename request received:', req.params.name, req.body);
+      console.log("Rename request received:", req.params.name, req.body);
       if (!req.username) {
         res.status(401).json({error: "Unauthorized"});
         return;
       }
 
       const oldRepoName = req.params.name;
-      const { newName } = req.body as { newName: string };
+      if (!isSingleParam(oldRepoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
+      const {newName} = req.body as {newName: string};
 
-      console.log('Processing rename:', req.username, oldRepoName, '->', newName);
+      console.log(
+        "Processing rename:",
+        req.username,
+        oldRepoName,
+        "->",
+        newName,
+      );
 
       if (!newName || !newName.trim()) {
         res.status(400).json({error: "New repository name is required"});
@@ -201,8 +268,13 @@ export class RepoController {
       }
 
       const httpBaseURL = getServerURL(req);
-      const renamedRepo = await repoService.renameRepo(req.username, oldRepoName, newName.trim(), httpBaseURL);
-      console.log('Rename completed successfully:', renamedRepo);
+      const renamedRepo = await repoService.renameRepo(
+        req.username,
+        oldRepoName,
+        newName.trim(),
+        httpBaseURL,
+      );
+      console.log("Rename completed successfully:", renamedRepo);
       res.json(renamedRepo);
     } catch (err: any) {
       console.error("PATCH /api/repos/:name/rename error:", err);
