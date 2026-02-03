@@ -3,6 +3,7 @@ import {Breadcrumbs} from "~/components/ui";
 import {Badge} from "~/components/ui/Badge";
 import {useBranchStore} from "~/stores/branchStore";
 import {useRepoStore} from "~/stores/repoStore";
+import {useCommitStore} from "~/stores/commitStore";
 
 const RepoFileTree = lazy(() =>
   import("./components/RepoFileTree").then((module) => ({
@@ -34,19 +35,21 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 }) => {
   const {fileTree, selectedFile, setSelectedFile, viewRepo} = useRepoStore();
   const {branches, currentBranch, fetchBranches} = useBranchStore();
+  const {commits, fetchCommits} = useCommitStore();
 
-  const [viewBranchOrCommit, setViewBranchOrCommit] = useState<string>("");
+  const [viewRef, setViewRef] = useState<string>(""); // branch or commit hash; empty => default
 
   const displayName = (name: string) => name.replace(/\.git$/, "");
 
   useEffect(() => {
     fetchBranches(repoName);
-  }, [repoName, fetchBranches]);
+    fetchCommits(repoName);
+  }, [repoName, fetchBranches, fetchCommits]);
 
   useEffect(() => {
-    const ref = viewBranchOrCommit.trim();
+    const ref = viewRef.trim();
     viewRepo(repoName, ref.length ? ref : undefined);
-  }, [repoName, viewRepo, viewBranchOrCommit]);
+  }, [repoName, viewRepo, viewRef]);
 
   const normalizedBranches = useMemo(() => {
     const uniq = new Set<string>();
@@ -60,11 +63,9 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
       list.push(s);
     };
 
-    // Ensure currentBranch appears only once in the dropdown list
     add(currentBranch);
     (branches ?? []).forEach(add);
 
-    // Sort but keep currentBranch first if present
     const curr = (currentBranch ?? "").trim();
     if (!curr) return list.sort((a, b) => a.localeCompare(b));
 
@@ -73,6 +74,21 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
       .sort((a, b) => a.localeCompare(b));
     return [curr, ...rest];
   }, [branches, currentBranch]);
+
+  const normalizedCommits = useMemo(() => {
+    const uniq = new Set<string>();
+    const list = (commits ?? [])
+      .filter((c) => c && typeof c.hash === "string" && c.hash.trim().length)
+      .filter((c) => {
+        const h = c.hash.trim();
+        if (uniq.has(h)) return false;
+        uniq.add(h);
+        return true;
+      })
+      .slice(0, 50); // keep the dropdown usable
+
+    return list;
+  }, [commits]);
 
   const breadcrumbs = useMemo(() => {
     const crumbs: Array<{label: string; href?: string; onClick?: () => void}> =
@@ -108,8 +124,14 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     return crumbs;
   }, [repoName, selectedFile, setSelectedFile]);
 
-  const effectiveRef = viewBranchOrCommit.trim().length
-    ? viewBranchOrCommit.trim()
+  const shortRef = (ref: string) => {
+    if (!ref) return ref;
+    // shorten commit SHAs, leave branch names untouched
+    return /^[0-9a-f]{40}$/i.test(ref) ? ref.slice(0, 7) : ref;
+  };
+
+  const effectiveRef = viewRef.trim().length
+    ? viewRef.trim()
     : (currentBranch ?? "HEAD");
 
   return (
@@ -132,41 +154,55 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
             {!selectedFile && (
               <div className="mt-2 flex items-center gap-3 flex-wrap">
-                {effectiveRef && (
-                  <p className="text-xs text-text-tertiary">
-                    Viewing:{" "}
-                    <span className="text-app-accent font-medium">
-                      {effectiveRef}
-                    </span>
-                  </p>
-                )}
-
                 <div className="flex items-center gap-2">
                   <label
                     className="text-xs text-text-tertiary"
-                    htmlFor="branchSelect"
+                    htmlFor="refSelect"
                   >
-                    Branch:
+                    View
                   </label>
                   <select
-                    id="branchSelect"
+                    id="refSelect"
                     className="text-xs bg-app-bg border border-app-border rounded px-2 py-1 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent"
-                    value={viewBranchOrCommit}
+                    value={viewRef}
                     onChange={(e) => {
                       setSelectedFile(null);
-                      setViewBranchOrCommit(e.target.value);
+                      setViewRef(e.target.value);
                     }}
                   >
                     <option value="">
                       Default ({currentBranch ?? "auto"})
                     </option>
-                    {normalizedBranches
-                      .filter((b) => b !== (currentBranch ?? "").trim())
-                      .map((b) => (
-                        <option key={b} value={b}>
-                          {b}
-                        </option>
-                      ))}
+
+                    <optgroup label="Branches">
+                      {normalizedBranches
+                        .filter((b) => b !== (currentBranch ?? "").trim())
+                        .map((b) => (
+                          <option key={`branch:${b}`} value={b}>
+                            {b}
+                          </option>
+                        ))}
+                    </optgroup>
+
+                    <optgroup label="Commits">
+                      {normalizedCommits.map((c) => {
+                        const short = c.hash.trim().slice(0, 7);
+                        const msg = (c.message ?? "").trim();
+                        const date = (c.date ?? "").trim();
+                        const label = [short, msg ? `— ${msg}` : ""]
+                          .filter(Boolean)
+                          .join(" ");
+
+                        return (
+                          <option
+                            key={`commit:${c.hash}`}
+                            value={c.hash.trim()}
+                          >
+                            {label}
+                          </option>
+                        );
+                      })}
+                    </optgroup>
                   </select>
                 </div>
               </div>
@@ -181,7 +217,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
       <Suspense fallback={<RepoFileTreeLoading />}>
         <RepoFileTree
-          key={`${repoName}:${viewBranchOrCommit.trim() || "default"}`}
+          key={`${repoName}:${viewRef.trim() || "default"}`}
           selectedRepo={repoName}
           fileTree={fileTree}
           currentBranch={effectiveRef}
