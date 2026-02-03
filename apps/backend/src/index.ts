@@ -74,13 +74,13 @@ async function startServer() {
   try {
     // Initialize database
     await initializeDatabase();
-    
+
     // Migrate existing data from JSON files to database
     await migrateFromFileToDatabase();
-    
+
     // Start HTTP server
     app.listen(PORT, "0.0.0.0", () =>
-      console.log(`Git API running on port ${PORT}...`)
+      console.log(`Git API running on port ${PORT}...`),
     );
 
     // Start SSH server (if enabled)
