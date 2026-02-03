@@ -6,6 +6,10 @@ import {RepoService} from "../services/RepoService";
 const gitService = new GitService();
 const repoService = new RepoService();
 
+function isSingleParam(param: string | string[] | undefined): param is string {
+  return typeof param === "string";
+}
+
 export class BranchController {
   async getBranches(req: AuthRequest, res: Response): Promise<void> {
     try {
@@ -15,6 +19,10 @@ export class BranchController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
 
       if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
@@ -37,6 +45,10 @@ export class BranchController {
       }
 
       const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
 
       if (!repoService.repoExists(req.username, repoName)) {
         res.status(404).json({error: "Repo not found"});
@@ -45,7 +57,7 @@ export class BranchController {
 
       const currentBranch = await gitService.getCurrentBranch(
         req.username,
-        repoName
+        repoName,
       );
       res.json({current: currentBranch});
     } catch (err) {

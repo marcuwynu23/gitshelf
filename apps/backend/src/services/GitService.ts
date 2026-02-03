@@ -180,13 +180,32 @@ export class GitService {
 
     try {
       const branchSummary = await git.branch();
+
+      const current = branchSummary.current ?? null;
+
+      const uniq = new Set<string>();
+      const branches = (branchSummary.all ?? [])
+        .map((b) => b.trim())
+        .filter(Boolean)
+        .filter((b) => {
+          if (uniq.has(b)) return false;
+          uniq.add(b);
+          return true;
+        })
+        .sort((a, b) => a.localeCompare(b));
+
+      // keep current branch first (no duplication)
+      const sorted =
+        current && branches.includes(current)
+          ? [current, ...branches.filter((b) => b !== current)]
+          : branches;
+
       return {
-        current: branchSummary.current || null,
-        branches: branchSummary.all || [],
+        current,
+        branches: sorted,
       };
     } catch (err: any) {
-      // If repo has no commits, return empty branches
-      if (err?.message.includes("does not have any commits yet")) {
+      if (err?.message?.includes("does not have any commits yet")) {
         return {
           current: null,
           branches: [],
