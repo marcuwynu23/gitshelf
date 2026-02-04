@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import simpleGit, {SimpleGit} from "simple-git";
 import {getUserRepoDir} from "../utils/config";
-import {getServerURL} from "../utils/serverUrl";
 import type {RepoItem} from "../models/Repo";
 import {RepoModel} from "../models/sequelize/Repo";
 
@@ -20,10 +19,13 @@ export class RepoService {
     // Get all repo metadata from database
     // @ts-ignore - Sequelize static methods are available after init()
     const repoMetadata = await RepoModel.findAll({
-      where: { username },
+      where: {username},
     });
     const metadataMap = new Map(
-      repoMetadata.map((r: RepoModel) => [r.name, { title: r.title, description: r.description, archived: r.archived }])
+      repoMetadata.map((r: RepoModel) => [
+        r.name,
+        {title: r.title, description: r.description, archived: r.archived},
+      ]),
     );
 
     const repos = fs
@@ -50,7 +52,12 @@ export class RepoService {
     return repos;
   }
 
-  async createRepo(username: string, name: string, title?: string, description?: string): Promise<string> {
+  async createRepo(
+    username: string,
+    name: string,
+    title?: string,
+    description?: string,
+  ): Promise<string> {
     if (!name.trim()) {
       throw new Error("Repo name required");
     }
@@ -86,14 +93,24 @@ export class RepoService {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       username,
       name: repoNameWithGit,
-      title: title || null,
-      description: description || null,
+      title: title,
+      description: description,
     });
 
     return repoNameWithGit;
   }
 
-  async getRepoMetadata(username: string, repoName: string): Promise<{ title?: string; description?: string; archived?: boolean } | null> {
+  async getRepoMetadata(
+    username: string,
+    repoName: string,
+    httpBaseURL: string,
+  ): Promise<{
+    title?: string;
+    description?: string;
+    archived?: boolean;
+    sshAddress: string | null;
+    httpAddress: string;
+  } | null> {
     // @ts-ignore - Sequelize static methods are available after init()
     const repo = await RepoModel.findOne({
       where: {
@@ -106,14 +123,28 @@ export class RepoService {
       return null;
     }
 
+    const sshHost = process.env.SSH_HOST || "localhost";
+    const sshPort = process.env.SSH_PORT || "2222";
+    const sshEnabled = process.env.ENABLE_SSH !== "false";
+    const sshAddress: string | null = sshEnabled
+      ? `ssh://${sshHost}:${sshPort}/${username}/${repo.name}`
+      : null;
+
     return {
       title: repo.title || undefined,
       description: repo.description || undefined,
       archived: repo.archived || false,
+      sshAddress: sshAddress,
+      httpAddress: `${httpBaseURL}/repository/${username}/${repo.name}`, // Repository-based path
     };
   }
 
-  async updateRepoMetadata(username: string, repoName: string, title?: string | null, description?: string | null): Promise<{ title?: string; description?: string }> {
+  async updateRepoMetadata(
+    username: string,
+    repoName: string,
+    title?: string | null,
+    description?: string | null,
+  ): Promise<{title?: string; description?: string}> {
     // @ts-ignore - Sequelize static methods are available after init()
     const [affectedCount] = await RepoModel.update(
       {
@@ -125,7 +156,7 @@ export class RepoService {
           username,
           name: repoName,
         },
-      }
+      },
     );
 
     if (affectedCount === 0) {
@@ -157,7 +188,7 @@ export class RepoService {
     const repoPath = this.getRepoPath(username, repoName);
 
     // Remove from filesystem
-    fs.rmSync(repoPath, { recursive: true, force: true });
+    fs.rmSync(repoPath, {recursive: true, force: true});
 
     // Remove from database
     // @ts-ignore - Sequelize static methods are available after init()
@@ -178,13 +209,13 @@ export class RepoService {
     // In a real implementation, you might want to move the repo to an archive directory
     // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
-      { archived: true },
+      {archived: true},
       {
         where: {
           username,
           name: repoName,
         },
-      }
+      },
     );
   }
 
@@ -196,18 +227,23 @@ export class RepoService {
     // Update the database to mark as unarchived
     // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
-      { archived: false },
+      {archived: false},
       {
         where: {
           username,
           name: repoName,
         },
-      }
+      },
     );
   }
 
-  async renameRepo(username: string, oldRepoName: string, newRepoName: string, httpBaseURL: string): Promise<RepoItem> {
-    console.log('Service: Checking if repo exists:', username, oldRepoName);
+  async renameRepo(
+    username: string,
+    oldRepoName: string,
+    newRepoName: string,
+    httpBaseURL: string,
+  ): Promise<RepoItem> {
+    console.log("Service: Checking if repo exists:", username, oldRepoName);
     if (!this.repoExists(username, oldRepoName)) {
       throw new Error("Repo not found");
     }
@@ -235,12 +271,12 @@ export class RepoService {
       throw new Error("New repo name already exists");
     }
 
-    console.log('Renaming directory:', oldRepoPath, '->', newRepoPath);
+    console.log("Renaming directory:", oldRepoPath, "->", newRepoPath);
     // Rename the directory
     fs.renameSync(oldRepoPath, newRepoPath);
-    console.log('Directory renamed successfully');
+    console.log("Directory renamed successfully");
 
-    console.log('Updating database record');
+    console.log("Updating database record");
     // Update database record (only name changes for rename)
     // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
@@ -252,16 +288,24 @@ export class RepoService {
           username,
           name: oldRepoName,
         },
-      }
+      },
     );
-    console.log('Database updated successfully');
+    console.log("Database updated successfully");
 
     // Return updated repo info
     const result = {
       name: newRepoNameWithGit,
       httpAddress: `${httpBaseURL}/repository/${newRepoNameWithGit}`,
+      sshAddress: (() => {
+        const sshHost = process.env.SSH_HOST || "localhost";
+        const sshPort = process.env.SSH_PORT || "2222";
+        const sshEnabled = process.env.ENABLE_SSH !== "false";
+        return sshEnabled
+          ? `ssh://${sshHost}:${sshPort}/${username}/${newRepoNameWithGit}`
+          : null;
+      })(),
     };
-    console.log('Returning result:', result);
+    console.log("Returning result:", result);
     return result;
   }
 }

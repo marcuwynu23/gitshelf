@@ -9,11 +9,14 @@ import {CommitList} from "./components/CommitList";
 import {RepoSettingsFooter} from "./components/RepoSettingsFooter";
 import {RepoSettingsModal} from "./components/RepoSettingsModal";
 import {RepoDetail} from "./RepoDetail";
+import {CommandLineIcon, LinkIcon} from "@heroicons/react/24/outline";
 
 interface RepoMetadata {
   title?: string;
   description?: string;
   archived?: boolean;
+  sshAddress: string | null;
+  httpAddress: string;
 }
 
 export const RepoDetailPage = () => {
@@ -26,7 +29,13 @@ export const RepoDetailPage = () => {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const repoName = name ? decodeURIComponent(name) : null;
+  const [copied, setCopied] = useState<string | null>(null);
 
+  const handleCopy = (value: string) => {
+    navigator.clipboard.writeText(value);
+    setCopied(value);
+    setTimeout(() => setCopied(null), 2000);
+  };
   // Load commits and branches when repo is loaded
   useEffect(() => {
     if (repoName) {
@@ -80,6 +89,47 @@ export const RepoDetailPage = () => {
           )}
         </div>
       )}
+      <div className="flex gap-1 flex-shrink-0">
+        {/* Copy Buttons */}
+        {repoMetadata?.sshAddress && (
+          <button
+            title={repoMetadata.sshAddress}
+            data-copy="ssh"
+            className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy(repoMetadata.sshAddress!);
+            }}
+          >
+            <CommandLineIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+            <span className="text-xs text-[#808080] font-medium hidden sm:inline">
+              SSH
+            </span>
+          </button>
+        )}
+        {repoMetadata?.httpAddress && (
+          <button
+            title={repoMetadata.httpAddress}
+            data-copy="http"
+            className="inline-flex items-center justify-center gap-1.5 px-2 py-1 hover:bg-app-surface rounded border border-transparent hover:border-[#3d3d3d] transition-colors active:scale-[0.98]"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy(repoMetadata.httpAddress!);
+            }}
+          >
+            <LinkIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+            <span className="text-xs text-[#808080] font-medium hidden sm:inline">
+              HTTPS
+            </span>
+          </button>
+        )}
+        {copied && (
+          <div className="fixed bottom-4 right-4 bg-app-surface border border-[#3d3d3d] px-4 py-2 rounded shadow-lg">
+            <p className="text-sm text-[#e8e8e8]">Copied to clipboard!</p>
+          </div>
+        )}
+      </div>
+
       <BranchList
         branches={branches}
         currentBranch={currentBranch || null}
