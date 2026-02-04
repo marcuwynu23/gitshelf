@@ -1,4 +1,4 @@
-import {ReactNode} from "react";
+import type {ReactNode} from "react";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -11,6 +11,7 @@ interface AlertProps {
   title?: string;
   children: ReactNode;
   onClose?: () => void;
+  className?: string;
 }
 
 export const Alert: React.FC<AlertProps> = ({
@@ -18,6 +19,7 @@ export const Alert: React.FC<AlertProps> = ({
   title,
   children,
   onClose,
+  className = "",
 }) => {
   const variantStyles = {
     success: "bg-success/10 text-success border-success/30",
@@ -37,7 +39,7 @@ export const Alert: React.FC<AlertProps> = ({
 
   return (
     <div
-      className={`rounded border px-4 py-3 ${variantStyles[variant]} flex items-start gap-3`}
+      className={`rounded border px-4 py-3 ${variantStyles[variant]} flex items-start gap-3 ${className}`}
     >
       <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
       <div className="flex-1">

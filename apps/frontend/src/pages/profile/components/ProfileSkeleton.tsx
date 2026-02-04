@@ -1,9 +1,4 @@
 import {Skeleton, SkeletonText, SkeletonTitle} from "~/components/ui/Skeleton";
-import {
-  UserIcon,
-  EnvelopeIcon,
-  KeyIcon,
-} from "@heroicons/react/24/outline";
 
 export const ProfileSkeleton = () => {
   return (

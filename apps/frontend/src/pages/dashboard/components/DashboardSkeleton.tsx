@@ -1,11 +1,5 @@
 import { SkeletonCard,SkeletonText, SkeletonTitle} from "~/components/ui/Skeleton";
-import {
-  FolderIcon,
-  CodeBracketIcon,
-  ClockIcon,
-  UserIcon,
-  ShareIcon,
-} from "@heroicons/react/24/outline";
+import {FolderIcon, CodeBracketIcon, ShareIcon} from "@heroicons/react/24/outline";
 
 export const DashboardSkeleton = () => {
   return (

@@ -1,8 +1,4 @@
 import {Skeleton, SkeletonText, SkeletonTitle} from "~/components/ui/Skeleton";
-import {
-  BellIcon,
-  CheckCircleIcon,
-} from "@heroicons/react/24/outline";
 
 export const NotificationsSkeleton = () => {
   return (
