@@ -42,7 +42,7 @@ services:
     image: myapp-frontend:latest
     ports:
       - target: 80
-        published: 80
+        published: 8080
         protocol: tcp
         mode: ingress
     depends_on:
