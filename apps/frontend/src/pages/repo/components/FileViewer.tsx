@@ -1,8 +1,12 @@
-import { CodeBracketIcon, EyeIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowLeftIcon,
+  CodeBracketIcon,
+  EyeIcon,
+} from "@heroicons/react/24/outline";
 import MonacoEditor from "@monaco-editor/react";
-import type { FC } from "react";
+import type {FC} from "react";
 import ReactMarkdown from "react-markdown";
-import { Button } from "~/components/ui";
+import {Button} from "~/components/ui";
 
 type Props = {
   selectedFile: string | null;
@@ -12,10 +16,18 @@ type Props = {
   setSelectedFile: (p: string | null) => void;
 };
 
-export const FileViewer: FC<Props> = ({ selectedFile, fileContent, viewMode, setViewMode, setSelectedFile }) => {
+export const FileViewer: FC<Props> = ({
+  selectedFile,
+  fileContent,
+  viewMode,
+  setViewMode,
+  setSelectedFile,
+}) => {
   if (!selectedFile) return null;
+
   const content = fileContent[selectedFile] || "";
   const isMarkdown = selectedFile.endsWith(".md");
+
   const getLanguageFromFilename = (name: string) => {
     const ext = name.split(".").pop()?.toLowerCase() || "";
     switch (ext) {
@@ -71,18 +83,48 @@ export const FileViewer: FC<Props> = ({ selectedFile, fileContent, viewMode, set
     }
   };
 
-  const language = isMarkdown ? "markdown" : getLanguageFromFilename(selectedFile);
+  const language = isMarkdown
+    ? "markdown"
+    : getLanguageFromFilename(selectedFile);
+
+  const handleBack = () => {
+    setSelectedFile(null);
+  };
 
   return (
     <div className="flex-1 w-full h-full flex flex-col">
       <div className="mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 pb-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleBack}
+            data-testid="fileviewer-back"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
+
+          <div className="text-xs text-text-tertiary break-all">
+            {selectedFile}
+          </div>
+        </div>
+
         {isMarkdown && (
           <div className="flex items-center gap-2">
-            <Button variant={viewMode === "preview" ? "primary" : "secondary"} size="sm" onClick={() => setViewMode("preview")}>
+            <Button
+              variant={viewMode === "preview" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => setViewMode("preview")}
+            >
               <EyeIcon className="w-4 h-4" />
               <span className="hidden sm:inline">Preview</span>
             </Button>
-            <Button variant={viewMode === "raw" ? "primary" : "secondary"} size="sm" onClick={() => setViewMode("raw")}>
+            <Button
+              variant={viewMode === "raw" ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => setViewMode("raw")}
+            >
               <CodeBracketIcon className="w-4 h-4" />
               <span className="hidden sm:inline">Raw</span>
             </Button>
@@ -98,12 +140,24 @@ export const FileViewer: FC<Props> = ({ selectedFile, fileContent, viewMode, set
             </div>
           ) : (
             <div className="h-full">
-              <MonacoEditor height="100%" language={language} theme="vs-dark" value={content} options={{ readOnly: true }} />
+              <MonacoEditor
+                height="100%"
+                language={language}
+                theme="vs-dark"
+                value={content}
+                options={{readOnly: true}}
+              />
             </div>
           )
         ) : (
           <div className="h-full">
-            <MonacoEditor height="100%" language={language} theme="vs-dark" value={content} options={{ readOnly: true }} />
+            <MonacoEditor
+              height="100%"
+              language={language}
+              theme="vs-dark"
+              value={content}
+              options={{readOnly: true}}
+            />
           </div>
         )}
       </div>
