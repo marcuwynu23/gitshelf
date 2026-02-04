@@ -1,12 +1,12 @@
-import type { FileNode } from "@myapp/ui";
-import { FileTree } from "@myapp/ui";
-import type { FC } from "react";
-import { useEffect, useMemo, useState } from "react";
+import type {FileNode} from "@myapp/ui";
+import {FileTree} from "@myapp/ui";
+import type {FC} from "react";
+import {useEffect, useMemo, useState} from "react";
 import ReactMarkdown from "react-markdown";
-import { useRepoStore } from "~/stores/repoStore";
-import { FileViewer } from "./FileViewer";
+import {useRepoStore} from "~/stores/repoStore";
+import {FileViewer} from "./FileViewer";
 import LoadingSkeleton from "./LoadingSkeleton";
-import { RepoFileTreeHeader } from "./RepoFileTreeHeader";
+import {RepoFileTreeHeader} from "./RepoFileTreeHeader";
 // Persist fetched-file flags across mounts to avoid duplicate GETs
 const globalFetchedFiles: Record<string, boolean> = {};
 
@@ -16,7 +16,11 @@ export interface RepoFileTreeProps {
   branchOrCommit?: string;
 }
 
-export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, branchOrCommit }) => {
+export const RepoFileTree: FC<RepoFileTreeProps> = ({
+  selectedRepo,
+  fileTree,
+  branchOrCommit,
+}) => {
   const fetchFileContent = useRepoStore((state) => state.fetchFileContent);
   const fileContent = useRepoStore((state) => state.fileContent);
   const selectedFile = useRepoStore((state) => state.selectedFile);
@@ -25,11 +29,15 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
   const [viewMode, setViewMode] = useState<"preview" | "raw">("preview");
   // compute README / LICENSE from fileTree to avoid state cascades
   const readmeFile = useMemo(() => {
-    const n = fileTree.find((node) => node.type === "file" && /^README\.md$/i.test(node.name));
+    const n = fileTree.find(
+      (node) => node.type === "file" && /^README\.md$/i.test(node.name),
+    );
     return n ? n.path : null;
   }, [fileTree]);
   const licenseFile = useMemo(() => {
-    const n = fileTree.find((node) => node.type === "file" && /^LICENSE(\.|$)/i.test(node.name));
+    const n = fileTree.find(
+      (node) => node.type === "file" && /^LICENSE(\.|$)/i.test(node.name),
+    );
     return n ? n.path : null;
   }, [fileTree]);
 
@@ -49,12 +57,17 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
   const normalizeNodes = (nodes: FileNode[], parentPath = ""): FileNode[] => {
     return nodes.map((n) => {
       const path = n.path || (parentPath ? `${parentPath}/${n.name}` : n.name);
-      const children = n.children && n.children.length ? normalizeNodes(n.children, path) : undefined;
-      return { ...n, path, children };
+      const children =
+        n.children && n.children.length
+          ? normalizeNodes(n.children, path)
+          : undefined;
+      return {...n, path, children};
     });
   };
 
-  const normalizedTree = Array.isArray(fileTree) ? normalizeNodes(fileTree) : [];
+  const normalizedTree = Array.isArray(fileTree)
+    ? normalizeNodes(fileTree)
+    : [];
 
   // Debug logs to help identify mount/unmount and data state
   useEffect(() => {
@@ -63,7 +76,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
       selectedFile,
       normalizedTreeLength: normalizedTree.length,
     });
-    return () => console.log("RepoFileTree unmounted", { selectedRepo });
+    return () => console.log("RepoFileTree unmounted", {selectedRepo});
   }, [selectedRepo, selectedFile, normalizedTree.length]);
 
   // When Documentation panel is opened, fetch the active doc (README or LICENSE)
@@ -80,7 +93,15 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
         globalFetchedFiles[target] = false;
       }
     })();
-  }, [panelView, docTab, readmeFile, licenseFile, fileContent, fetchFileContent, branchOrCommit]);
+  }, [
+    panelView,
+    docTab,
+    readmeFile,
+    licenseFile,
+    fileContent,
+    fetchFileContent,
+    branchOrCommit,
+  ]);
 
   // Default panel when README appears
   // (removed earlier auto-panel effect to avoid cascading setState)
@@ -115,7 +136,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
       />
 
       {/* Main panel area */}
-      <div className="flex-1 min-h-0 overflow-auto mb-6">
+      <div className="flex-1 min-h-0 overflow-auto mb-6 mt-2">
         {panelView === "files" ? (
           normalizedTree.length ? (
             <div className="bg-app-surface border border-app-border rounded-lg p-4">
@@ -130,9 +151,15 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({ selectedRepo, fileTree, br
           )
         ) : (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
-            <h3 className="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">{docTab === "readme" ? "README" : "LICENSE"}</h3>
+            <h3 className="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">
+              {docTab === "readme" ? "README" : "LICENSE"}
+            </h3>
             <div className="markdown-body overflow-auto">
-              <ReactMarkdown>{docTab === "readme" ? fileContent[readmeFile!] : fileContent[licenseFile!]}</ReactMarkdown>
+              <ReactMarkdown>
+                {docTab === "readme"
+                  ? fileContent[readmeFile!]
+                  : fileContent[licenseFile!]}
+              </ReactMarkdown>
             </div>
           </div>
         )}

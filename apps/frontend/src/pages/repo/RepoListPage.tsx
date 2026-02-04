@@ -55,15 +55,6 @@ export const RepoListPage = () => {
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-6">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1 truncate">
-              Repositories
-            </h1>
-          </div>
-        </div>
-
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
