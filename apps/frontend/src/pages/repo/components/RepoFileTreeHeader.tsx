@@ -26,7 +26,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
   globalFetchedFiles,
 }) => {
   return (
-    <div className="sticky top-0 z-20 backdrop-blur-sm border-b border-app-border py-2 px-3">
+    <div className="sticky top-0 z-20  border-b border-app-border py-2 pr-2">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <button
