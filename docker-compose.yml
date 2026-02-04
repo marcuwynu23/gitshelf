@@ -9,10 +9,12 @@ services:
     environment:
       - PORT=4642
       - ROOT_DIR=/data/repos
+      - DATA_DIR=/data/db
       - SSH_PORT=2222
       - ENABLE_SSH=true
     volumes:
       - repo_data:/data/repos
+      - db_data:/data/db
 
   frontend:
     build:
@@ -25,3 +27,4 @@ services:
 
 volumes:
   repo_data:
+  db_data:

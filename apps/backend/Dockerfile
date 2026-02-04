@@ -48,10 +48,8 @@ RUN pnpm install --prod
 FROM base AS runner
 WORKDIR /app
 
-# Don't run as root
-RUN addgroup --system --gid 1001 expressjs
-RUN adduser --system --uid 1001 expressjs
-USER expressjs
+# Ensure data directories exist for runtime
+RUN mkdir -p /data/repos /data/db
 
 # Copy built application
 COPY --from=installer /app/apps/backend/build ./dist

@@ -2,7 +2,8 @@ import { Sequelize } from "sequelize";
 import path from "path";
 import fs from "fs";
 
-const dbPath = path.join(process.cwd(), "data", "database.sqlite");
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
+const dbPath = process.env.DB_PATH || path.join(DATA_DIR, "database.sqlite");
 
 // Ensure data directory exists
 const dataDir = path.dirname(dbPath);

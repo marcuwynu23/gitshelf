@@ -14,10 +14,12 @@ services:
     environment:
       PORT: 4642
       ROOT_DIR: /data/repos
+      DATA_DIR: /data/db
       SSH_PORT: 2222
       ENABLE_SSH: "true"
     volumes:
       - repo_data:/data/repos
+      - db_data:/data/db
     deploy:
       replicas: 1
       restart_policy:
@@ -63,6 +65,8 @@ services:
 
 volumes:
   repo_data:
+    driver: local
+  db_data:
     driver: local
 
 networks:
