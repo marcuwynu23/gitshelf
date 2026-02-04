@@ -111,10 +111,6 @@ export const FileViewer: FC<Props> = ({
             <ArrowLeftIcon className="w-4 h-4" />
             <span className="hidden sm:inline">Back</span>
           </Button>
-
-          <div className="text-xs text-text-tertiary break-all">
-            {selectedFile}
-          </div>
         </div>
 
         {isMarkdown && (
@@ -138,7 +134,9 @@ export const FileViewer: FC<Props> = ({
           </div>
         )}
       </div>
-
+      <h3 className="text-sm font-semibold text-text-secondary mb-4 tracking-wider">
+        {selectedFile}
+      </h3>
       <div className="flex-1 overflow-auto bg-app-surface border border-app-border rounded-lg">
         {isMarkdown ? (
           viewMode === "preview" ? (

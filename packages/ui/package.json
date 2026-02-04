@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "devicon": "^2.17.0",
     "file-icons-js": "^1.1.0"
   }
 }

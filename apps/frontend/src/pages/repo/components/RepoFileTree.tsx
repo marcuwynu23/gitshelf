@@ -139,7 +139,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
       <div className="flex-1 min-h-0 overflow-auto mb-6 mt-2">
         {panelView === "files" ? (
           normalizedTree.length ? (
-            <div className="bg-app-surface border border-app-border rounded-lg p-4">
+            <div className="bg-app-surface border border-app-border rounded-lg py-2">
               <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
             </div>
           ) : isLoading ? (
@@ -151,9 +151,6 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
           )
         ) : (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
-            <h3 className="text-sm font-semibold text-text-primary mb-4 uppercase tracking-wider">
-              {docTab === "readme" ? "README" : "LICENSE"}
-            </h3>
             <div className="markdown-body overflow-auto">
               <ReactMarkdown>
                 {docTab === "readme"

@@ -66,16 +66,16 @@ const CommitItems: React.FC<{commits: Commit[]}> = ({commits}) => (
         className="block px-2 py-2 rounded-md hover:bg-app-bg/60 transition-colors"
       >
         <div className="flex flex-col gap-1">
-          <div className="inline-flex items-center gap-2 text-[6pt]">
+          <div className="inline-flex items-center gap-2 text-xs">
             <span className="font-medium text-text-primary truncate">
               {c.author}
             </span>
           </div>
 
-          <span className="text-xs text-text-secondary truncate border-b border-gray-700 pb-0.5">
+          <span className="text-sm text-text-secondary truncate border-b border-gray-700 pb-0.5">
             {c.message}
           </span>
-          <div className="flex items-center gap-2 text-[7pt] text-text-tertiary">
+          <div className="flex items-center gap-2 text-[9pt] text-text-tertiary">
             <span className="mr-auto">{new Date(c.date).toDateString()}</span>
             <span className="font-mono text-app-accent">
               {c.hash.slice(0, 7)}
