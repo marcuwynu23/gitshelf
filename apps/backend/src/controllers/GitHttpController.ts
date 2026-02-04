@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import {GitHttpService} from "../services/GitHttpService";
 import {AuthService} from "../services/AuthService";
-
 const gitHttpService = new GitHttpService();
 const authService = new AuthService();
 
@@ -144,63 +143,56 @@ export class GitHttpController {
       }
 
       const {username, repo: repoName} = userAndRepo;
-      const rawBody = (req as any).rawBody as Buffer;
 
-      console.log(
-        `[GitHttp] handleUploadPack: username=${username}, repo=${repoName}, bodySize=${
-          rawBody?.length || 0
-        }`,
-      );
-
-      const childProcess = await gitHttpService.handleUploadPack(
+      console.log("[GitHttp] handleUploadPack", {
         username,
         repoName,
-        rawBody,
-      );
+        contentType: req.headers["content-type"],
+        contentLength: req.headers["content-length"],
+      });
 
+      // IMPORTANT: get a spawned process (not exec) so we can stream
+      const child = await gitHttpService.handleUploadPack(username, repoName);
+
+      res.status(200);
       res.setHeader("Content-Type", "application/x-git-upload-pack-result");
       res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Content-Encoding", "identity");
 
-      if (childProcess.stdin) {
-        childProcess.stdin.write(rawBody);
-        childProcess.stdin.end();
-      }
+      // Stream request -> git stdin, git stdout -> response
+      req.pipe(child.stdin);
+      child.stdout.pipe(res);
 
-      if (childProcess.stdout) {
-        childProcess.stdout.pipe(res);
-      }
-
-      // Handle stderr
-      if (childProcess.stderr) {
-        childProcess.stderr.on("data", (data: Buffer) => {
-          console.error("git-upload-pack stderr:", data.toString());
-        });
-      }
-
-      childProcess.on("error", (error: Error) => {
-        console.error("git-upload-pack process error:", error);
-        if (!res.headersSent) {
-          res.status(500).send(`Internal server error: ${error.message}`);
-        }
+      child.stderr.on("data", (data: Buffer) => {
+        console.error("git-upload-pack stderr:", data.toString("utf8"));
       });
 
-      childProcess.on("exit", (code: number | null) => {
-        if (code !== 0 && !res.headersSent) {
+      // If client disconnects, kill git
+      res.on("close", () => {
+        try {
+          child.kill("SIGKILL");
+        } catch {}
+      });
+
+      child.on("error", (error: Error) => {
+        console.error("git-upload-pack process error:", error);
+        if (!res.headersSent) res.status(500);
+        res.end();
+      });
+
+      child.on("exit", (code: number | null) => {
+        if (code !== 0)
           console.error(`git-upload-pack exited with code ${code}`);
-          res.status(500).send("Git process failed");
-        }
+        if (!res.writableEnded) res.end();
       });
     } catch (err: any) {
-      console.error("POST /:repo/git-upload-pack error:", err);
-      console.error("Error details:", err.stack);
+      console.error("POST git-upload-pack error:", err?.stack ?? err);
       if (!res.headersSent) {
-        if (err.message === "Repository not found") {
+        if (err.message === "Repository not found")
           res.status(404).send(err.message);
-        } else if (err.message === "Request body required") {
-          res.status(400).send(err.message);
-        } else {
-          res.status(500).send(`Internal server error: ${err.message}`);
-        }
+        else res.status(500).send(`Internal server error: ${err.message}`);
+      } else {
+        res.end();
       }
     }
   }
@@ -214,42 +206,59 @@ export class GitHttpController {
       }
 
       const {username, repo: repoName} = userAndRepo;
-      const rawBody = (req as any).rawBody as Buffer;
 
-      const childProcess = await gitHttpService.handleReceivePack(
+      console.log("[GitHttp] handleReceivePack", {
         username,
         repoName,
-        rawBody,
-      );
+        contentType: req.headers["content-type"],
+        contentLength: req.headers["content-length"],
+      });
 
+      const child = await gitHttpService.handleReceivePack(username, repoName);
+
+      res.status(200);
       res.setHeader("Content-Type", "application/x-git-receive-pack-result");
       res.setHeader("Cache-Control", "no-cache");
+      res.setHeader("Content-Encoding", "identity");
 
-      if (childProcess.stdin) {
-        childProcess.stdin.write(rawBody);
-        childProcess.stdin.end();
-      }
+      // STREAM: request -> git stdin
+      req.pipe(child.stdin);
 
-      if (childProcess.stdout) {
-        childProcess.stdout.pipe(res);
-      }
+      // STREAM: git stdout -> response
+      child.stdout.pipe(res);
 
-      childProcess.on("error", (error: Error) => {
+      // Log stderr (super important for push failures)
+      child.stderr.on("data", (data: Buffer) => {
+        console.error("git-receive-pack stderr:", data.toString("utf8"));
+      });
+
+      // Kill git if client disconnects
+      res.on("close", () => {
+        try {
+          child.kill("SIGKILL");
+        } catch {}
+      });
+
+      child.on("error", (error: Error) => {
         console.error("git-receive-pack process error:", error);
-        if (!res.headersSent) {
-          res.status(500).send("Internal server error");
+        if (!res.headersSent) res.status(500);
+        res.end();
+      });
+
+      child.on("exit", (code: number | null) => {
+        if (code !== 0) {
+          console.error(`git-receive-pack exited with code ${code}`);
         }
+        if (!res.writableEnded) res.end();
       });
     } catch (err: any) {
-      console.error("POST /:repo/git-receive-pack error:", err);
+      console.error("POST git-receive-pack error:", err?.stack ?? err);
       if (!res.headersSent) {
-        if (err.message === "Repository not found") {
+        if (err.message === "Repository not found")
           res.status(404).send(err.message);
-        } else if (err.message === "Request body required") {
-          res.status(400).send(err.message);
-        } else {
-          res.status(500).send("Internal server error");
-        }
+        else res.status(500).send(`Internal server error: ${err.message}`);
+      } else {
+        res.end();
       }
     }
   }

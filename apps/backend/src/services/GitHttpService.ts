@@ -1,4 +1,4 @@
-import {exec} from "child_process";
+import {exec, spawn} from "child_process";
 import {promisify} from "util";
 import path from "path";
 import fs from "fs";
@@ -16,7 +16,7 @@ export class GitHttpService {
   async getInfoRefs(
     username: string,
     repoName: string,
-    service: string
+    service: string,
   ): Promise<string> {
     // Ensure repo name ends with .git
     const normalizedRepoName = repoName.endsWith(".git")
@@ -49,12 +49,7 @@ export class GitHttpService {
     }
   }
 
-  async handleUploadPack(
-    username: string,
-    repoName: string,
-    rawBody: Buffer
-  ): Promise<any> {
-    // Ensure repo name ends with .git
+  async handleUploadPack(username: string, repoName: string) {
     const normalizedRepoName = repoName.endsWith(".git")
       ? repoName
       : `${repoName}.git`;
@@ -64,38 +59,29 @@ export class GitHttpService {
       throw new Error("Repository not found");
     }
 
-    if (!rawBody) {
-      throw new Error("Request body required");
-    }
-
-    // Use git command with upload-pack subcommand
     const absoluteRepoPath = path.resolve(repoPath);
-    const cmd = `git upload-pack --stateless-rpc "${absoluteRepoPath}"`;
-    return exec(cmd);
+
+    return spawn("git", ["upload-pack", "--stateless-rpc", absoluteRepoPath], {
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true,
+    });
   }
 
-  async handleReceivePack(
-    userId: string,
-    repoName: string,
-    rawBody: Buffer
-  ): Promise<any> {
-    // Ensure repo name ends with .git
+  async handleReceivePack(username: string, repoName: string) {
     const normalizedRepoName = repoName.endsWith(".git")
       ? repoName
       : `${repoName}.git`;
-    const repoPath = this.getRepoPath(userId, normalizedRepoName);
+    const repoPath = this.getRepoPath(username, normalizedRepoName);
 
     if (!fs.existsSync(repoPath)) {
       throw new Error("Repository not found");
     }
 
-    if (!rawBody) {
-      throw new Error("Request body required");
-    }
-
-    // Use git command with receive-pack subcommand
     const absoluteRepoPath = path.resolve(repoPath);
-    const cmd = `git receive-pack --stateless-rpc "${absoluteRepoPath}"`;
-    return exec(cmd);
+
+    return spawn("git", ["receive-pack", "--stateless-rpc", absoluteRepoPath], {
+      stdio: ["pipe", "pipe", "pipe"],
+      windowsHide: true,
+    });
   }
 }
