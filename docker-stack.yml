@@ -1,0 +1,70 @@
+version: "3.8"
+services:
+  backend:
+    image: myapp-backend:latest
+    ports:
+      - target: 4642
+        published: 4642
+        protocol: tcp
+        mode: ingress
+      - target: 2222
+        published: 2222
+        protocol: tcp
+        mode: ingress
+    environment:
+      PORT: 4642
+      ROOT_DIR: /data/repos
+      SSH_PORT: 2222
+      ENABLE_SSH: "true"
+    volumes:
+      - repo_data:/data/repos
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+      update_config:
+        parallelism: 1
+        order: start-first
+      placement:
+        max_replicas_per_node: 1
+    networks:
+      - app_net
+
+  frontend:
+    image: myapp-frontend:latest
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: ingress
+    depends_on:
+      - backend
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 256M
+        reservations:
+          memory: 64M
+      update_config:
+        parallelism: 1
+        order: start-first
+    networks:
+      - app_net
+
+volumes:
+  repo_data:
+    driver: local
+
+networks:
+  app_net:
+    driver: overlay

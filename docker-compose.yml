@@ -1,0 +1,27 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    ports:
+      - "4642:4642"
+      - "2222:2222"
+    environment:
+      - PORT=4642
+      - ROOT_DIR=/data/repos
+      - SSH_PORT=2222
+      - ENABLE_SSH=true
+    volumes:
+      - repo_data:/data/repos
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  repo_data:
