@@ -3,8 +3,8 @@ import {useNavigate, useLocation} from "react-router-dom";
 import {
   ArchiveBoxIcon,
   CommandLineIcon,
+  FolderOpenIcon,
   LinkIcon,
-  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import {Badge} from "~/components/ui/Badge";
 import type {RepoItem} from "~/props/Repos";
@@ -86,9 +86,9 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
                   navigate(getRepoUrl(repo.name));
                 }}
               >
-                <ArrowRightIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
+                <FolderOpenIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
                 <span className="text-xs text-[#808080] font-medium hidden sm:inline">
-                  Open
+                  Browse
                 </span>
               </button>
 
