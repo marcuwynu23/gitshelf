@@ -29,7 +29,12 @@ export const FileViewer: FC<Props> = ({
   const isMarkdown = selectedFile.endsWith(".md");
 
   const getLanguageFromFilename = (name: string) => {
-    const ext = name.split(".").pop()?.toLowerCase() || "";
+    const base = name.split("/").pop() || name;
+
+    // ✅ Special-case: Jenkinsfile (typically no extension)
+    if (base.toLowerCase() === "jenkinsfile") return "groovy";
+
+    const ext = base.split(".").pop()?.toLowerCase() || "";
     switch (ext) {
       case "ts":
       case "tsx":
@@ -78,6 +83,8 @@ export const FileViewer: FC<Props> = ({
         return "yaml";
       case "md":
         return "markdown";
+      case "groovy":
+        return "groovy";
       default:
         return "plaintext";
     }

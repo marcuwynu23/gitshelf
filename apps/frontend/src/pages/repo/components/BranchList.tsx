@@ -73,16 +73,14 @@ const BranchRow: React.FC<{
   <div
     className={`p-2.5 rounded border transition-colors ${
       branch === currentBranch
-        ? "bg-app-accent/10 border-app-accent"
+        ? "bg-blue-500 border-app-accent shadow-sm"
         : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d]"
     }`}
   >
     <div className="flex items-center justify-between">
       <span className="text-sm font-mono text-[#e8e8e8]">{branch}</span>
       {branch === currentBranch && (
-        <Badge variant="primary" className="text-xs">
-          Current
-        </Badge>
+        <span className="text-xs">Current Branch</span>
       )}
     </div>
   </div>
