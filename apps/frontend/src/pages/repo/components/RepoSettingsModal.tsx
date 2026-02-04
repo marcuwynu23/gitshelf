@@ -5,7 +5,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import axios from "axios";
-import {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {Alert} from "~/components/ui/Alert";
 import {Button} from "~/components/ui/Button";
@@ -29,6 +29,17 @@ interface RepoSettingsModalProps {
   isArchived?: boolean;
 }
 
+type TabKey = "general" | "access" | "danger";
+
+function ensureGitSuffix(name: string): string {
+  const trimmed = name.trim();
+  return trimmed.endsWith(".git") ? trimmed : `${trimmed}.git`;
+}
+
+function stripGitSuffix(name: string): string {
+  return name.replace(/\.git$/i, "");
+}
+
 export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   isOpen,
   onClose,
@@ -38,437 +49,188 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   isArchived = false,
 }) => {
   const navigate = useNavigate();
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [showEditForm, setShowEditForm] = useState(false);
-  const [showRenameForm, setShowRenameForm] = useState(false);
-  const [showRenameConfirm, setShowRenameConfirm] = useState(false);
-  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
-  const [deleteConfirmText, setDeleteConfirmText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isArchiving, setIsArchiving] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"general" | "access" | "danger">(
-    "general",
+
+  const repoNameWithGit = useMemo(() => ensureGitSuffix(repoName), [repoName]);
+  const repoNameWithoutGit = useMemo(
+    () => stripGitSuffix(repoName),
+    [repoName],
   );
 
-  // Edit form state
-  const [editTitle, setEditTitle] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [activeTab, setActiveTab] = useState<TabKey>("general");
 
-  // Rename form state
-  const [renameName, setRenameName] = useState("");
+  // Form state
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [newRepoName, setNewRepoName] = useState("");
 
-  // Initialize forms with current data
+  // Inline confirm sections
+  const [renameConfirmText, setRenameConfirmText] = useState("");
+  const [archiveConfirmChecked, setArchiveConfirmChecked] = useState(false);
+  const [deleteExpanded, setDeleteExpanded] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+
+  // Loading + errors
+  const [isSavingMeta, setIsSavingMeta] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    if (isOpen) {
-      // Remove .git extension for display
-      setRenameName(repoName.replace(/\.git$/, ""));
-      if (repoMetadata) {
-        setEditTitle(repoMetadata.title || "");
-        setEditDescription(repoMetadata.description || "");
-      } else {
-        setEditTitle("");
-        setEditDescription("");
-      }
-    }
-  }, [repoMetadata, isOpen, repoName]);
+    if (!isOpen) return;
 
-  const handleArchiveUnarchiveClick = () => {
-    setShowArchiveConfirm(true);
+    setActiveTab("general");
+    setError(null);
+
+    setTitle(repoMetadata?.title ?? "");
+    setDescription(repoMetadata?.description ?? "");
+    setNewRepoName(repoNameWithoutGit);
+
+    // reset inline confirmations
+    setRenameConfirmText("");
+    setArchiveConfirmChecked(false);
+    setDeleteExpanded(false);
+    setDeleteConfirmText("");
+  }, [isOpen, repoMetadata, repoNameWithoutGit]);
+
+  const closeAndReset = () => {
+    setError(null);
+    setDeleteExpanded(false);
+    setDeleteConfirmText("");
+    setRenameConfirmText("");
+    setArchiveConfirmChecked(false);
+    onClose();
   };
 
-  const handleArchiveUnarchiveConfirm = async () => {
-    setIsArchiving(true);
+  const canSaveMeta =
+    title.trim() !== (repoMetadata?.title ?? "").trim() ||
+    description.trim() !== (repoMetadata?.description ?? "").trim();
+
+  const renameTarget = newRepoName.trim();
+  const renameChanged =
+    renameTarget.length > 0 && renameTarget !== repoNameWithoutGit;
+  const renameConfirmed = renameConfirmText.trim() === repoNameWithoutGit;
+  const canRename = renameChanged && renameConfirmed;
+
+  const canArchiveToggle = archiveConfirmChecked;
+
+  const canDelete = deleteConfirmText.trim() === repoNameWithGit;
+
+  const handleSaveMetadata = async () => {
     setError(null);
+    setIsSavingMeta(true);
     try {
-      // API expects repo name with .git
-      const repoNameWithGit = repoName.includes(".git")
-        ? repoName
-        : `${repoName}.git`;
+      const response = await axios.put(
+        `/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`,
+        {
+          title: title.trim() ? title.trim() : null,
+          description: description.trim() ? description.trim() : null,
+        },
+      );
 
-      if (isArchived) {
-        // Unarchive the repository
-        await axios.patch(
-          `/api/repos/${encodeURIComponent(repoNameWithGit)}/unarchive`,
-        );
-      } else {
-        // Archive the repository
-        await axios.patch(
-          `/api/repos/${encodeURIComponent(repoNameWithGit)}/archive`,
-        );
-      }
+      onMetadataUpdate?.(response.data);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.error || "Failed to update repository metadata",
+      );
+    } finally {
+      setIsSavingMeta(false);
+    }
+  };
 
-      onClose();
-      // Refresh the page or update state
-      window.location.reload();
+  const handleRename = async () => {
+    const trimmed = newRepoName.trim();
+
+    if (!trimmed) {
+      setError("Repository name cannot be empty");
+      return;
+    }
+    if (trimmed === repoNameWithoutGit) {
+      setError("New name is the same as current name");
+      return;
+    }
+    if (!renameConfirmed) {
+      setError(`Type "${repoNameWithoutGit}" to confirm rename`);
+      return;
+    }
+
+    setError(null);
+    setIsRenaming(true);
+    try {
+      await axios.patch(
+        `/api/repos/${encodeURIComponent(repoNameWithGit)}/rename`,
+        {newName: trimmed},
+      );
+
+      // Close modal then navigate to the new repo route
+      closeAndReset();
+      navigate(`/repository/${encodeURIComponent(trimmed)}`);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Failed to rename repository");
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
+  const handleArchiveToggle = async () => {
+    if (!archiveConfirmChecked) {
+      setError("Please confirm this action first");
+      return;
+    }
+
+    setError(null);
+    setIsArchiving(true);
+    try {
+      const endpoint = isArchived ? "unarchive" : "archive";
+      await axios.patch(
+        `/api/repos/${encodeURIComponent(repoNameWithGit)}/${endpoint}`,
+      );
+
+      // Let parent refresh list/state; fallback to closing.
+      closeAndReset();
     } catch (err: any) {
       const action = isArchived ? "unarchive" : "archive";
-      setError(err.response?.data?.error || `Failed to ${action} repository`);
+      setError(err?.response?.data?.error || `Failed to ${action} repository`);
     } finally {
       setIsArchiving(false);
     }
   };
 
-  const handleRename = async () => {
-    const trimmedName = renameName.trim();
-
-    if (!trimmedName) {
-      setError("Repository name cannot be empty");
-      return;
-    }
-
-    // Check if name has changed
-    const currentRepoNameWithoutGit = repoName.replace(/\.git$/, "");
-    const isRenaming = trimmedName !== currentRepoNameWithoutGit;
-
-    if (!isRenaming) {
-      setError("New name is the same as current name");
-      return;
-    }
-
-    setShowRenameConfirm(true);
-  };
-
-  const handleUpdateMetadata = async () => {
-    const trimmedTitle = editTitle.trim();
-    const trimmedDescription = editDescription.trim();
-
-    await performMetadataUpdate(trimmedTitle, trimmedDescription);
-  };
-
-  const performRename = async () => {
-    setIsUpdating(true);
-    setError(null);
-    try {
-      // Repository rename requires different endpoint
-      // API expects repo name with .git
-      const repoNameWithGit = repoName.includes(".git")
-        ? repoName
-        : `${repoName}.git`;
-      console.log(
-        "Renaming repository:",
-        repoNameWithGit,
-        "to:",
-        renameName.trim(),
-      );
-      const response = await axios.patch(
-        `/api/repos/${encodeURIComponent(repoNameWithGit)}/rename`,
-        {
-          newName: renameName.trim(),
-        },
-      );
-      console.log("Rename response:", response.data);
-
-      // Close modal and navigate to new repository URL
-      onClose();
-      window.location.href = `/repository/${encodeURIComponent(renameName.trim())}`;
-    } catch (err: any) {
-      console.error("Rename error:", err);
-      setError(err.response?.data?.error || "Failed to rename repository");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const performMetadataUpdate = async (
-    trimmedTitle: string,
-    trimmedDescription: string,
-  ) => {
-    setIsUpdating(true);
-    setError(null);
-    try {
-      // Simple metadata update
-      // API expects repo name with .git
-      const repoNameWithGit = repoName.includes(".git")
-        ? repoName
-        : `${repoName}.git`;
-      const response = await axios.put(
-        `/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`,
-        {
-          title: trimmedTitle || null,
-          description: trimmedDescription || null,
-        },
-      );
-
-      if (onMetadataUpdate) {
-        onMetadataUpdate(response.data);
-      }
-      setShowEditForm(false);
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to update repository");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
   const handleDelete = async () => {
-    if (deleteConfirmText !== repoName) {
-      setError("Repository name doesn't match");
+    if (!canDelete) {
+      setError(`Type "${repoNameWithGit}" to confirm deletion`);
       return;
     }
 
-    setIsDeleting(true);
     setError(null);
+    setIsDeleting(true);
     try {
-      // API expects repo name with .git
-      const repoNameWithGit = repoName.includes(".git")
-        ? repoName
-        : `${repoName}.git`;
       await axios.delete(`/api/repos/${encodeURIComponent(repoNameWithGit)}`);
-      onClose();
-      navigate("/"); // Redirect to home page after deletion
+      closeAndReset();
+      navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.error || "Failed to delete repository");
+      setError(err?.response?.data?.error || "Failed to delete repository");
     } finally {
       setIsDeleting(false);
     }
   };
 
-  const resetModal = () => {
-    setShowDeleteConfirm(false);
-    setShowEditForm(false);
-    setShowRenameForm(false);
-    setShowRenameConfirm(false);
-    setShowArchiveConfirm(false);
-    setDeleteConfirmText("");
-    setError(null);
-  };
-
-  const handleClose = () => {
-    resetModal();
-    onClose();
-  };
-
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleClose}
-      title={
-        showRenameConfirm
-          ? "Confirm Rename"
-          : showArchiveConfirm
-            ? "Confirm Archive"
-            : "Repository Settings"
-      }
+      onClose={closeAndReset}
+      title="Repository Settings"
       size="half"
     >
-      {error && !showRenameConfirm && !showArchiveConfirm && (
-        <Alert variant="error">{error}</Alert>
-      )}
-
-      {/* Rename Confirmation Dialog */}
-      {showRenameConfirm ? (
-        <div className="space-y-4">
-          <div className="flex items-start space-x-3 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
-            <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-yellow-400">
-                Rename Repository
-              </h3>
-              <div className="mt-2 text-sm text-[#b0b0b0]">
-                <p className="mb-2">
-                  You are about to rename{" "}
-                  <strong className="text-[#e8e8e8]">{repoName}</strong> to{" "}
-                  <strong className="text-[#e8e8e8]">
-                    {renameName.trim()}.git
-                  </strong>
-                </p>
-                <p className="mb-2">This will:</p>
-                <ul className="list-disc list-inside ml-4 mb-2">
-                  <li>Change all repository URLs</li>
-                  <li>Update Git remote URLs for existing clones</li>
-                  <li>Break any hardcoded links or references</li>
-                </ul>
-                <p>
-                  Existing clones will need to update their remote URL manually.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowRenameConfirm(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={async () => {
-                await performRename();
-                setShowRenameConfirm(false);
-              }}
-              disabled={isUpdating}
-              className="flex-1"
-            >
-              {isUpdating ? "Renaming..." : "Confirm Rename"}
-            </Button>
-          </div>
-        </div>
-      ) : /* Archive Confirmation */
-      showArchiveConfirm ? (
-        <div className="space-y-4">
-          <div className="flex items-start space-x-3 p-4 bg-blue-900/20 border border-blue-700/50 rounded-lg">
-            <ArchiveBoxIcon className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-blue-400">
-                {isArchived ? "Unarchive Repository" : "Archive Repository"}
-              </h3>
-              <div className="mt-2 text-sm text-[#b0b0b0]">
-                <p className="mb-2">
-                  You are about to {isArchived ? "unarchive" : "archive"}{" "}
-                  <strong className="text-[#e8e8e8]">{repoName}</strong>
-                </p>
-                {isArchived ? (
-                  <div>
-                    <p className="mb-2">Unarchiving will:</p>
-                    <ul className="list-disc list-inside ml-4 mb-2">
-                      <li>Show the repository in the main list again</li>
-                      <li>Make it visible to all users</li>
-                      <li>Restore normal repository access</li>
-                    </ul>
-                  </div>
-                ) : (
-                  <div>
-                    <p className="mb-2">Archiving will:</p>
-                    <ul className="list-disc list-inside ml-4 mb-2">
-                      <li>Hide the repository from the main list</li>
-                      <li>Keep all code and history intact</li>
-                      <li>Allow unarchiving later if needed</li>
-                    </ul>
-                    <p>
-                      You can unarchive repositories from the settings page.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowArchiveConfirm(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleArchiveUnarchiveConfirm}
-              disabled={isArchiving}
-              className="flex-1"
-            >
-              {isArchiving
-                ? isArchived
-                  ? "Unarchiving..."
-                  : "Archiving..."
-                : isArchived
-                  ? "Unarchive Repository"
-                  : "Archive Repository"}
-            </Button>
-          </div>
-        </div>
-      ) : /* Rename Form */
-      showRenameForm ? (
-        <div className="space-y-4">
-          <div className="text-sm text-[#b0b0b0] mb-4">
-            Rename repository{" "}
-            <strong className="text-[#e8e8e8]">{repoName}</strong>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-              New Repository Name
-            </label>
-            <Input
-              type="text"
-              placeholder="Repository name (without .git)"
-              value={renameName}
-              onChange={(e) => setRenameName(e.target.value)}
-              className="w-full"
-            />
-            <p className="text-xs text-[#808080] mt-1">
-              .git extension will be added automatically. This will change all
-              repository URLs.
-            </p>
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowRenameForm(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleRename}
-              disabled={isUpdating}
-              className="flex-1"
-            >
-              {isUpdating ? "Renaming..." : "Rename"}
-            </Button>
-          </div>
-        </div>
-      ) : showEditForm ? (
-        <div className="space-y-4">
-          <div className="text-sm text-[#b0b0b0] mb-4">
-            Edit title and description for{" "}
-            <strong className="text-[#e8e8e8]">{repoName}</strong>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-                Title
-              </label>
-              <Input
-                type="text"
-                placeholder="Repository title"
-                value={editTitle}
-                onChange={(e) => setEditTitle(e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-                Description
-              </label>
-              <textarea
-                placeholder="Repository description"
-                value={editDescription}
-                onChange={(e) => setEditDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded-md text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-2 focus:ring-app-accent focus:border-transparent resize-none"
-                rows={3}
-              />
-            </div>
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowEditForm(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpdateMetadata}
-              disabled={isUpdating}
-              className="flex-1"
-            >
-              {isUpdating ? "Updating..." : "Update"}
-            </Button>
-          </div>
-        </div>
-      ) : /* Main Repository Settings Interface (tabbed) */
-      !showDeleteConfirm ? (
-        <div className="grid grid-cols-4 gap-4">
-          <nav className="col-span-1 border-r border-[#2f2f2f] pr-3">
-            <ul className="space-y-2 sticky top-6">
+      {error && <Alert variant="error">{error}</Alert>}
+      <div data-testid="repo-settings-shell" className="h-full min-h-0">
+        <div className="grid grid-cols-4 gap-4 h-full min-h-0">
+          {/* Left nav (fixed / sticky) */}
+          <nav
+            data-testid="repo-settings-nav"
+            className="col-span-1 border-r border-[#2f2f2f] pr-3 h-full"
+          >
+            <ul className="space-y-2 sticky top-0">
               <li>
                 <button
                   onClick={() => setActiveTab("general")}
@@ -477,6 +239,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       ? "bg-app-accent/10 text-app-accent"
                       : "hover:bg-[#272727] text-text-primary"
                   }`}
+                  type="button"
                 >
                   General
                 </button>
@@ -489,6 +252,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       ? "bg-app-accent/10 text-app-accent"
                       : "hover:bg-[#272727] text-text-primary"
                   }`}
+                  type="button"
                 >
                   Access
                 </button>
@@ -501,6 +265,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       ? "bg-red-900/10 text-red-400"
                       : "hover:bg-[#272727] text-text-primary"
                   }`}
+                  type="button"
                 >
                   Danger
                 </button>
@@ -508,134 +273,256 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
             </ul>
           </nav>
 
-          <div className="col-span-3">
-            {activeTab === "general" && (
-              <div className="space-y-4">
-                <div className="text-sm text-text-tertiary mb-2">
-                  Manage settings for{" "}
-                  <strong className="text-text-primary">{repoName}</strong>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowRenameForm(true)}
-                      className="w-full justify-start"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Rename Repository
-                    </Button>
-
-                    <Button
-                      variant="secondary"
-                      onClick={() => setShowEditForm(true)}
-                      className="w-full justify-start"
-                    >
-                      <PencilIcon className="w-4 h-4 mr-2" />
-                      Edit Title & Description
-                    </Button>
+          {/* Right pane scrolls per tab */}
+          <div
+            data-testid="repo-settings-content"
+            className="col-span-3 h-full min-h-0 overflow-y-auto pr-1"
+          >
+            <div className="min-h-full flex flex-col">
+              {activeTab === "general" && (
+                <div className="flex-1 space-y-6 pb-4">
+                  <div className="text-sm text-text-tertiary">
+                    Manage settings for{" "}
+                    <strong className="text-text-primary">
+                      {repoNameWithGit}
+                    </strong>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-3">
+                  {/* Metadata */}
+                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
+                        <PencilIcon className="w-4 h-4 mr-2" />
+                        Title & Description
+                      </h3>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
+                        Title
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="Repository title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
+                        Description
+                      </label>
+                      <textarea
+                        placeholder="Repository description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded-md text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-2 focus:ring-app-accent focus:border-transparent resize-none"
+                        rows={3}
+                      />
+                    </div>
+
                     <Button
-                      variant="secondary"
-                      onClick={handleArchiveUnarchiveClick}
-                      disabled={isArchiving}
-                      className="w-full justify-start"
+                      onClick={handleSaveMetadata}
+                      disabled={!canSaveMeta || isSavingMeta}
+                      className="min-w-[120px]"
+                      type="button"
                     >
-                      <ArchiveBoxIcon className="w-4 h-4 mr-2" />
-                      {isArchived
-                        ? "Unarchive Repository"
-                        : "Archive Repository"}
+                      {isSavingMeta ? "Saving..." : "Save"}
                     </Button>
+                  </section>
+
+                  {/* Rename */}
+                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
+                        <PencilIcon className="w-4 h-4 mr-2" />
+                        Rename repository
+                      </h3>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
+                        New name (without .git)
+                      </label>
+                      <Input
+                        type="text"
+                        placeholder="repository-name"
+                        value={newRepoName}
+                        onChange={(e) => setNewRepoName(e.target.value)}
+                        className="w-full"
+                      />
+                      <p className="text-xs text-[#808080] mt-1">
+                        This changes URLs and requires updating remotes for
+                        existing clones.
+                      </p>
+                    </div>
+
+                    <div className="mt-2 p-3 rounded border border-yellow-700/50 bg-yellow-900/20">
+                      <div className="flex items-start gap-2">
+                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-[#b0b0b0]">
+                          Type{" "}
+                          <strong className="text-[#e8e8e8]">
+                            {newRepoName}
+                          </strong>{" "}
+                          to confirm rename.
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <Input
+                          type="text"
+                          placeholder={`Type "${repoNameWithoutGit}" to confirm`}
+                          value={renameConfirmText}
+                          onChange={(e) => setRenameConfirmText(e.target.value)}
+                          className="w-full"
+                        />
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleRename}
+                      disabled={!canRename || isRenaming}
+                      className="min-w-[160px]"
+                      type="button"
+                    >
+                      {isRenaming ? "Renaming..." : "Rename"}
+                    </Button>
+                  </section>
+                </div>
+              )}
+
+              {activeTab === "access" && (
+                <div className="flex-1 pb-4">
+                  <div className="text-sm text-text-tertiary pb-4">
+                    Manage collaborators, teams, and access control here.
+                    (Coming soon)
                   </div>
-
-                  {/* Repository options removed as requested */}
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === "access" && (
-              <div className="text-sm text-text-tertiary">
-                Manage collaborators, teams, and access control here. (Coming
-                soon)
-              </div>
-            )}
+              {activeTab === "danger" && (
+                <div className="flex-1 space-y-4 pb-4">
+                  <div className="text-sm text-text-tertiary pb-4">
+                    Danger zone actions for this repository.
+                  </div>
+                  {/* Archive */}
+                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
+                        <ArchiveBoxIcon className="w-4 h-4 mr-2" />
+                        {isArchived ? "Unarchive" : "Archive"}
+                      </h3>
+                      <Button
+                        variant="secondary"
+                        onClick={handleArchiveToggle}
+                        disabled={!canArchiveToggle || isArchiving}
+                        className="min-w-[160px]"
+                        type="button"
+                      >
+                        {isArchiving
+                          ? isArchived
+                            ? "Unarchiving..."
+                            : "Archiving..."
+                          : isArchived
+                            ? "Unarchive"
+                            : "Archive"}
+                      </Button>
+                    </div>
 
-            {activeTab === "danger" && (
-              <div className="space-y-4">
-                <div className="text-sm text-text-tertiary">
-                  Danger zone actions for this repository.
+                    <label className="flex items-start gap-2 text-sm text-[#b0b0b0]">
+                      <input
+                        type="checkbox"
+                        checked={archiveConfirmChecked}
+                        onChange={(e) =>
+                          setArchiveConfirmChecked(e.target.checked)
+                        }
+                        className="mt-1"
+                      />
+                      <span>
+                        I understand this will{" "}
+                        {isArchived
+                          ? "restore visibility/access"
+                          : "hide the repo from the main list"}
+                        .
+                      </span>
+                    </label>
+                  </section>
+                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
+                    <div className=" space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-red-400 flex items-center">
+                          <TrashIcon className="w-4 h-4 mr-2" />
+                          Delete repository
+                        </h3>
+
+                        {!deleteExpanded && (
+                          <Button
+                            variant="danger"
+                            onClick={() => setDeleteExpanded((v) => !v)}
+                            type="button"
+                          >
+                            Delete
+                          </Button>
+                        )}
+                      </div>
+
+                      {deleteExpanded && (
+                        <>
+                          <div className="flex items-start space-x-3 p-3 bg-red-900/20 border border-red-700/50 rounded-lg">
+                            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
+                            <div className="text-sm text-[#b0b0b0]">
+                              This action <strong>cannot be undone</strong>.
+                              Type{" "}
+                              <strong className="text-[#e8e8e8]">
+                                {repoNameWithGit}
+                              </strong>{" "}
+                              to confirm deletion.
+                            </div>
+                          </div>
+
+                          <Input
+                            type="text"
+                            placeholder={`Type "${repoNameWithGit}" to confirm`}
+                            value={deleteConfirmText}
+                            onChange={(e) =>
+                              setDeleteConfirmText(e.target.value)
+                            }
+                            className="w-full"
+                          />
+
+                          <div className="flex gap-2">
+                            <Button
+                              variant="secondary"
+                              onClick={() => {
+                                setDeleteExpanded(false);
+                                setDeleteConfirmText("");
+                              }}
+                              className="flex-1"
+                              type="button"
+                            >
+                              Cancel
+                            </Button>
+                            <Button
+                              variant="danger"
+                              onClick={handleDelete}
+                              disabled={!canDelete || isDeleting}
+                              className="flex-1"
+                              type="button"
+                            >
+                              {isDeleting ? "Deleting..." : "Confirm delete"}
+                            </Button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </section>
                 </div>
-                <div>
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="w-full"
-                  >
-                    <TrashIcon className="w-4 h-4 mr-2" />
-                    Delete Repository
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      ) : /* Delete Confirmation */
-      showDeleteConfirm ? (
-        <div className="space-y-4">
-          <div className="flex items-start space-x-3 p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
-            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
-            <div>
-              <h3 className="text-sm font-medium text-red-400">
-                Delete Repository
-              </h3>
-              <div className="mt-2 text-sm text-[#b0b0b0]">
-                <p className="mb-2">
-                  This action <strong>cannot be undone</strong>. This will
-                  permanently delete the{" "}
-                  <strong className="text-[#e8e8e8]">{repoName}</strong>{" "}
-                  repository, including all code, commits, and branches.
-                </p>
-                <p>
-                  Please type{" "}
-                  <strong className="text-[#e8e8e8]">{repoName}</strong> to
-                  confirm.
-                </p>
-              </div>
+              )}
             </div>
           </div>
-
-          <div>
-            <Input
-              type="text"
-              placeholder={`Type "${repoName}" to confirm`}
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              className="w-full"
-            />
-          </div>
-
-          <div className="flex space-x-3">
-            <Button
-              variant="secondary"
-              onClick={() => setShowDeleteConfirm(false)}
-              className="flex-1"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onClick={handleDelete}
-              disabled={isDeleting || deleteConfirmText !== repoName}
-              className="flex-1"
-            >
-              {isDeleting ? "Deleting..." : "Delete Repository"}
-            </Button>
-          </div>
         </div>
-      ) : null}
+      </div>
     </Modal>
   );
 };

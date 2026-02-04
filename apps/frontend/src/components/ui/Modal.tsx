@@ -8,8 +8,13 @@ interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "half";
-  closeOnBackdrop?: boolean; // ✅ opt-in
-  closeOnEscape?: boolean; // ✅ opt-in/out
+  closeOnBackdrop?: boolean;
+  closeOnEscape?: boolean;
+  /**
+   * Constrains the overall modal height so inner content can scroll.
+   * Defaults to 80vh which behaves well across screens.
+   */
+  maxHeightClass?: string;
 }
 
 export const Modal: React.FC<ModalProps> = ({
@@ -21,6 +26,7 @@ export const Modal: React.FC<ModalProps> = ({
   size = "md",
   closeOnBackdrop = false,
   closeOnEscape = true,
+  maxHeightClass = "max-h-[80vh]",
 }) => {
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -65,10 +71,18 @@ export const Modal: React.FC<ModalProps> = ({
       }}
     >
       <div
-        className={`${sizeClasses[size]} w-full  h-150 bg-app-surface border border-[#3d3d3d] rounded-lg shadow-2xl`}
+        className={[
+          sizeClasses[size],
+          "w-full",
+          maxHeightClass,
+          "flex flex-col", // ✅ critical
+          "bg-app-surface border border-[#3d3d3d] rounded-lg shadow-2xl",
+          "overflow-hidden", // ✅ ensures body becomes the scroll container
+        ].join(" ")}
+        data-testid="modal-container"
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#3d3d3d]">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-[#3d3d3d] flex-shrink-0">
             <h2 className="text-lg font-semibold text-[#e8e8e8]">{title}</h2>
             <button
               onClick={onClose}
@@ -81,10 +95,16 @@ export const Modal: React.FC<ModalProps> = ({
           </div>
         )}
 
-        <div className="px-6 py-5">{children}</div>
+        {/* ✅ This is now the scrollable area */}
+        <div
+          className="px-6 py-5 flex-1 overflow-y-auto"
+          data-testid="modal-body"
+        >
+          {children}
+        </div>
 
         {footer && (
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-6 py-4 border-t border-[#3d3d3d]">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-6 py-4 border-t border-[#3d3d3d] flex-shrink-0">
             {footer}
           </div>
         )}
