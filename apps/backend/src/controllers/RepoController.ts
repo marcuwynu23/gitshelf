@@ -71,10 +71,11 @@ export class RepoController {
         res.status(400).json({error: "Invalid repo name"});
         return;
       }
-
+      const httpBaseURL = getServerURL(req);
       const metadata = await repoService.getRepoMetadata(
         req.username,
         repoName,
+        httpBaseURL,
       );
 
       if (!metadata) {
