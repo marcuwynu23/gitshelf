@@ -1,7 +1,7 @@
 import {exec} from "child_process";
 import path from "path";
 import fs from "fs";
-import {REPO_DIR} from "../utils/config";
+import {BASE_REPO_DIR as REPO_DIR} from "../utils/config";
 
 export interface SshStream extends NodeJS.WritableStream {
   stderr?: NodeJS.WritableStream;

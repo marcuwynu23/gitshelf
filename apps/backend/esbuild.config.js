@@ -60,6 +60,11 @@ const esbuildConfig = {
     "socks",
     "aws4",
     "mongodb-client-encryption",
+    "ssh2",
+    "sqlite3",
+    "sequelize",
+    "pg-hstore",
+    "cpu-features",
   ], // Ignore the listed packages
 };
 
