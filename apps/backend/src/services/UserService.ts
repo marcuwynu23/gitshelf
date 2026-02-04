@@ -1,7 +1,6 @@
-import { Op } from "sequelize";
-import { sequelize } from "../config/database";
-import { User, UserPublic } from "../models/User";
-import { UserModel } from "../models/sequelize/User";
+import {sequelize} from "../config/database";
+import {User, UserPublic} from "../models/User";
+import {UserModel} from "../models/sequelize/User";
 
 // Helper function to convert Sequelize model to User interface
 function modelToUser(model: UserModel): User {
@@ -51,8 +50,8 @@ export class UserService {
   async findByEmail(email: string): Promise<User | null> {
     const userModel = await UserModel.findOne({
       where: sequelize.where(
-        sequelize.fn("LOWER", sequelize.col("UserModel.email")),
-        email.toLowerCase()
+        sequelize.fn("LOWER", sequelize.col("email")),
+        email.toLowerCase(),
       ),
     });
 
@@ -86,8 +85,8 @@ export class UserService {
   async findByUsername(username: string): Promise<User | null> {
     const userModel = await UserModel.findOne({
       where: sequelize.where(
-        sequelize.fn("LOWER", sequelize.col("UserModel.username")),
-        username.toLowerCase()
+        sequelize.fn("LOWER", sequelize.col("username")),
+        username.toLowerCase(),
       ),
     });
 
@@ -99,7 +98,7 @@ export class UserService {
   }
 
   async create(
-    userData: Omit<User, "id" | "createdAt" | "updatedAt">
+    userData: Omit<User, "id" | "createdAt" | "updatedAt">,
   ): Promise<User> {
     // Check if email already exists
     if (await this.findByEmail(userData.email)) {
@@ -114,7 +113,7 @@ export class UserService {
     // Validate username format (alphanumeric, underscore, hyphen, 3-20 chars)
     if (!/^[a-zA-Z0-9_-]{3,20}$/.test(userData.username)) {
       throw new Error(
-        "Username must be 3-20 characters and contain only letters, numbers, underscores, or hyphens"
+        "Username must be 3-20 characters and contain only letters, numbers, underscores, or hyphens",
       );
     }
 
@@ -133,7 +132,7 @@ export class UserService {
 
   async update(
     id: string,
-    updates: Partial<Omit<User, "id" | "createdAt" | "email" | "username">>
+    updates: Partial<Omit<User, "id" | "createdAt" | "email" | "username">>,
   ): Promise<User> {
     const userModel = await UserModel.findByPk(id);
 
@@ -150,11 +149,11 @@ export class UserService {
   }
 
   async updatePassword(id: string, newPassword: string): Promise<void> {
-    await this.update(id, { password: newPassword });
+    await this.update(id, {password: newPassword});
   }
 
   toPublic(user: User): UserPublic {
-    const { password, ...publicUser } = user;
+    const {password, ...publicUser} = user;
     return publicUser;
   }
 }
