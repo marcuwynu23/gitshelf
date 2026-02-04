@@ -89,7 +89,7 @@ export const RepoDetailPage = () => {
           )}
         </div>
       )}
-      <div className="flex gap-1 flex-shrink-0">
+      <div className="flex items-center justify-center gap-1 flex-shrink-0">
         {/* Copy Buttons */}
         {repoMetadata?.sshAddress && (
           <button

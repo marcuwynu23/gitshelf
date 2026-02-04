@@ -34,7 +34,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "files"}
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
               panelView === "files"
-                ? "bg-white/5 text-text-primary"
+                ? "bg-blue-500  text-text-primary shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
             }`}
           >
@@ -47,7 +47,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "readme"}
             className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
               panelView === "readme"
-                ? "bg-white/5 text-text-primary"
+                ? "bg-blue-500  text-text-primary shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
             }`}
           >
