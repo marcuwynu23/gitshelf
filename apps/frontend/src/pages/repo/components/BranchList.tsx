@@ -80,7 +80,7 @@ const BranchRow: React.FC<{
     <div className="flex items-center justify-between">
       <span className="text-sm font-mono text-[#e8e8e8]">{branch}</span>
       {branch === currentBranch && (
-        <Badge variant="success" className="text-xs">
+        <Badge variant="primary" className="text-xs">
           Current
         </Badge>
       )}
