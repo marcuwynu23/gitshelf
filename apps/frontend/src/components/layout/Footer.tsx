@@ -2,7 +2,7 @@ import React from "react";
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="py-6 mt-8 border-t border-[#3d3d3d]">
+    <footer className="py-6 mt-8 bg-[#2d2d2d] border-t border-[#3d3d3d]">
       <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-xs text-[#808080]">
         <div className="flex items-center gap-2">
           <span className="font-medium text-[#b0b0b0]">GitShelf</span>

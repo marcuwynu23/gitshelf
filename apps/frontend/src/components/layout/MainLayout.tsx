@@ -1,12 +1,14 @@
 import {useState, type ReactNode} from "react";
 import {Header} from "./Header";
 import {Sidebar} from "./Sidebar";
+import {RightSidebar} from "./RightSidebar";
 import {Footer} from "./Footer";
 
 interface MainLayoutProps {
   children: ReactNode;
   rightSidebar?: ReactNode;
   rightSidebarFooter?: ReactNode;
+  rightSidebarTitle?: string;
   activeSidebarItem?: string;
   onSidebarItemClick?: (itemId: string) => void;
   headerActions?: ReactNode;
@@ -16,6 +18,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   children,
   rightSidebar,
   rightSidebarFooter,
+  rightSidebarTitle,
   activeSidebarItem,
   onSidebarItemClick,
   headerActions,
@@ -48,14 +51,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
 
         {/* Right Sidebar (Contextual) */}
         {rightSidebar && (
-          <aside className="hidden lg:flex w-80 bg-app-surface border-l border-app-border flex-col">
-            <div className="flex-1 overflow-auto p-5">{rightSidebar}</div>
-            {rightSidebarFooter && (
-              <div className="border-t border-app-border p-4">
-                {rightSidebarFooter}
-              </div>
-            )}
-          </aside>
+          <RightSidebar
+            className="hidden lg:flex h-full"
+            footer={rightSidebarFooter}
+            title={rightSidebarTitle}
+          >
+            {rightSidebar}
+          </RightSidebar>
         )}
       </div>
     </div>

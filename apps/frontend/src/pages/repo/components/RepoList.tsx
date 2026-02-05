@@ -1,7 +1,6 @@
 import {useState} from "react";
 import {useNavigate, useLocation} from "react-router-dom";
 import {
-  ArchiveBoxIcon,
   CommandLineIcon,
   FolderOpenIcon,
   LinkIcon,
@@ -59,15 +58,14 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
         return (
           <div
             key={repo.name}
-            className={`group flex items-center justify-between p-3 rounded border cursor-pointer transition-colors ${
+            className={`group flex items-center justify-between p-3  border-b border-[#3d3d3d] cursor-pointer transition-colors ${
               isActive
                 ? "bg-app-accent/10 border-app-accent"
-                : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d]"
+                : "bg-transparent  hover:bg-[#353535] "
             }`}
           >
             {/* Left: Icon + Repo Name */}
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0 mt-0.5" />
               <div className="flex flex-col gap-0.5 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm text-[#e8e8e8] truncate">

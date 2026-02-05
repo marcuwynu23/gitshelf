@@ -1,4 +1,8 @@
-import React from "react";
+import React, {useState} from "react";
+import {
+  ChevronDoubleRightIcon,
+  ChevronDoubleLeftIcon,
+} from "@heroicons/react/24/outline";
 
 interface RightSidebarProps {
   title?: string;
@@ -7,19 +11,54 @@ interface RightSidebarProps {
   className?: string;
 }
 
-export const RightSidebar: React.FC<RightSidebarProps> = ({ title = "Overview", children, footer, className = "" }) => {
+export const RightSidebar: React.FC<RightSidebarProps> = ({
+  title,
+  children,
+  footer,
+  className = "",
+}) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  if (isCollapsed) {
+    return (
+      <aside
+        className={`w-12 bg-app-surface border-l border-app-border flex flex-col items-center py-4 ${className} transition-all duration-300`}
+      >
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="p-2 text-[#808080] hover:text-[#e8e8e8] hover:bg-[#353535] rounded-md transition-colors"
+          title="Expand Sidebar"
+        >
+          <ChevronDoubleLeftIcon className="w-5 h-5" />
+        </button>
+      </aside>
+    );
+  }
+
   return (
-    <aside className={`w-72 bg-app-surface border-l border-[#3d3d3d] flex flex-col shadow-md ${className}`}>
-      <div className="px-4 py-3 border-b border-[#2f2f2f] bg-gradient-to-b from-black/5 to-transparent">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[#e8e8e8]">{title}</h3>
-          <div className="text-xs text-[#9b9b9b]">{/* place for small controls */}</div>
-        </div>
+    <aside
+      className={`w-80 bg-app-surface border-l border-app-border flex flex-col shadow-md ${className} transition-all duration-300`}
+    >
+      <div className="px-4 py-3 border-b border-[#2f2f2f] flex items-center justify-between shrink-0">
+        <h3 className="text-sm font-semibold text-[#e8e8e8]">
+          {title || "Overview"}
+        </h3>
+        <button
+          onClick={() => setIsCollapsed(true)}
+          className="p-1 text-[#808080] hover:text-[#e8e8e8] hover:bg-[#353535] rounded transition-colors"
+          title="Collapse Sidebar"
+        >
+          <ChevronDoubleRightIcon className="w-4 h-4" />
+        </button>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4">{children}</div>
+      <div className="flex-1 overflow-auto p-5 space-y-4">{children}</div>
 
-      {footer && <div className="border-t border-[#2f2f2f] p-4 bg-gradient-to-t from-black/5 to-transparent">{footer}</div>}
+      {footer && (
+        <div className="border-t border-[#2f2f2f] p-4 bg-gradient-to-t from-black/5 to-transparent shrink-0">
+          {footer}
+        </div>
+      )}
     </aside>
   );
 };

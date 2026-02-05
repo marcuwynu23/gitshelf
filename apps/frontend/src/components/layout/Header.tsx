@@ -12,6 +12,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {useAuthStore} from "~/stores/authStore";
 
 import Logo from "~/assets/logo.svg";
+import {SearchModal} from "../search/SearchModal";
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -41,8 +42,8 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
-  const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   // Use auth user if available, otherwise use prop
   const user = authUser || propUser;
@@ -51,10 +52,18 @@ export const Header: React.FC<HeaderProps> = ({
   const notificationRef = useRef<HTMLDivElement>(null);
   const notificationButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch?.(searchQuery);
-  };
+  // Keyboard shortcut for search
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchModalOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -177,16 +186,23 @@ export const Header: React.FC<HeaderProps> = ({
         )}
 
         {/* Global Search */}
-        <form onSubmit={handleSearch} className="relative hidden sm:block">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-8 w-40 lg:w-56 pl-8 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
-          />
+        <div className="relative hidden sm:block">
+          <button
+            onClick={() => setIsSearchModalOpen(true)}
+            className="h-8 w-40 lg:w-56 pl-8 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#808080] flex items-center hover:border-[#505050] transition-colors text-left"
+          >
+            Search...
+            <span className="ml-auto text-xs border border-[#3d3d3d] rounded px-1.5 py-0.5 text-[#606060]">
+              Ctrl K
+            </span>
+          </button>
           <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
-        </form>
+        </div>
+
+        <SearchModal
+          isOpen={isSearchModalOpen}
+          onClose={() => setIsSearchModalOpen(false)}
+        />
 
         {/* Notifications */}
         <div className="relative">
