@@ -4,8 +4,15 @@ import simpleGit, {SimpleGit} from "simple-git";
 import {getUserRepoDir} from "../utils/config";
 import type {RepoItem} from "../models/Repo";
 import {RepoModel} from "../models/sequelize/Repo";
+import {ActivityService} from "./ActivityService";
 
 export class RepoService {
+  private activityService: ActivityService;
+
+  constructor() {
+    this.activityService = new ActivityService();
+  }
+
   async listRepos(username: string, httpBaseURL: string): Promise<RepoItem[]> {
     const repoDir = getUserRepoDir(username);
     const sshHost = process.env.SSH_HOST || "localhost";
@@ -53,6 +60,7 @@ export class RepoService {
   }
 
   async createRepo(
+    userId: string,
     username: string,
     name: string,
     title?: string,
@@ -96,6 +104,15 @@ export class RepoService {
       title: title,
       description: description,
     });
+
+    // Create activity
+    await this.activityService.createActivity(
+      userId,
+      "REPO_CREATE",
+      `Created repository ${name}`,
+      description || `Created new repository ${username}/${name}`,
+      `/repository/${username}/${name}.git`,
+    );
 
     return repoNameWithGit;
   }
@@ -180,7 +197,11 @@ export class RepoService {
     return path.join(repoDir, repoName);
   }
 
-  async deleteRepo(username: string, repoName: string): Promise<void> {
+  async deleteRepo(
+    userId: string,
+    username: string,
+    repoName: string,
+  ): Promise<void> {
     if (!this.repoExists(username, repoName)) {
       throw new Error("Repo not found");
     }
@@ -198,6 +219,14 @@ export class RepoService {
         name: repoName,
       },
     });
+
+    // Create activity
+    await this.activityService.createActivity(
+      userId,
+      "REPO_DELETE",
+      `Deleted repository ${repoName.replace(".git", "")}`,
+      `Deleted repository ${username}/${repoName}`,
+    );
   }
 
   async archiveRepo(username: string, repoName: string): Promise<void> {

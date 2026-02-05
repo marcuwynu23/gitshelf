@@ -14,6 +14,7 @@ import userRoutes from "./routes/userRoutes";
 import repoRoutes from "./routes/repoRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import settingsRoutes from "./routes/settingsRoutes";
+import activityRoutes from "./routes/activityRoutes";
 
 export function createApp() {
   const app = express();
@@ -34,6 +35,7 @@ export function createApp() {
   app.use("/api/repos", repoRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/settings", settingsRoutes);
+  app.use("/api/activity", activityRoutes);
 
   app.get("/api/check", (_req, res) => res.send("Hello"));
 

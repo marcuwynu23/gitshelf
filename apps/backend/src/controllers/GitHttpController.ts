@@ -1,8 +1,11 @@
 import {Request, Response} from "express";
 import {GitHttpService} from "../services/GitHttpService";
 import {AuthService} from "../services/AuthService";
+import {ActivityService} from "../services/ActivityService";
+
 const gitHttpService = new GitHttpService();
 const authService = new AuthService();
+const activityService = new ActivityService();
 
 // Helper to extract username and repo from request
 
@@ -245,9 +248,47 @@ export class GitHttpController {
         res.end();
       });
 
-      child.on("exit", (code: number | null) => {
+      child.on("exit", async (code: number | null) => {
         if (code !== 0) {
           console.error(`git-receive-pack exited with code ${code}`);
+        } else {
+          // Push successful, record activity
+          try {
+            let userId: string | null = null;
+            const authHeader = req.headers.authorization;
+
+            if (authHeader && authHeader.startsWith("Basic ")) {
+              const creds = Buffer.from(
+                authHeader.substring(6),
+                "base64",
+              ).toString("utf8");
+              const [u, p] = creds.split(":");
+              try {
+                // Try login
+                const result = await authService.login({
+                  username: u,
+                  password: p,
+                });
+                userId = result.user.id;
+              } catch (e) {
+                // Login failed
+                console.warn("Auth failed during activity logging for push", e);
+              }
+            }
+
+            if (userId) {
+              await activityService.createActivity(
+                userId,
+                "PUSH",
+                `Pushed to ${username}/${repoName}`,
+                `Pushed commits to repository ${username}/${repoName}`,
+                `/repository/${username}/${repoName}`,
+                {repo: repoName, username},
+              );
+            }
+          } catch (err) {
+            console.error("Error creating activity for push:", err);
+          }
         }
         if (!res.writableEnded) res.end();
       });

@@ -31,41 +31,42 @@ export const SearchModal: React.FC<SearchModalProps> = ({isOpen, onClose}) => {
       setTimeout(() => {
         inputRef.current?.focus();
       }, 50);
-    } else {
-      setQuery("");
     }
   }, [isOpen]);
 
-  const staticResults: SearchResult[] = [
-    {
-      id: "dashboard",
-      type: "page",
-      title: "Dashboard",
-      description: "Go to your dashboard",
-      path: "/dashboard",
-    },
-    {
-      id: "settings",
-      type: "page",
-      title: "Settings",
-      description: "Manage your account settings",
-      path: "/settings",
-    },
-    {
-      id: "help",
-      type: "page",
-      title: "Help Center",
-      description: "Documentation and support",
-      path: "/help",
-    },
-    {
-      id: "create-repo",
-      type: "action",
-      title: "Create Repository",
-      description: "Start a new project",
-      path: "/repos", // Navigate to repo list (where create button is) or we could open a modal
-    },
-  ];
+  const staticResults: SearchResult[] = useMemo(
+    () => [
+      {
+        id: "dashboard",
+        type: "page",
+        title: "Dashboard",
+        description: "Go to your dashboard",
+        path: "/dashboard",
+      },
+      {
+        id: "settings",
+        type: "page",
+        title: "Settings",
+        description: "Manage your account settings",
+        path: "/settings",
+      },
+      {
+        id: "help",
+        type: "page",
+        title: "Help Center",
+        description: "Documentation and support",
+        path: "/help",
+      },
+      {
+        id: "create-repo",
+        type: "action",
+        title: "Create Repository",
+        description: "Start a new project",
+        path: "/repos",
+      },
+    ],
+    [],
+  );
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -95,7 +96,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({isOpen, onClose}) => {
       }));
 
     return [...matchedPages, ...matchedRepos];
-  }, [query, repos]);
+  }, [query, repos, staticResults]);
 
   const handleSelect = (result: SearchResult) => {
     if (result.path) {
