@@ -15,7 +15,6 @@ import Logo from "~/assets/logo.svg";
 import {SearchModal} from "../search/SearchModal";
 
 interface HeaderProps {
-  onSearch?: (query: string) => void;
   user?: {
     name: string;
     avatar?: string;
@@ -35,7 +34,6 @@ interface NotificationItem {
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onSearch,
   user: propUser,
   actions,
   onMenuClick,

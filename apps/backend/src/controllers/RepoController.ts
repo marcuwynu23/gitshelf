@@ -39,6 +39,7 @@ export class RepoController {
         description?: string;
       };
       const repoName = await repoService.createRepo(
+        req.userId!,
         req.username,
         name,
         title,
@@ -178,7 +179,7 @@ export class RepoController {
         res.status(400).json({error: "Invalid repo name"});
         return;
       }
-      await repoService.deleteRepo(req.username, repoName);
+      await repoService.deleteRepo(req.userId!, req.username, repoName);
       res.json({message: "Repo deleted successfully"});
     } catch (err: any) {
       console.error("DELETE /api/repos/:name error:", err);

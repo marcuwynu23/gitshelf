@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useSearchParams} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {Breadcrumbs} from "~/components/ui";
@@ -18,19 +18,13 @@ export const HelpPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get("tab");
   const articleId = searchParams.get("article");
-  const [activeTab, setActiveTab] = useState<"docs" | "api" | "support">(
-    "docs",
-  );
+  const activeTab: "docs" | "api" | "support" =
+    tabParam === "api" || tabParam === "support" || tabParam === "docs"
+      ? (tabParam as "docs" | "api" | "support")
+      : "docs";
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (tabParam === "api" || tabParam === "support" || tabParam === "docs") {
-      setActiveTab(tabParam);
-    }
-  }, [tabParam]);
-
   const handleTabChange = (tab: "docs" | "api" | "support") => {
-    setActiveTab(tab);
     setSearchParams({tab});
   };
 
