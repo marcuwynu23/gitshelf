@@ -65,7 +65,7 @@ export const Register = () => {
               Create an account
             </h1>
             <p className="text-sm text-[#b0b0b0]">
-              Sign up to get started with Repohub
+              Sign up to get started with GitShelf
             </p>
           </div>
 

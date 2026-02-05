@@ -1,7 +1,15 @@
-import { BellIcon, ChevronRightIcon, CodeBracketIcon, MagnifyingGlassIcon, ShareIcon, UserCircleIcon } from "@heroicons/react/24/outline";
-import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuthStore } from "~/stores/authStore";
+import {
+  Bars3Icon,
+  BellIcon,
+  ChevronRightIcon,
+  CodeBracketIcon,
+  MagnifyingGlassIcon,
+  ShareIcon,
+  UserCircleIcon,
+} from "@heroicons/react/24/outline";
+import {useEffect, useRef, useState} from "react";
+import {Link, useNavigate} from "react-router-dom";
+import {useAuthStore} from "~/stores/authStore";
 
 import Logo from "~/assets/logo.svg";
 
@@ -12,6 +20,7 @@ interface HeaderProps {
     avatar?: string;
   };
   actions?: React.ReactNode;
+  onMenuClick?: () => void;
 }
 
 interface NotificationItem {
@@ -24,7 +33,12 @@ interface NotificationItem {
   link?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, actions }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onSearch,
+  user: propUser,
+  actions,
+  onMenuClick,
+}) => {
   const navigate = useNavigate();
   const authUser = useAuthStore((state) => state.user);
   const [searchQuery, setSearchQuery] = useState("");
@@ -130,17 +144,37 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
   };
 
   return (
-    <header className="h-14 bg-app-surface border-b border-[#3d3d3d] flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40">
-      {/* Logo */}
-      <div className="flex flex-col flex-shrink-0">
-        <img src={Logo} alt="Logo" className="w-25 h-auto" />
-        <span className="hidden sm:inline text-[8pt] text-center text-[#808080]">Git Repository Manager</span>
+    <header className="h-14 bg-app-surface border-b border-app-border flex items-center px-4 justify-between z-20 shadow-sm relative">
+      <div className="flex items-center gap-4">
+        {/* Mobile Menu Button */}
+        <button
+          type="button"
+          className="md:hidden p-1 text-text-secondary hover:text-text-primary rounded-md hover:bg-white/5"
+          onClick={onMenuClick}
+        >
+          <Bars3Icon className="w-6 h-6" />
+        </button>
+
+        <Link to="/" className="flex items-center gap-2 group">
+          <img src={Logo} alt="GitShelf" className="w-9 h-9" />
+
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-text-primary">
+              GitShelf
+            </span>
+            <span className="hidden sm:inline-block text-[11px] text-text-secondary">
+              Repository Management
+            </span>
+          </div>
+        </Link>
       </div>
 
       {/* Right side: Actions, Search, Notifications, User */}
       <div className="flex items-center gap-2 sm:gap-3">
         {/* Custom Actions (e.g., Create Repository button) */}
-        {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
+        {actions && (
+          <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>
+        )}
 
         {/* Global Search */}
         <form onSubmit={handleSearch} className="relative hidden sm:block">
@@ -163,7 +197,9 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
             aria-label="Notifications"
           >
             <BellIcon className="w-5 h-5 text-[#b0b0b0]" />
-            {unreadCount > 0 && <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-app-accent rounded-full" />}
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-app-accent rounded-full" />
+            )}
           </button>
           {showNotifications && (
             <div
@@ -172,8 +208,14 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
             >
               {/* Header */}
               <div className="px-4 py-3 border-b border-[#3d3d3d] flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[#e8e8e8]">Notifications</h3>
-                {unreadCount > 0 && <span className="text-xs text-[#b0b0b0]">{unreadCount} new</span>}
+                <h3 className="text-sm font-semibold text-[#e8e8e8]">
+                  Notifications
+                </h3>
+                {unreadCount > 0 && (
+                  <span className="text-xs text-[#b0b0b0]">
+                    {unreadCount} new
+                  </span>
+                )}
               </div>
 
               {/* Notifications List */}
@@ -193,15 +235,25 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
                           className={`px-4 py-3 hover:bg-[#353535] transition-colors ${!notification.read ? "bg-app-accent/5" : ""}`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className={`p-1.5 rounded flex-shrink-0 ${!notification.read ? "bg-app-accent/10" : "bg-app-bg"}`}>
-                              <Icon className={`w-4 h-4 ${!notification.read ? "text-app-accent" : "text-[#b0b0b0]"}`} />
+                            <div
+                              className={`p-1.5 rounded flex-shrink-0 ${!notification.read ? "bg-app-accent/10" : "bg-app-bg"}`}
+                            >
+                              <Icon
+                                className={`w-4 h-4 ${!notification.read ? "text-app-accent" : "text-[#b0b0b0]"}`}
+                              />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className={`text-xs font-medium mb-1 ${!notification.read ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}>
+                              <p
+                                className={`text-xs font-medium mb-1 ${!notification.read ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                              >
                                 {notification.title}
                               </p>
-                              <p className="text-xs text-[#b0b0b0] line-clamp-2 mb-1">{notification.message}</p>
-                              <p className="text-[10px] text-[#808080]">{formatTime(notification.timestamp)}</p>
+                              <p className="text-xs text-[#b0b0b0] line-clamp-2 mb-1">
+                                {notification.message}
+                              </p>
+                              <p className="text-[10px] text-[#808080]">
+                                {formatTime(notification.timestamp)}
+                              </p>
                             </div>
                           </div>
                         </div>
@@ -230,9 +282,16 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
 
         {/* User Menu */}
         <div className="relative">
-          <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 p-1 hover:bg-[#353535] rounded transition-colors">
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2 p-1 hover:bg-[#353535] rounded transition-colors"
+          >
             {user?.avatar ? (
-              <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full border border-[#3d3d3d]" />
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-7 h-7 rounded-full border border-[#3d3d3d]"
+              />
             ) : (
               <UserCircleIcon className="w-7 h-7 text-[#b0b0b0]" />
             )}
@@ -240,8 +299,13 @@ export const Header: React.FC<HeaderProps> = ({ onSearch, user: propUser, action
           {showUserMenu && (
             <div className="absolute right-0 mt-1 w-48 sm:w-56 lg:w-64 bg-app-surface border border-[#3d3d3d] rounded shadow-lg py-1 z-50">
               <div className="px-3 py-2 border-b border-[#3d3d3d] min-w-0">
-                <p className="text-sm font-medium text-[#e8e8e8] truncate">{user?.name || "User"}</p>
-                <p className="text-xs text-[#808080] truncate" title={authUser?.email || "user@example.com"}>
+                <p className="text-sm font-medium text-[#e8e8e8] truncate">
+                  {user?.name || "User"}
+                </p>
+                <p
+                  className="text-xs text-[#808080] truncate"
+                  title={authUser?.email || "user@example.com"}
+                >
                   {authUser?.email || "user@example.com"}
                 </p>
               </div>

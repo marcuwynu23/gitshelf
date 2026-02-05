@@ -63,7 +63,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   },
 
   viewRepo: async (name, branchOrCommit) => {
-    set({ isLoading: true });
+    set({ isLoading: true, fileTree: [], selectedRepo: name });
     try {
       // API expects repo name with .git; encode to support names with slashes
       const nameWithGit = name.includes(".git") ? name : `${name}.git`;

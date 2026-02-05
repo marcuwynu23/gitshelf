@@ -224,17 +224,17 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     >
       {error && <Alert variant="error">{error}</Alert>}
       <div data-testid="repo-settings-shell" className="h-full min-h-0">
-        <div className="grid grid-cols-4 gap-4 h-full min-h-0">
+        <div className="flex flex-col sm:grid sm:grid-cols-4 gap-4 h-full min-h-0">
           {/* Left nav (fixed / sticky) */}
           <nav
             data-testid="repo-settings-nav"
-            className="col-span-1 border-r border-[#2f2f2f] pr-3 h-full"
+            className="w-full sm:col-span-1 border-b sm:border-b-0 sm:border-r border-[#2f2f2f] pb-3 sm:pb-0 sm:pr-3 shrink-0"
           >
-            <ul className="space-y-2 sticky top-0">
-              <li>
+            <ul className="flex sm:block space-x-2 sm:space-x-0 sm:space-y-2 overflow-x-auto no-scrollbar">
+              <li className="shrink-0">
                 <button
                   onClick={() => setActiveTab("general")}
-                  className={`w-full text-left px-3 py-2 rounded ${
+                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
                     activeTab === "general"
                       ? "bg-app-accent/10 text-app-accent"
                       : "hover:bg-[#272727] text-text-primary"
@@ -244,10 +244,10 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   General
                 </button>
               </li>
-              <li>
+              <li className="shrink-0">
                 <button
                   onClick={() => setActiveTab("access")}
-                  className={`w-full text-left px-3 py-2 rounded ${
+                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
                     activeTab === "access"
                       ? "bg-app-accent/10 text-app-accent"
                       : "hover:bg-[#272727] text-text-primary"
@@ -257,10 +257,10 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   Access
                 </button>
               </li>
-              <li>
+              <li className="shrink-0">
                 <button
                   onClick={() => setActiveTab("danger")}
-                  className={`w-full text-left px-3 py-2 rounded ${
+                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
                     activeTab === "danger"
                       ? "bg-red-900/10 text-red-400"
                       : "hover:bg-[#272727] text-text-primary"
@@ -276,7 +276,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
           {/* Right pane scrolls per tab */}
           <div
             data-testid="repo-settings-content"
-            className="col-span-3 h-full min-h-0 overflow-y-auto pr-1"
+            className="flex-1 sm:col-span-3 h-full min-h-0 overflow-y-auto sm:pr-1"
           >
             <div className="min-h-full flex flex-col">
               {activeTab === "general" && (

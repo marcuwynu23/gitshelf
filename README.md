@@ -1,5 +1,5 @@
 <div align="center">
-  <h1> Repohub
+  <h1> GitShelf
  </h1>
 </div>
 
@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/github/license/marcuwynu23/repohub.svg" alt="License Badge"/>
 </p>
 
-Repohub is a lightweight Git repository manager built with **Node.js/Express** for the backend and **React + TailwindCSS** for the frontend. It allows you to:
+GitShelf is a lightweight Git repository manager built with **Node.js/Express** for the backend and **React + TailwindCSS** for the frontend. It allows you to:
 
 - Create Git repositories locally.
 - Browse repository files in a tree view.

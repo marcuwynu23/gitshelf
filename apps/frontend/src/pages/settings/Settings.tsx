@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
+import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {Breadcrumbs} from "~/components/ui";
 import {Button, Select, Alert} from "~/components/ui";
 import {SettingsSkeleton} from "./components/SettingsSkeleton";
@@ -132,16 +133,16 @@ export const Settings = () => {
   ];
 
   return (
-    <MainLayout activeSidebarItem="settings">
+    <MainLayout
+      activeSidebarItem="settings"
+      rightSidebar={<HelpSidebarContent />}
+    >
       <div className="h-full flex flex-col">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1">
-            Settings
-          </h1>
           <p className="text-sm text-[#b0b0b0]">
             Manage your account settings and preferences
           </p>

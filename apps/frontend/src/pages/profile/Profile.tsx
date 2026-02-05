@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
+import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {Breadcrumbs, Button, Input, Alert} from "~/components/ui";
 import {ProfileSkeleton} from "./components/ProfileSkeleton";
 import {useAuthStore} from "~/stores/authStore";
@@ -59,7 +60,7 @@ export const Profile = () => {
   }, [profile]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({
       ...formData,
@@ -126,23 +127,23 @@ export const Profile = () => {
 
   if (loading) {
     return (
-      <MainLayout activeSidebarItem="profile">
+      <MainLayout
+        activeSidebarItem="profile"
+        rightSidebar={<HelpSidebarContent />}
+      >
         <ProfileSkeleton />
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout activeSidebarItem="settings">
+    <MainLayout activeSidebarItem="profile">
       <div className="h-full flex flex-col">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1">
-            Profile
-          </h1>
           <p className="text-sm text-[#b0b0b0]">
             Manage your profile information and account settings
           </p>

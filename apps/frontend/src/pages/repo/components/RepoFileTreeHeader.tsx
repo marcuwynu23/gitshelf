@@ -1,9 +1,17 @@
-import {CodeBracketIcon, DocumentTextIcon} from "@heroicons/react/24/outline";
+import {
+  CodeBracketIcon,
+  CommandLineIcon,
+  DocumentTextIcon,
+  Cog6ToothIcon,
+  ShareIcon,
+} from "@heroicons/react/24/outline";
 import type {FC} from "react";
 
+export type PanelView = "files" | "readme" | "branches" | "commits";
+
 type Props = {
-  panelView: "files" | "readme";
-  setPanelView: (v: "files" | "readme") => void;
+  panelView: PanelView;
+  setPanelView: (v: PanelView) => void;
   docTab: "readme" | "license";
   setDocTab: (t: "readme" | "license") => void;
   readmeFile: string | null;
@@ -12,6 +20,7 @@ type Props = {
   fetchFileContent: (path: string) => Promise<void>;
   globalFetchedFiles: Record<string, boolean>;
   branchOrCommit?: string;
+  onSettingsClick?: () => void;
 };
 
 export const RepoFileTreeHeader: FC<Props> = ({
@@ -24,36 +33,73 @@ export const RepoFileTreeHeader: FC<Props> = ({
   fileContent,
   fetchFileContent,
   globalFetchedFiles,
+  onSettingsClick,
 }) => {
   return (
-    <div className="sticky top-0 z-20  border-b border-app-border py-2 pr-2">
-      <div className="flex items-center justify-between gap-3">
+    <div className="sticky top-0 z-10 bg-app-bg border-b border-app-border py-2 pr-2">
+      <div className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setPanelView("files")}
             aria-pressed={panelView === "files"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "files"
-                ? "bg-blue-500  text-text-primary shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
+                ? "bg-app-accent text-white shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
             }`}
           >
             <CodeBracketIcon className="w-4 h-4" />
-            <span>Codebase</span>
+            <span className="hidden sm:inline">Codebase</span>
           </button>
 
           <button
             onClick={() => setPanelView("readme")}
             aria-pressed={panelView === "readme"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "readme"
-                ? "bg-blue-500  text-text-primary shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/3"
+                ? "bg-app-accent text-white shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
-            <span>Documentation</span>
+            <span className="hidden sm:inline">Documentation</span>
           </button>
+
+          <button
+            onClick={() => setPanelView("branches")}
+            aria-pressed={panelView === "branches"}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+              panelView === "branches"
+                ? "bg-app-accent text-white shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+            }`}
+          >
+            <ShareIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Branches</span>
+          </button>
+
+          <button
+            onClick={() => setPanelView("commits")}
+            aria-pressed={panelView === "commits"}
+            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+              panelView === "commits"
+                ? "bg-app-accent text-white shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+            }`}
+          >
+            <CommandLineIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Commits</span>
+          </button>
+
+          {onSettingsClick && (
+            <button
+              onClick={onSettingsClick}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium text-text-tertiary hover:text-text-primary hover:bg-white/3 whitespace-nowrap transition-colors"
+            >
+              <Cog6ToothIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

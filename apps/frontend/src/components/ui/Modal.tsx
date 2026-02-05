@@ -57,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
-    half: "max-w-[50vw]",
+    half: "max-w-full sm:max-w-[90vw] lg:max-w-[50vw] h-full sm:h-auto m-3",
   };
 
   return (

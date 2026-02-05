@@ -1,8 +1,10 @@
-import {useEffect, useState} from "react";
+import {useEffect, useState, useMemo} from "react";
 import {useRepoStore} from "~/stores/repoStore";
 import {MainLayout} from "~/components/layout/MainLayout";
+import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {RepoList} from "./components/RepoList";
 import {Button, Input, Modal, Breadcrumbs} from "~/components/ui";
+import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
 
 export const RepoListPage = () => {
   const {repos, setRepoName, fetchRepos, createRepo} = useRepoStore();
@@ -12,9 +14,31 @@ export const RepoListPage = () => {
   const [newRepoTitle, setNewRepoTitle] = useState("");
   const [newRepoDescription, setNewRepoDescription] = useState("");
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<
+    "all" | "active" | "archived"
+  >("all");
+
   useEffect(() => {
     fetchRepos();
   }, [fetchRepos]);
+
+  const filteredRepos = useMemo(() => {
+    return repos.filter((repo) => {
+      const matchesSearch = (repo.title || repo.name)
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase());
+
+      const matchesFilter =
+        filterStatus === "all"
+          ? true
+          : filterStatus === "archived"
+            ? repo.archived
+            : !repo.archived;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [repos, searchQuery, filterStatus]);
 
   const handleCreateRepo = () => {
     if (newRepoName.trim()) {
@@ -40,6 +64,7 @@ export const RepoListPage = () => {
   return (
     <MainLayout
       activeSidebarItem="repos"
+      rightSidebar={<HelpSidebarContent />}
       headerActions={
         <Button
           onClick={() => setShowCreateModal(true)}
@@ -57,39 +82,45 @@ export const RepoListPage = () => {
 
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* LEFT: Repo List */}
-            <div className="lg:col-span-2">
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
-                  All Repositories
-                </h2>
-                <RepoList repos={repos} selectedRepo={null} />
-              </div>
-            </div>
-            {/* RIGHT: Welcome Section */}
-            <div className="lg:col-span-1">
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6 h-full">
-                <h2 className="text-xl font-semibold text-[#e8e8e8] mb-4">
-                  Welcome to RepoHub
-                </h2>
-                <p className="text-[#b0b0b0] mb-4">
-                  RepoHub is a lightweight, self-hosted Git repository hub that
-                  allows you to manage and explore repositories easily.
-                </p>
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#e8e8e8] mb-2">
-                    Features:
-                  </h3>
-                  <ul className="list-disc list-inside space-y-1 text-[#b0b0b0] text-sm">
-                    <li>Browse and manage Git repositories</li>
-                    <li>View commit history and branch information</li>
-                    <li>Explore file trees and view file contents</li>
-                    <li>Full privacy and control over your code</li>
-                  </ul>
+          <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <h2 className="text-lg font-semibold text-[#e8e8e8]">
+                All Repositories
+              </h2>
+
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Search */}
+                <div className="relative">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+                  <input
+                    type="text"
+                    placeholder="Search repositories..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-9 w-full sm:w-64 pl-9 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
+                  />
+                </div>
+
+                {/* Filter */}
+                <div className="flex items-center bg-app-bg border border-[#3d3d3d] rounded p-1">
+                  {(["all", "active", "archived"] as const).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setFilterStatus(status)}
+                      className={`px-3 py-1 text-xs font-medium rounded transition-colors capitalize ${
+                        filterStatus === status
+                          ? "bg-app-accent/20 text-app-accent"
+                          : "text-[#808080] hover:text-[#e8e8e8]"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
+
+            <RepoList repos={filteredRepos} selectedRepo={null} />
           </div>
         </div>
       </div>

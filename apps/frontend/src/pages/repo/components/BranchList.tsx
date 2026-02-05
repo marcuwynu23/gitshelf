@@ -1,6 +1,9 @@
-import {CodeBracketIcon, XMarkIcon} from "@heroicons/react/24/outline";
-import React, {useState} from "react";
-import {Badge, Button} from "~/components/ui";
+import {
+  CodeBracketIcon,
+  MagnifyingGlassIcon,
+} from "@heroicons/react/24/outline";
+import React, {useMemo, useState} from "react";
+import {Badge, Button, Modal} from "~/components/ui";
 
 interface BranchListProps {
   branches: string[];
@@ -16,6 +19,14 @@ export const BranchList: React.FC<BranchListProps> = ({
   previewCount = 5,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredBranches = useMemo(() => {
+    if (!searchQuery) return branches;
+    return branches.filter((b) =>
+      b.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [branches, searchQuery]);
 
   const previewBranches = branches.slice(0, previewCount);
 
@@ -37,31 +48,66 @@ export const BranchList: React.FC<BranchListProps> = ({
               key={branch}
               branch={branch}
               currentBranch={currentBranch}
+              onClick={() => onSwitchBranch(branch)}
             />
           ))}
 
           {branches.length > previewBranches.length && (
-            <div className="flex justify-center">
-              <button
-                type="button"
+            <div className="flex justify-center pt-2">
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setIsOpen(true)}
-                className="mt-2 text-xs text-app-accent hover:underline"
+                className="text-xs text-app-accent hover:text-app-accent-hover"
               >
                 View all branches
-              </button>
+              </Button>
             </div>
           )}
         </div>
       )}
 
-      {isOpen && (
-        <BranchDialog
-          branches={branches}
-          currentBranch={currentBranch}
-          onClose={() => setIsOpen(false)}
-          onSwitchBranch={onSwitchBranch}
-        />
-      )}
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Switch Branch"
+        size="md"
+        closeOnBackdrop={true}
+      >
+        <div className="space-y-4">
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+            <input
+              type="text"
+              placeholder="Search branches..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-9 pl-9 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
+              autoFocus
+            />
+          </div>
+
+          <div className="space-y-1 max-h-[50vh] overflow-y-auto pr-1">
+            {filteredBranches.length === 0 ? (
+              <p className="text-center text-sm text-[#808080] py-4">
+                No branches found
+              </p>
+            ) : (
+              filteredBranches.map((branch) => (
+                <BranchRow
+                  key={branch}
+                  branch={branch}
+                  currentBranch={currentBranch}
+                  onClick={() => {
+                    onSwitchBranch(branch);
+                    setIsOpen(false);
+                  }}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
@@ -69,82 +115,46 @@ export const BranchList: React.FC<BranchListProps> = ({
 const BranchRow: React.FC<{
   branch: string;
   currentBranch: string | null;
-}> = ({branch, currentBranch}) => (
-  <div
-    className={`p-2.5 rounded border transition-colors ${
-      branch === currentBranch
-        ? "bg-blue-500 border-app-accent shadow-sm"
-        : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d]"
-    }`}
-  >
-    <div className="flex items-center justify-between">
-      <span className="text-sm font-mono text-[#e8e8e8]">{branch}</span>
-      {branch === currentBranch && (
-        <span className="text-xs">Current Branch</span>
-      )}
-    </div>
-  </div>
-);
+  onClick?: () => void;
+}> = ({branch, currentBranch, onClick}) => {
+  const isCurrent = branch === currentBranch;
 
-interface BranchDialogProps {
-  branches: string[];
-  currentBranch: string | null;
-  onClose: () => void;
-  onSwitchBranch: (branch: string) => void;
-}
-
-const BranchDialog: React.FC<BranchDialogProps> = ({
-  branches,
-  currentBranch,
-  onClose,
-  onSwitchBranch,
-}) => {
   return (
     <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={isCurrent ? undefined : onClick}
+      className={`group flex items-center justify-between p-2.5 rounded border transition-all ${
+        isCurrent
+          ? "bg-app-accent/10 border-app-accent cursor-default"
+          : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d] cursor-pointer"
+      }`}
     >
-      <div className="bg-app-bg w-full max-w-md rounded-lg shadow-lg overflow-hidden">
-        <div className="flex items-center justify-between p-3 border-b border-border">
-          <h3 className="text-sm font-medium">Switch branch</h3>
-          <button
-            aria-label="Close dialog"
-            onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary"
-          >
-            <XMarkIcon className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-3 max-h-[60vh] overflow-y-auto space-y-2">
-          {branches.map((branch) => (
-            <div
-              key={branch}
-              className="flex items-center justify-between p-2 rounded hover:bg-[#353535]"
-            >
-              <span className="text-sm font-mono">{branch}</span>
-
-              {branch === currentBranch ? (
-                <Badge variant="success" className="text-xs">
-                  Current
-                </Badge>
-              ) : (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    onSwitchBranch(branch);
-                    onClose();
-                  }}
-                >
-                  Switch
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
+      <div className="flex items-center gap-3">
+        <CodeBracketIcon
+          className={`w-4 h-4 ${
+            isCurrent
+              ? "text-app-accent"
+              : "text-[#808080] group-hover:text-[#b0b0b0]"
+          }`}
+        />
+        <span
+          className={`text-sm font-mono ${
+            isCurrent
+              ? "text-[#e8e8e8] font-medium"
+              : "text-[#b0b0b0] group-hover:text-[#e8e8e8]"
+          }`}
+        >
+          {branch}
+        </span>
       </div>
+      {isCurrent && (
+        <Badge
+          variant="success"
+          size="sm"
+          className="text-[10px] px-1.5 py-0.5"
+        >
+          Current
+        </Badge>
+      )}
     </div>
   );
 };

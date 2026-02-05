@@ -6,7 +6,11 @@ import ReactMarkdown from "react-markdown";
 import {useRepoStore} from "~/stores/repoStore";
 import {FileViewer} from "./FileViewer";
 import LoadingSkeleton from "./LoadingSkeleton";
-import {RepoFileTreeHeader} from "./RepoFileTreeHeader";
+import {RepoFileTreeHeader, type PanelView} from "./RepoFileTreeHeader";
+import {BranchList} from "./BranchList";
+import {CommitList} from "./CommitList";
+import type {Commit} from "~/props/Commit";
+
 // Persist fetched-file flags across mounts to avoid duplicate GETs
 const globalFetchedFiles: Record<string, boolean> = {};
 
@@ -14,12 +18,22 @@ export interface RepoFileTreeProps {
   selectedRepo: string | null;
   fileTree: FileNode[];
   branchOrCommit?: string;
+  branches: string[];
+  currentBranch: string | null;
+  commits: Commit[];
+  onSwitchBranch: (branch: string) => void;
+  onSettingsClick?: () => void;
 }
 
 export const RepoFileTree: FC<RepoFileTreeProps> = ({
   selectedRepo,
   fileTree,
   branchOrCommit,
+  branches,
+  currentBranch,
+  commits,
+  onSwitchBranch,
+  onSettingsClick,
 }) => {
   const fetchFileContent = useRepoStore((state) => state.fetchFileContent);
   const fileContent = useRepoStore((state) => state.fileContent);
@@ -42,7 +56,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
   }, [fileTree]);
 
   // default panel: show README when present, otherwise show files
-  const [panelView, setPanelView] = useState<"files" | "readme">("files");
+  const [panelView, setPanelView] = useState<PanelView>("files");
   const [docTab, setDocTab] = useState<"readme" | "license">("readme");
   const isLoading = useRepoStore((s) => s.isLoading);
   // using module-level `globalFetchedFiles` instead of per-mount ref
@@ -119,6 +133,47 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     );
   }
 
+  const renderPanelContent = () => {
+    switch (panelView) {
+      case "files":
+        return normalizedTree.length ? (
+          <div className="bg-app-surface border border-app-border rounded-lg py-2">
+            <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
+          </div>
+        ) : isLoading ? (
+          <LoadingSkeleton />
+        ) : (
+          <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+            <p className="text-text-tertiary text-sm">No files found</p>
+          </div>
+        );
+      case "readme":
+        return (
+          <div className="bg-app-surface border border-app-border rounded-lg p-6">
+            <div className="markdown-body overflow-auto">
+              <ReactMarkdown>
+                {docTab === "readme"
+                  ? fileContent[readmeFile!]
+                  : fileContent[licenseFile!]}
+              </ReactMarkdown>
+            </div>
+          </div>
+        );
+      case "branches":
+        return (
+          <BranchList
+            branches={branches}
+            currentBranch={currentBranch}
+            onSwitchBranch={onSwitchBranch}
+          />
+        );
+      case "commits":
+        return <CommitList commits={commits} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex-1 h-full flex flex-col">
       {/* Sticky panel header (switcher + docs sub-tabs) */}
@@ -133,33 +188,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
         fetchFileContent={fetchFileContent}
         globalFetchedFiles={globalFetchedFiles}
         branchOrCommit={branchOrCommit}
+        onSettingsClick={onSettingsClick}
       />
 
       {/* Main panel area */}
       <div className="flex-1 min-h-0 overflow-auto mb-6 mt-2">
-        {panelView === "files" ? (
-          normalizedTree.length ? (
-            <div className="bg-app-surface border border-app-border rounded-lg py-2">
-              <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
-            </div>
-          ) : isLoading ? (
-            <LoadingSkeleton />
-          ) : (
-            <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
-              <p className="text-text-tertiary text-sm">No files found</p>
-            </div>
-          )
-        ) : (
-          <div className="bg-app-surface border border-app-border rounded-lg p-6">
-            <div className="markdown-body overflow-auto">
-              <ReactMarkdown>
-                {docTab === "readme"
-                  ? fileContent[readmeFile!]
-                  : fileContent[licenseFile!]}
-              </ReactMarkdown>
-            </div>
-          </div>
-        )}
+        {renderPanelContent()}
       </div>
     </div>
   );

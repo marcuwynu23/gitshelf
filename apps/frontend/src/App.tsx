@@ -2,16 +2,59 @@ import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
 import {Suspense, lazy} from "react";
 
 // Lazy load page components for code splitting
-const Dashboard = lazy(() => import("./pages/dashboard/Dashboard").then(module => ({ default: module.Dashboard })));
-const RepoListPage = lazy(() => import("./pages/repo/RepoListPage").then(module => ({ default: module.RepoListPage })));
-const RepoDetailPage = lazy(() => import("./pages/repo/RepoDetailPage").then(module => ({ default: module.RepoDetailPage })));
-const Login = lazy(() => import("./pages/auth/Login").then(module => ({ default: module.Login })));
-const Register = lazy(() => import("./pages/auth/Register").then(module => ({ default: module.Register })));
-const Recovery = lazy(() => import("./pages/auth/Recovery").then(module => ({ default: module.Recovery })));
-const Settings = lazy(() => import("./pages/settings/Settings").then(module => ({ default: module.Settings })));
-const Profile = lazy(() => import("./pages/profile/Profile").then(module => ({ default: module.Profile })));
-const Notification = lazy(() => import("./pages/notifications/Notification").then(module => ({ default: module.Notification })));
-const ProtectedRoute = lazy(() => import("./components/ProtectedRoute").then(module => ({ default: module.ProtectedRoute })));
+const Dashboard = lazy(() =>
+  import("./pages/dashboard/Dashboard").then((module) => ({
+    default: module.Dashboard,
+  })),
+);
+const RepoListPage = lazy(() =>
+  import("./pages/repo/RepoListPage").then((module) => ({
+    default: module.RepoListPage,
+  })),
+);
+const RepoDetailPage = lazy(() =>
+  import("./pages/repo/RepoDetailPage").then((module) => ({
+    default: module.RepoDetailPage,
+  })),
+);
+const Login = lazy(() =>
+  import("./pages/auth/Login").then((module) => ({default: module.Login})),
+);
+const Register = lazy(() =>
+  import("./pages/auth/Register").then((module) => ({
+    default: module.Register,
+  })),
+);
+const Recovery = lazy(() =>
+  import("./pages/auth/Recovery").then((module) => ({
+    default: module.Recovery,
+  })),
+);
+const Settings = lazy(() =>
+  import("./pages/settings/Settings").then((module) => ({
+    default: module.Settings,
+  })),
+);
+const Profile = lazy(() =>
+  import("./pages/profile/Profile").then((module) => ({
+    default: module.Profile,
+  })),
+);
+const Notification = lazy(() =>
+  import("./pages/notifications/Notification").then((module) => ({
+    default: module.Notification,
+  })),
+);
+const HelpPage = lazy(() =>
+  import("./pages/help/HelpPage").then((module) => ({
+    default: module.HelpPage,
+  })),
+);
+const ProtectedRoute = lazy(() =>
+  import("./components/ProtectedRoute").then((module) => ({
+    default: module.ProtectedRoute,
+  })),
+);
 
 // Loading component for Suspense fallback
 const PageLoading = () => (
@@ -79,6 +122,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Notification />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/help"
+            element={
+              <ProtectedRoute>
+                <HelpPage />
               </ProtectedRoute>
             }
           />

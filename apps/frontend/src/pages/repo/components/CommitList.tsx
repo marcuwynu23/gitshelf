@@ -1,5 +1,6 @@
-import {ClockIcon, XMarkIcon} from "@heroicons/react/24/outline";
+import {ClockIcon} from "@heroicons/react/24/outline";
 import React, {useMemo, useState} from "react";
+import {Button, Modal} from "~/components/ui";
 
 export interface Commit {
   hash: string;
@@ -25,60 +26,83 @@ export const CommitList: React.FC<CommitListProps> = ({
   );
 
   if (!commits || commits.length === 0) {
-    return <p className="text-text-tertiary text-xs">No commits found</p>;
+    return <p className="text-[#808080] text-xs">No commits found</p>;
   }
 
   return (
     <div className="flex-1">
-      <div className="flex items-center gap-2 mb-2">
-        <ClockIcon className="w-4 h-4 text-text-secondary" />
-        <h2 className="text-sm font-medium text-text-primary uppercase">
-          Recent Commits
+      <div className="flex items-center gap-2 mb-4">
+        <ClockIcon className="w-4 h-4 text-[#808080]" />
+        <h2 className="text-sm font-semibold text-[#e8e8e8] uppercase tracking-wider">
+          Commits
         </h2>
       </div>
 
-      <CommitItems commits={latestCommits} />
+      <div className="relative pl-2">
+        {/* Timeline line */}
+        <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-[#3d3d3d]" />
+
+        <CommitItems commits={latestCommits} />
+      </div>
 
       {commits.length >= previewCount && (
-        <div className="flex justify-center">
-          <button
-            type="button"
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => setIsOpen(true)}
-            className="mt-2 text-xs text-app-accent hover:underline"
+            className="text-xs text-app-accent hover:text-app-accent-hover"
           >
             View all commits
-          </button>
+          </Button>
         </div>
       )}
 
-      {isOpen && (
-        <CommitDialog commits={commits} onClose={() => setIsOpen(false)} />
-      )}
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Commit History"
+        size="lg"
+        closeOnBackdrop={true}
+      >
+        <div className="max-h-[60vh] overflow-y-auto pr-2 relative pl-2">
+          {/* Timeline line in modal */}
+          <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-[#3d3d3d]" />
+          <CommitItems commits={commits} />
+        </div>
+      </Modal>
     </div>
   );
 };
 
 const CommitItems: React.FC<{commits: Commit[]}> = ({commits}) => (
-  <ul className="space-y-1">
+  <ul className="space-y-4 relative z-0">
     {commits.map((c) => (
-      <li
-        key={c.hash}
-        className="block px-2 py-2 rounded-md hover:bg-app-bg/60 transition-colors"
-      >
-        <div className="flex flex-col gap-1">
-          <div className="inline-flex items-center gap-2 text-xs">
-            <span className="font-medium text-text-primary truncate">
-              {c.author}
+      <li key={c.hash} className="group relative flex gap-4 items-start">
+        {/* Timeline dot */}
+        <div className="mt-1.5 w-2 h-2 rounded-full bg-[#505050] ring-4 ring-app-bg group-hover:bg-app-accent transition-colors shrink-0 z-10" />
+
+        <div className="flex-1 min-w-0 bg-transparent rounded-md group-hover:bg-[#353535]/50 transition-colors -ml-2 pl-2 py-1 pr-2">
+          <div className="flex items-baseline justify-between gap-2 mb-0.5">
+            <span className="text-sm font-medium text-[#e8e8e8] truncate">
+              {c.message}
+            </span>
+            <span className="text-[10px] font-mono text-app-accent shrink-0 bg-app-accent/10 px-1.5 py-0.5 rounded">
+              {c.hash.slice(0, 7)}
             </span>
           </div>
 
-          <span className="text-sm text-text-secondary truncate border-b border-gray-700 pb-0.5">
-            {c.message}
-          </span>
-          <div className="flex items-center gap-2 text-[9pt] text-text-tertiary">
-            <span className="mr-auto">{new Date(c.date).toDateString()}</span>
-            <span className="font-mono text-app-accent">
-              {c.hash.slice(0, 7)}
+          <div className="flex items-center gap-2 text-xs text-[#808080]">
+            <span className="font-medium text-[#b0b0b0] truncate max-w-[150px]">
+              {c.author}
+            </span>
+            <span>•</span>
+            <span>
+              {new Date(c.date).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
           </div>
         </div>
@@ -86,37 +110,5 @@ const CommitItems: React.FC<{commits: Commit[]}> = ({commits}) => (
     ))}
   </ul>
 );
-
-interface CommitDialogProps {
-  commits: Commit[];
-  onClose: () => void;
-}
-
-const CommitDialog: React.FC<CommitDialogProps> = ({commits, onClose}) => {
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-    >
-      <div className="bg-app-bg rounded-lg w-full max-w-lg max-h-[80vh] overflow-hidden shadow-lg">
-        <div className="flex items-center justify-between p-3 border-b border-border">
-          <h3 className="text-sm font-medium">All commits</h3>
-          <button
-            aria-label="Close dialog"
-            onClick={onClose}
-            className="text-text-tertiary hover:text-text-primary"
-          >
-            <XMarkIcon className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-3 overflow-y-auto">
-          <CommitItems commits={commits} />
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default CommitList;

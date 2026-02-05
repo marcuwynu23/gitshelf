@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import axios from "axios";
 import {MainLayout} from "~/components/layout/MainLayout";
+import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {Breadcrumbs, Badge} from "~/components/ui";
 import {DashboardSkeleton} from "./components/DashboardSkeleton";
 import {
@@ -79,7 +80,10 @@ export const Dashboard = () => {
 
   if (loading) {
     return (
-      <MainLayout activeSidebarItem="dashboard">
+      <MainLayout
+        activeSidebarItem="dashboard"
+        rightSidebar={<HelpSidebarContent />}
+      >
         <DashboardSkeleton />
       </MainLayout>
     );
@@ -87,7 +91,10 @@ export const Dashboard = () => {
 
   if (error || !stats) {
     return (
-      <MainLayout activeSidebarItem="dashboard">
+      <MainLayout
+        activeSidebarItem="dashboard"
+        rightSidebar={<HelpSidebarContent />}
+      >
         <div className="h-full flex items-center justify-center">
           <p className="text-error">{error || "Failed to load dashboard"}</p>
         </div>
@@ -96,16 +103,16 @@ export const Dashboard = () => {
   }
 
   return (
-    <MainLayout activeSidebarItem="dashboard">
+    <MainLayout
+      activeSidebarItem="dashboard"
+      rightSidebar={<HelpSidebarContent />}
+    >
       <div className="h-full flex flex-col">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1">
-            Dashboard
-          </h1>
           <p className="text-sm text-[#b0b0b0]">
             Overview of your repositories and activity
           </p>
@@ -197,7 +204,11 @@ export const Dashboard = () => {
                           {displayName(repo.name)}
                         </span>
                         {repo.archived && (
-                          <Badge variant="neutral" size="sm" className="text-xs w-fit">
+                          <Badge
+                            variant="neutral"
+                            size="sm"
+                            className="text-xs w-fit"
+                          >
                             Archived
                           </Badge>
                         )}

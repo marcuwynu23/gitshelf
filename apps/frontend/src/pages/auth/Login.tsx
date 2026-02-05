@@ -36,7 +36,7 @@ export const Login = () => {
               Welcome back
             </h1>
             <p className="text-sm text-[#b0b0b0]">
-              Sign in to your Repohub account
+              Sign in to your GitShelf account
             </p>
           </div>
 

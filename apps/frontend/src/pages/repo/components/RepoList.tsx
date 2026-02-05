@@ -39,6 +39,11 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
     return currentPath === repoPath;
   };
 
+  const truncateDescription = (desc: string, length: number = 200) => {
+    if (desc.length <= length) return desc;
+    return desc.substring(0, length) + "...";
+  };
+
   if (repos.length === 0) {
     return (
       <div className="text-center py-12">
@@ -61,16 +66,33 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
             }`}
           >
             {/* Left: Icon + Repo Name */}
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0" />
-              <div className="flex flex-col gap-1 min-w-0">
-                <span className="font-medium text-sm text-[#e8e8e8] truncate">
-                  {displayName(repo.title || repo.name)}
-                </span>
-                {repo.archived && (
-                  <Badge variant="neutral" size="sm" className="text-xs">
-                    Archived
-                  </Badge>
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <ArchiveBoxIcon className="w-5 h-5 text-[#b0b0b0] flex-shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-sm text-[#e8e8e8] truncate">
+                    {displayName(repo.title || repo.name)}
+                  </span>
+                  {repo.archived && (
+                    <Badge
+                      variant="neutral"
+                      size="sm"
+                      className="text-xs py-0 h-5"
+                    >
+                      Archived
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-[10px] text-[#606060] truncate">
+                  {repo.name}
+                </p>
+                {repo.description && (
+                  <p
+                    className="text-xs text-[#808080] line-clamp-1"
+                    title={repo.description}
+                  >
+                    {truncateDescription(repo.description)}
+                  </p>
                 )}
               </div>
             </div>
@@ -104,9 +126,6 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
                   }}
                 >
                   <CommandLineIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
-                  <span className="text-xs text-[#808080] font-medium hidden sm:inline">
-                    SSH
-                  </span>
                 </button>
               )}
               {repo.httpAddress && (
@@ -120,9 +139,6 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
                   }}
                 >
                   <LinkIcon className="w-4 h-4 text-[#808080] flex-shrink-0" />
-                  <span className="text-xs text-[#808080] font-medium hidden sm:inline">
-                    HTTPS
-                  </span>
                 </button>
               )}
             </div>

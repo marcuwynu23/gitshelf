@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
+import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {Breadcrumbs, Button, Badge} from "~/components/ui";
 import {NotificationsSkeleton} from "./components/NotificationsSkeleton";
 import {
@@ -92,7 +93,7 @@ export const Notification = () => {
       // TODO: Replace with actual API endpoint
       // await axios.put(`/api/notifications/${id}/read`);
       setNotifications((prev) =>
-        prev.map((notif) => (notif.id === id ? {...notif, read: true} : notif))
+        prev.map((notif) => (notif.id === id ? {...notif, read: true} : notif)),
       );
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -162,14 +163,20 @@ export const Notification = () => {
 
   if (loading) {
     return (
-      <MainLayout activeSidebarItem="notifications">
+      <MainLayout
+        activeSidebarItem="notifications"
+        rightSidebar={<HelpSidebarContent />}
+      >
         <NotificationsSkeleton />
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout activeSidebarItem="dashboard">
+    <MainLayout
+      activeSidebarItem="dashboard"
+      rightSidebar={<HelpSidebarContent />}
+    >
       <div className="h-full flex flex-col">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
