@@ -8,6 +8,7 @@ import {
   ChevronLeftIcon,
   UserIcon,
   QuestionMarkCircleIcon,
+  ClockIcon,
 } from "@heroicons/react/24/outline";
 
 interface SidebarItem {
@@ -43,6 +44,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     switch (itemId) {
       case "dashboard":
         return "/dashboard";
+      case "activities":
+        return "/activities";
       case "repos":
         return "/repositories";
       case "settings":
@@ -75,6 +78,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           id: "dashboard",
           label: "Dashboard",
           icon: HomeIcon,
+        },
+        {
+          id: "activities",
+          label: "Activity",
+          icon: ClockIcon,
         },
       ],
     },

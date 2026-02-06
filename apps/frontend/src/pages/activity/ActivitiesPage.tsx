@@ -12,9 +12,9 @@ import {
 } from "@heroicons/react/24/outline";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
-import {Button} from "~/components/ui/Button";
+import {Breadcrumbs, Button} from "~/components/ui";
 import {useActivityStore} from "~/stores/activityStore";
-import {SkeletonText, SkeletonTitle} from "~/components/ui/Skeleton";
+import {SkeletonText} from "~/components/ui/Skeleton";
 
 export const ActivitiesPage = () => {
   const {
@@ -59,34 +59,52 @@ export const ActivitiesPage = () => {
     return activity.title;
   };
 
+  const breadcrumbs = [
+    {
+      label: "Activity",
+    },
+  ];
+
   return (
     <MainLayout
-      activeSidebarItem="dashboard" // or maybe a new item? For now keep dashboard active or none
+      activeSidebarItem="activities"
       rightSidebar={<HelpSidebarContent />}
     >
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-text-primary">Activity Log</h1>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => markAllAsRead()}
-            className="flex items-center gap-2"
-          >
-            <CheckCircleIcon className="w-4 h-4" />
-            Mark all as read
-          </Button>
+      <div className="h-full flex flex-col gap-8 pb-8">
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={breadcrumbs} />
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl font-bold text-[#e8e8e8]">
+                Activity Log
+              </h1>
+              <p className="text-[#b0b0b0]">
+                Track all actions and updates across your repositories.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => markAllAsRead()}
+              className="flex items-center gap-2"
+            >
+              <CheckCircleIcon className="w-4 h-4" />
+              Mark all as read
+            </Button>
+          </div>
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-lg mb-6">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-lg">
             {error}
           </div>
         )}
 
         <div className="space-y-4">
           {activities.length === 0 && !loading ? (
-            <div className="bg-app-surface border border-app-border rounded-xl p-12 text-center">
+            <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-12 text-center">
               <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
                 <CommandLineIcon className="w-8 h-8 text-[#808080]" />
               </div>
@@ -99,11 +117,11 @@ export const ActivitiesPage = () => {
             </div>
           ) : (
             <>
-              <div className="bg-app-surface border border-app-border rounded-xl overflow-hidden">
+              <div className="bg-app-surface border border-[#3d3d3d] rounded-xl overflow-hidden">
                 {activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className={`group w-full flex items-start gap-4 p-4 border-b border-app-border last:border-0 transition-colors hover:bg-white/5 ${
+                    className={`group w-full flex items-start gap-4 p-4 border-b border-[#3d3d3d] last:border-0 transition-colors hover:bg-white/5 ${
                       !activity.read ? "bg-white/[0.02]" : ""
                     }`}
                   >
@@ -113,10 +131,10 @@ export const ActivitiesPage = () => {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
-                        <p className="text-base font-medium text-text-primary truncate pr-2">
+                        <p className="text-base font-medium text-[#e8e8e8] truncate pr-2">
                           {getActivityMessage(activity)}
                         </p>
-                        <span className="text-xs text-text-tertiary whitespace-nowrap shrink-0 mt-0.5">
+                        <span className="text-xs text-[#808080] whitespace-nowrap shrink-0 mt-0.5">
                           {format(
                             new Date(activity.createdAt),
                             "MMM d, yyyy h:mm a",
@@ -125,7 +143,7 @@ export const ActivitiesPage = () => {
                       </div>
 
                       {activity.description && (
-                        <p className="text-sm text-text-secondary mt-1">
+                        <p className="text-sm text-[#b0b0b0] mt-1">
                           {activity.description}
                         </p>
                       )}
@@ -155,11 +173,11 @@ export const ActivitiesPage = () => {
 
               {/* Loading Skeleton for initial load or load more */}
               {loading && (
-                <div className="bg-app-surface border border-app-border rounded-xl overflow-hidden mt-4">
+                <div className="bg-app-surface border border-[#3d3d3d] rounded-xl overflow-hidden mt-4">
                   {Array.from({length: 3}).map((_, i) => (
                     <div
                       key={i}
-                      className="w-full flex items-center gap-4 p-4 border-b border-app-border last:border-0"
+                      className="w-full flex items-center gap-4 p-4 border-b border-[#3d3d3d] last:border-0"
                     >
                       <div className="p-2 bg-white/5 rounded-lg">
                         <SkeletonText className="w-6 h-6" />
