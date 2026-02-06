@@ -249,7 +249,7 @@ const FileNodeItem: React.FC<{
               {node.name}
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-4 shrink-0 opacity-60 text-sm">
+          <div className="hidden sm:flex items-center gap-4 shrink-0 opacity-60 text-sm">
             <span className="text-ellipsis max-w-[28ch]">—</span>
             <span className="text-xs text-white/50">—</span>
           </div>
@@ -279,7 +279,7 @@ const FileNodeItem: React.FC<{
         <span className={`text-sm ${textColor} truncate`}>{node.name}</span>
       </div>
 
-      <div className="hidden md:flex items-center gap-4 shrink-0 text-sm opacity-80">
+      <div className="hidden sm:flex items-center gap-4 shrink-0 text-sm opacity-80">
         <span className="max-w-[40ch] overflow-hidden text-ellipsis whitespace-nowrap block text-white/90">
           {node.lastCommitMsg ?? ""}
         </span>
