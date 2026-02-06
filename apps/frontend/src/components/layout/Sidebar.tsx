@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 md:hidden backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 bg-black/10 z-30 md:hidden backdrop-blur transition-opacity"
           onClick={onClose}
         />
       )}

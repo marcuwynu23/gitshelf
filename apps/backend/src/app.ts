@@ -35,7 +35,7 @@ export function createApp() {
   app.use("/api/repos", repoRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/settings", settingsRoutes);
-  app.use("/api/activity", activityRoutes);
+  app.use("/api/activities", activityRoutes);
 
   app.get("/api/check", (_req, res) => res.send("Hello"));
 

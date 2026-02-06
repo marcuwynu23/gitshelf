@@ -5,6 +5,7 @@ import {MainLayout} from "~/components/layout/MainLayout";
 import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {Breadcrumbs, Badge, Button} from "~/components/ui";
 import {DashboardSkeleton} from "./components/DashboardSkeleton";
+import {ActivityList} from "./components/ActivityList";
 import {useAuthStore} from "~/stores/authStore";
 import {
   FolderIcon,
@@ -233,54 +234,66 @@ export const Dashboard = () => {
             )}
           </div>
 
-          {/* Right Column: Quick Actions */}
-          <div className="flex flex-col gap-6">
-            <h2 className="text-xl font-semibold text-[#e8e8e8]">
-              Quick Actions
-            </h2>
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-1 overflow-hidden">
-              <button
-                onClick={() => navigate("/repositories")}
-                className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
-              >
-                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:scale-110 transition-transform">
-                  <PlusIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-[#e8e8e8]">New Repository</h3>
-                  <p className="text-xs text-[#808080]">Create a new project</p>
-                </div>
-                <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+          {/* Right Column: Quick Actions & Activity */}
+          <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6">
+              <h2 className="text-xl font-semibold text-[#e8e8e8]">
+                Quick Actions
+              </h2>
+              <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-1 overflow-hidden">
+                <button
+                  onClick={() => navigate("/repositories")}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
+                >
+                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:scale-110 transition-transform">
+                    <PlusIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[#e8e8e8]">
+                      New Repository
+                    </h3>
+                    <p className="text-xs text-[#808080]">
+                      Create a new project
+                    </p>
+                  </div>
+                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
 
-              <button
-                onClick={() => navigate("/help")}
-                className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
-              >
-                <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500 group-hover:scale-110 transition-transform">
-                  <BookOpenIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-[#e8e8e8]">Documentation</h3>
-                  <p className="text-xs text-[#808080]">Learn how to use</p>
-                </div>
-                <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <button
+                  onClick={() => navigate("/help")}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
+                >
+                  <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500 group-hover:scale-110 transition-transform">
+                    <BookOpenIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[#e8e8e8]">
+                      Documentation
+                    </h3>
+                    <p className="text-xs text-[#808080]">Learn how to use</p>
+                  </div>
+                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
 
-              <button
-                onClick={() => navigate("/settings")}
-                className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group"
-              >
-                <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500 group-hover:scale-110 transition-transform">
-                  <Cog6ToothIcon className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-[#e8e8e8]">Settings</h3>
-                  <p className="text-xs text-[#808080]">Manage your account</p>
-                </div>
-                <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
-              </button>
+                <button
+                  onClick={() => navigate("/settings")}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group"
+                >
+                  <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500 group-hover:scale-110 transition-transform">
+                    <Cog6ToothIcon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-[#e8e8e8]">Settings</h3>
+                    <p className="text-xs text-[#808080]">
+                      Manage your account
+                    </p>
+                  </div>
+                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              </div>
             </div>
+
+            <ActivityList />
           </div>
         </div>
       </div>

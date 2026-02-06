@@ -45,6 +45,11 @@ const Notification = lazy(() =>
     default: module.Notification,
   })),
 );
+const ActivitiesPage = lazy(() =>
+  import("./pages/activity/ActivitiesPage").then((module) => ({
+    default: module.ActivitiesPage,
+  })),
+);
 const HelpPage = lazy(() =>
   import("./pages/help/HelpPage").then((module) => ({
     default: module.HelpPage,
@@ -122,6 +127,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Notification />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activities"
+            element={
+              <ProtectedRoute>
+                <ActivitiesPage />
               </ProtectedRoute>
             }
           />
