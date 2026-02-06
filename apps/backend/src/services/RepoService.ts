@@ -24,7 +24,6 @@ export class RepoService {
     }
 
     // Get all repo metadata from database
-    // @ts-ignore - Sequelize static methods are available after init()
     const repoMetadata = await RepoModel.findAll({
       where: {username},
     });
@@ -75,7 +74,6 @@ export class RepoService {
     const repoPath = path.join(repoDir, repoNameWithGit);
 
     // Check if repo exists in database
-    // @ts-ignore - Sequelize static methods are available after init()
     const existingRepo = await RepoModel.findOne({
       where: {
         username,
@@ -128,6 +126,11 @@ export class RepoService {
     sshAddress: string | null;
     httpAddress: string;
   } | null> {
+    // Check if repo exists physically first
+    if (!this.repoExists(username, repoName)) {
+      return null;
+    }
+
     // @ts-ignore - Sequelize static methods are available after init()
     const repo = await RepoModel.findOne({
       where: {
@@ -136,16 +139,23 @@ export class RepoService {
       },
     });
 
-    if (!repo) {
-      return null;
-    }
-
     const sshHost = process.env.SSH_HOST || "localhost";
     const sshPort = process.env.SSH_PORT || "2222";
     const sshEnabled = process.env.ENABLE_SSH !== "false";
     const sshAddress: string | null = sshEnabled
-      ? `ssh://${sshHost}:${sshPort}/${username}/${repo.name}`
+      ? `ssh://${sshHost}:${sshPort}/${username}/${repoName}`
       : null;
+
+    if (!repo) {
+      // Repo exists on disk but not in DB -> Return virtual metadata
+      return {
+        title: repoName.replace(/\.git$/, ""),
+        description: undefined,
+        archived: false,
+        sshAddress,
+        httpAddress: `${httpBaseURL}/repository/${username}/${repoName}`,
+      };
+    }
 
     return {
       title: repo.title || undefined,
@@ -162,27 +172,40 @@ export class RepoService {
     title?: string | null,
     description?: string | null,
   ): Promise<{title?: string; description?: string}> {
-    // @ts-ignore - Sequelize static methods are available after init()
-    const [affectedCount] = await RepoModel.update(
-      {
-        title: title || null,
-        description: description || null,
-      },
-      {
-        where: {
-          username,
-          name: repoName,
-        },
-      },
-    );
-
-    if (affectedCount === 0) {
+    // 1. Check if repo exists physically
+    if (!this.repoExists(username, repoName)) {
       throw new Error("Repo not found");
     }
 
+    // 2. Try to find the repo in DB
+    let repo = await RepoModel.findOne({
+      where: {
+        username,
+        name: repoName,
+      },
+    });
+
+    if (repo) {
+      // Update existing record
+      await repo.update({
+        title: title !== undefined ? title : repo.title,
+        description: description !== undefined ? description : repo.description,
+      });
+    } else {
+      // Repo exists on disk but not in DB -> Create it (Upsert-like behavior)
+      repo = await RepoModel.create({
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        username,
+        name: repoName,
+        title: title || repoName.replace(/\.git$/, ""), // Default title if not provided
+        description: description || null,
+        archived: false,
+      });
+    }
+
     return {
-      title: title || undefined,
-      description: description || undefined,
+      title: repo.title || undefined,
+      description: repo.description || undefined,
     };
   }
 
@@ -212,7 +235,6 @@ export class RepoService {
     fs.rmSync(repoPath, {recursive: true, force: true});
 
     // Remove from database
-    // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.destroy({
       where: {
         username,
@@ -236,7 +258,6 @@ export class RepoService {
 
     // For now, we'll just update the database to mark as archived
     // In a real implementation, you might want to move the repo to an archive directory
-    // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
       {archived: true},
       {
@@ -254,7 +275,6 @@ export class RepoService {
     }
 
     // Update the database to mark as unarchived
-    // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
       {archived: false},
       {
@@ -307,7 +327,6 @@ export class RepoService {
 
     console.log("Updating database record");
     // Update database record (only name changes for rename)
-    // @ts-ignore - Sequelize static methods are available after init()
     await RepoModel.update(
       {
         name: newRepoNameWithGit,

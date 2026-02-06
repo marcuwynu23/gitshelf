@@ -2,8 +2,8 @@ export interface RepoItem {
   name: string;
   sshAddress: string | null;
   httpAddress: string;
-  title?: string;
-  description?: string;
+  title?: string | null;
+  description?: string | null;
 }
 
 export interface CreateRepoRequest {
@@ -18,6 +18,6 @@ export interface CreateRepoResponse {
 }
 
 export interface RepoMetadata {
-  title?: string;
-  description?: string;
+  title?: string | null;
+  description?: string | null;
 }
