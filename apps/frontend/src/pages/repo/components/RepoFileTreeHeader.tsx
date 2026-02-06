@@ -36,13 +36,13 @@ export const RepoFileTreeHeader: FC<Props> = ({
   onSettingsClick,
 }) => {
   return (
-    <div className="sticky top-0 z-10 bg-app-bg border-b border-app-border py-2 pr-2">
-      <div className="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-2">
+    <div className="sticky top-0 z-10 bg-app-bg border-b border-app-border p-2">
+      <div className="flex items-center w-full">
+        <div className="flex flex-1 items-center gap-2 w-full">
           <button
             onClick={() => setPanelView("files")}
             aria-pressed={panelView === "files"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "files"
                 ? "bg-app-accent text-white shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
@@ -55,7 +55,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
           <button
             onClick={() => setPanelView("readme")}
             aria-pressed={panelView === "readme"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "readme"
                 ? "bg-app-accent text-white shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
@@ -68,7 +68,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
           <button
             onClick={() => setPanelView("branches")}
             aria-pressed={panelView === "branches"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "branches"
                 ? "bg-app-accent text-white shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
@@ -81,7 +81,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
           <button
             onClick={() => setPanelView("commits")}
             aria-pressed={panelView === "commits"}
-            className={`inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "commits"
                 ? "bg-app-accent text-white shadow-sm"
                 : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
@@ -94,16 +94,12 @@ export const RepoFileTreeHeader: FC<Props> = ({
           {onSettingsClick && (
             <button
               onClick={onSettingsClick}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-md text-sm font-medium text-text-tertiary hover:text-text-primary hover:bg-white/3 whitespace-nowrap transition-colors"
+              className="flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium text-text-tertiary hover:text-text-primary hover:bg-white/3 whitespace-nowrap transition-colors"
             >
               <Cog6ToothIcon className="w-4 h-4" />
               <span className="hidden sm:inline">Settings</span>
             </button>
           )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* subtle helper area (could hold repo actions) */}
         </div>
       </div>
 
