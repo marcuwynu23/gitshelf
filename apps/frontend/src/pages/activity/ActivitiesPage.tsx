@@ -70,16 +70,13 @@ export const ActivitiesPage = () => {
       activeSidebarItem="activities"
       rightSidebar={<HelpSidebarContent />}
     >
-      <div className="h-full flex flex-col gap-8 pb-8">
+      <div className="h-full flex flex-col pb-2">
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-2">
-              <h1 className="text-3xl font-bold text-[#e8e8e8]">
-                Activity Log
-              </h1>
               <p className="text-[#b0b0b0]">
                 Track all actions and updates across your repositories.
               </p>
