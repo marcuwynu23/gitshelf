@@ -137,32 +137,78 @@ export const FileViewer: FC<Props> = ({
       <h3 className="text-sm font-semibold text-text-secondary mb-4 tracking-wider">
         {selectedFile}
       </h3>
-      <div className="flex-1 overflow-auto bg-app-surface border border-app-border rounded-lg">
+      <div
+        className={`flex-1 bg-app-surface border border-app-border rounded-lg min-h-[500px] md:min-h-0 ${
+          isMarkdown && viewMode === "preview"
+            ? "overflow-auto"
+            : "overflow-auto md:overflow-hidden"
+        }`}
+      >
         {isMarkdown ? (
           viewMode === "preview" ? (
-            <div className="markdown-body p-6">
+            <div className="markdown-body p-4 md:p-6">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
             <div className="h-full">
+              <div className="block md:hidden h-full p-4 overflow-auto">
+                <pre className="text-xs font-mono whitespace-pre-wrap break-words text-text-primary">
+                  {content}
+                </pre>
+              </div>
+              <div className="hidden md:block h-full">
+                <MonacoEditor
+                  height="100%"
+                  language={language}
+                  theme="vs-dark"
+                  value={content}
+                  options={{
+                    readOnly: true,
+                    wordWrap: "on",
+                    minimap: {enabled: false},
+                    automaticLayout: true,
+                    scrollBeyondLastLine: false,
+                    scrollbar: {
+                      vertical: "auto",
+                      horizontal: "hidden",
+                    },
+                    overviewRulerLanes: 0,
+                    hideCursorInOverviewRuler: true,
+                    overviewRulerBorder: false,
+                  }}
+                />
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="h-full">
+            <div className="block md:hidden h-full p-4 overflow-auto">
+              <pre className="text-xs font-mono whitespace-pre-wrap break-words text-text-primary">
+                {content}
+              </pre>
+            </div>
+            <div className="hidden md:block h-full">
               <MonacoEditor
                 height="100%"
                 language={language}
                 theme="vs-dark"
                 value={content}
-                options={{readOnly: true}}
+                options={{
+                  readOnly: true,
+                  wordWrap: "on",
+                  minimap: {enabled: false},
+                  automaticLayout: true,
+                  scrollBeyondLastLine: false,
+                  scrollbar: {
+                    vertical: "auto",
+                    horizontal: "hidden",
+                  },
+                  overviewRulerLanes: 0,
+                  hideCursorInOverviewRuler: true,
+                  overviewRulerBorder: false,
+                }}
               />
             </div>
-          )
-        ) : (
-          <div className="h-full">
-            <MonacoEditor
-              height="100%"
-              language={language}
-              theme="vs-dark"
-              value={content}
-              options={{readOnly: true}}
-            />
           </div>
         )}
       </div>
