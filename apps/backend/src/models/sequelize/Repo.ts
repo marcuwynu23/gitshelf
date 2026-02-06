@@ -5,8 +5,8 @@ interface RepoAttributes {
   id: string;
   username: string;
   name: string; // repo name (e.g., "my-repo.git")
-  title?: string;
-  description?: string;
+  title?: string | null;
+  description?: string | null;
   archived?: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -18,8 +18,8 @@ export class RepoModel extends Model<RepoAttributes, RepoCreationAttributes> imp
   declare id: string;
   declare username: string;
   declare name: string;
-  declare title?: string;
-  declare description?: string;
+  declare title?: string | null;
+  declare description?: string | null;
   declare archived?: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
