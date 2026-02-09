@@ -33,10 +33,22 @@ export class RepoController {
         return;
       }
 
-      const {name, title, description} = req.body as {
+      const {
+        name,
+        title,
+        description,
+        defaultBranch,
+        addReadme,
+        addLicense,
+        addGitignore,
+      } = req.body as {
         name: string;
         title?: string;
         description?: string;
+        defaultBranch?: string;
+        addReadme?: boolean;
+        addLicense?: boolean;
+        addGitignore?: boolean;
       };
       const repoName = await repoService.createRepo(
         req.userId!,
@@ -44,6 +56,12 @@ export class RepoController {
         name,
         title,
         description,
+        {
+          defaultBranch,
+          addReadme,
+          addLicense,
+          addGitignore,
+        },
       );
       res.json({message: "Repo created", name: repoName});
     } catch (err: any) {

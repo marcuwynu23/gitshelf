@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 import simpleGit, {SimpleGit} from "simple-git";
 import {getUserRepoDir} from "../utils/config";
 import type {RepoItem} from "../models/Repo";
@@ -64,6 +65,12 @@ export class RepoService {
     name: string,
     title?: string,
     description?: string,
+    options?: {
+      defaultBranch?: string;
+      addReadme?: boolean;
+      addLicense?: boolean;
+      addGitignore?: boolean;
+    },
   ): Promise<string> {
     if (!name.trim()) {
       throw new Error("Repo name required");
@@ -71,7 +78,8 @@ export class RepoService {
 
     const repoNameWithGit = `${name}.git`;
     const repoDir = getUserRepoDir(username);
-    const repoPath = path.join(repoDir, repoNameWithGit);
+    // Ensure repoPath is absolute because we might access it from a tmp dir
+    const repoPath = path.resolve(path.join(repoDir, repoNameWithGit));
 
     // Check if repo exists in database
     const existingRepo = await RepoModel.findOne({
@@ -89,9 +97,115 @@ export class RepoService {
       throw new Error("Repo exists");
     }
 
+    // 1. Create the bare repository directory
     fs.mkdirSync(repoPath, {recursive: true});
     const git: SimpleGit = simpleGit(repoPath);
     await git.init(true); // bare repo
+
+    // 2. If requested, initialize with files
+    const shouldInitialize =
+      options?.addReadme || options?.addLicense || options?.addGitignore;
+
+    if (shouldInitialize) {
+      const defaultBranch = options?.defaultBranch || "main";
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "repohub-init-"));
+      const tmpGit = simpleGit(tmpDir);
+
+      try {
+        await tmpGit.init();
+
+        // Create files
+        if (options?.addReadme) {
+          fs.writeFileSync(
+            path.join(tmpDir, "README.md"),
+            `# ${title || name}\n\n${description || ""}`,
+          );
+        }
+
+        if (options?.addGitignore) {
+          // Simple Node.js gitignore
+          const gitignoreContent = `node_modules
+dist
+.env
+.DS_Store
+coverage
+`;
+          fs.writeFileSync(path.join(tmpDir, ".gitignore"), gitignoreContent);
+        }
+
+        if (options?.addLicense) {
+          // Simple MIT License
+          const year = new Date().getFullYear();
+          const licenseContent = `MIT License
+
+Copyright (c) ${year} ${username}
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+`;
+          fs.writeFileSync(path.join(tmpDir, "LICENSE"), licenseContent);
+        }
+
+        // Commit and push
+        console.log(
+          `Initializing repo with files on branch ${defaultBranch}...`,
+        );
+        await tmpGit.checkoutLocalBranch(defaultBranch);
+        await tmpGit.add(".");
+        await tmpGit.commit("Initial commit");
+
+        // Normalize path for git remote to ensure Windows paths work correctly
+        const remoteUrl = repoPath.split(path.sep).join("/");
+        console.log(`Pushing to remote: ${remoteUrl}`);
+
+        await tmpGit.addRemote("origin", remoteUrl);
+        await tmpGit.push("origin", defaultBranch);
+
+        console.log("Push successful. Updating HEAD...");
+
+        // Explicitly set HEAD of bare repo to the default branch
+        await git.raw(["symbolic-ref", "HEAD", `refs/heads/${defaultBranch}`]);
+        console.log(`HEAD updated to refs/heads/${defaultBranch}`);
+      } catch (err) {
+        console.error("Failed to initialize repo files:", err);
+        // Don't fail the whole creation, just log error
+        // clean up tmp dir in finally
+      } finally {
+        try {
+          fs.rmSync(tmpDir, {recursive: true, force: true});
+        } catch (e) {
+          console.error("Failed to cleanup tmp dir:", e);
+        }
+      }
+    } else if (options?.defaultBranch) {
+      // If no files but default branch specified, try to set HEAD
+      // Note: This only affects what branch is checked out by default when cloning,
+      // but since it's empty, it doesn't matter much until first commit.
+      try {
+        await git.raw([
+          "symbolic-ref",
+          "HEAD",
+          `refs/heads/${options.defaultBranch}`,
+        ]);
+      } catch (e) {
+        console.error("Failed to set default branch:", e);
+      }
+    }
 
     // Save metadata to database
     // @ts-ignore - Sequelize static methods are available after init()

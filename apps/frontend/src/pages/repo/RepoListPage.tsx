@@ -13,6 +13,10 @@ export const RepoListPage = () => {
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoTitle, setNewRepoTitle] = useState("");
   const [newRepoDescription, setNewRepoDescription] = useState("");
+  const [defaultBranch, setDefaultBranch] = useState("main");
+  const [addReadme, setAddReadme] = useState(false);
+  const [addLicense, setAddLicense] = useState(false);
+  const [addGitignore, setAddGitignore] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
@@ -46,10 +50,20 @@ export const RepoListPage = () => {
       createRepo(
         newRepoTitle.trim() || undefined,
         newRepoDescription.trim() || undefined,
+        {
+          defaultBranch,
+          addReadme,
+          addLicense,
+          addGitignore,
+        },
       );
       setNewRepoName("");
       setNewRepoTitle("");
       setNewRepoDescription("");
+      setDefaultBranch("main");
+      setAddReadme(false);
+      setAddLicense(false);
+      setAddGitignore(false);
       setShowCreateModal(false);
     }
   };
@@ -133,6 +147,10 @@ export const RepoListPage = () => {
           setNewRepoName("");
           setNewRepoTitle("");
           setNewRepoDescription("");
+          setDefaultBranch("main");
+          setAddReadme(false);
+          setAddLicense(false);
+          setAddGitignore(false);
         }}
         title="Create New Repository"
         footer={
@@ -144,6 +162,10 @@ export const RepoListPage = () => {
                 setNewRepoName("");
                 setNewRepoTitle("");
                 setNewRepoDescription("");
+                setDefaultBranch("main");
+                setAddReadme(false);
+                setAddLicense(false);
+                setAddGitignore(false);
               }}
               className="w-full sm:w-auto"
             >
@@ -179,6 +201,54 @@ export const RepoListPage = () => {
               value={newRepoDescription}
               onChange={(e) => setNewRepoDescription(e.target.value)}
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Default Branch"
+              placeholder="main"
+              value={defaultBranch}
+              onChange={(e) => setDefaultBranch(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-[#e8e8e8]">
+              Initialize this repository with:
+            </label>
+            <div className="space-y-2">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addReadme}
+                  onChange={(e) => setAddReadme(e.target.checked)}
+                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                />
+                <span className="text-sm text-[#e8e8e8]">
+                  Add a README file
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addLicense}
+                  onChange={(e) => setAddLicense(e.target.checked)}
+                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                />
+                <span className="text-sm text-[#e8e8e8]">
+                  Add a LICENSE file
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={addGitignore}
+                  onChange={(e) => setAddGitignore(e.target.checked)}
+                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                />
+                <span className="text-sm text-[#e8e8e8]">Add .gitignore</span>
+              </label>
+            </div>
           </div>
         </div>
       </Modal>
