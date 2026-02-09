@@ -28,14 +28,14 @@ interface ActivityState {
   error: string | null;
   hasMore: boolean;
   page: number;
-  
+
   fetchActivities: (page?: number, limit?: number) => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
   markAsRead: (id: string) => Promise<void>;
   markAllAsRead: () => Promise<void>;
 }
 
-export const useActivityStore = create<ActivityState>((set, get) => ({
+export const useActivityStore = create<ActivityState>((set) => ({
   activities: [],
   unreadCount: 0,
   loading: false,
@@ -50,11 +50,12 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
       const res = await axios.get<Activity[]>("/api/activities", {
         params: {limit, offset},
       });
-      
+
       const newActivities = res.data;
-      
+
       set((state) => ({
-        activities: page === 0 ? newActivities : [...state.activities, ...newActivities],
+        activities:
+          page === 0 ? newActivities : [...state.activities, ...newActivities],
         hasMore: newActivities.length === limit,
         page,
         loading: false,
@@ -67,7 +68,9 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
 
   fetchUnreadCount: async () => {
     try {
-      const res = await axios.get<{count: number}>("/api/activities/unread-count");
+      const res = await axios.get<{count: number}>(
+        "/api/activities/unread-count",
+      );
       set({unreadCount: res.data.count});
     } catch (err) {
       console.error("Failed to fetch unread count:", err);
@@ -82,7 +85,7 @@ export const useActivityStore = create<ActivityState>((set, get) => ({
         if (activity && !activity.read) {
           return {
             activities: state.activities.map((a) =>
-              a.id === id ? {...a, read: true} : a
+              a.id === id ? {...a, read: true} : a,
             ),
             unreadCount: Math.max(0, state.unreadCount - 1),
           };

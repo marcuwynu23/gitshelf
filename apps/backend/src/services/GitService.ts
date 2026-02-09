@@ -23,7 +23,8 @@ export class GitService {
       const log = await git.log({ maxCount: 1 });
       return log.total > 0;
     } catch (err: any) {
-      if (err?.message.includes("does not have any commits yet")) {
+      // console.error(`hasCommits check failed for ${username}/${repoName}:`, err.message);
+      if (err?.message.includes("does not have any commits yet") || err?.message.includes("bad default revision 'HEAD'")) {
         return false;
       }
       throw err;
