@@ -26,6 +26,11 @@ interface RepoStore {
       addGitignore?: boolean;
     },
   ) => Promise<void>;
+  importRepo: (
+    remoteUrl: string,
+    title?: string,
+    description?: string,
+  ) => Promise<void>;
   viewRepo: (name: string, branchOrCommit?: string) => Promise<void>;
   fetchFileContent: (
     filePath: string,
@@ -70,6 +75,25 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         addReadme: options?.addReadme || false,
         addLicense: options?.addLicense || false,
         addGitignore: options?.addGitignore || false,
+      });
+      set({repoName: ""});
+      fetchRepos();
+    } catch (err) {
+      console.error(err);
+    }
+  },
+
+  importRepo: async (remoteUrl, title, description) => {
+    const {repoName, fetchRepos} = get();
+    if (!repoName.trim()) return;
+    if (!remoteUrl.trim()) return;
+
+    try {
+      await axios.post("/api/repos/import", {
+        name: repoName,
+        remoteUrl,
+        title: title || undefined,
+        description: description || undefined,
       });
       set({repoName: ""});
       fetchRepos();

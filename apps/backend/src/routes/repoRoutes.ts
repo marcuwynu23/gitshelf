@@ -17,6 +17,7 @@ router.use(authMiddleware);
 // Repository routes
 router.get("/", (req, res) => repoController.listRepos(req, res));
 router.post("/", (req, res) => repoController.createRepo(req, res));
+router.post("/import", (req, res) => repoController.importRepo(req, res));
 router.get("/:name/metadata", (req, res) => repoController.getRepoMetadata(req, res));
 router.put("/:name/metadata", (req, res) => repoController.updateRepoMetadata(req, res));
 router.patch("/:name/rename", (req, res) => repoController.renameRepo(req, res));

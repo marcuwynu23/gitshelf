@@ -77,6 +77,50 @@ export class RepoController {
     }
   }
 
+  async importRepo(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const {name, remoteUrl, title, description} = req.body as {
+        name: string;
+        remoteUrl: string;
+        title?: string;
+        description?: string;
+      };
+
+      if (!remoteUrl) {
+        res.status(400).json({error: "Remote URL required"});
+        return;
+      }
+
+      const repoName = await repoService.importRepo(
+        req.userId!,
+        req.username,
+        remoteUrl,
+        name,
+        title,
+        description,
+      );
+      res.json({message: "Repo imported", name: repoName});
+    } catch (err: any) {
+      console.error("POST /api/repos/import error:", err);
+      if (
+        err.message === "Repo name required" ||
+        err.message === "Repo exists" ||
+        err.message === "Remote URL required"
+      ) {
+        res.status(400).json({error: err.message});
+      } else if (err.message.startsWith("Failed to import repository")) {
+        res.status(400).json({error: err.message});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
+    }
+  }
+
   async getRepoMetadata(req: AuthRequest, res: Response): Promise<void> {
     try {
       if (!req.username) {

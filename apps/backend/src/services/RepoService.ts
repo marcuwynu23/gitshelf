@@ -229,6 +229,82 @@ SOFTWARE.
     return repoNameWithGit;
   }
 
+  async importRepo(
+    userId: string,
+    username: string,
+    remoteUrl: string,
+    name: string,
+    title?: string,
+    description?: string,
+  ): Promise<string> {
+    if (!name.trim()) {
+      throw new Error("Repo name required");
+    }
+    if (!remoteUrl.trim()) {
+      throw new Error("Remote URL required");
+    }
+
+    const repoNameWithGit = `${name}.git`;
+    const repoDir = getUserRepoDir(username);
+    // Ensure repoPath is absolute
+    const repoPath = path.resolve(path.join(repoDir, repoNameWithGit));
+
+    // Check if repo exists in database
+    const existingRepo = await RepoModel.findOne({
+      where: {
+        username,
+        name: repoNameWithGit,
+      },
+    });
+
+    if (existingRepo) {
+      throw new Error("Repo exists");
+    }
+
+    if (fs.existsSync(repoPath)) {
+      throw new Error("Repo exists");
+    }
+
+    console.log(`Importing repo from ${remoteUrl} to ${repoPath}...`);
+
+    try {
+      // Clone the repository as a bare repository
+      await simpleGit().clone(remoteUrl, repoPath, ["--mirror"]);
+
+      // Update server info for git http backend
+      // await simpleGit(repoPath).raw(["update-server-info"]); // Optional but good for dumb http clients
+    } catch (err: any) {
+      console.error("Failed to clone repo:", err);
+      // Clean up if failed
+      if (fs.existsSync(repoPath)) {
+        fs.rmSync(repoPath, {recursive: true, force: true});
+      }
+      throw new Error(`Failed to import repository: ${err.message}`);
+    }
+
+    // Save metadata to database
+    // @ts-ignore - Sequelize static methods are available after init()
+    await RepoModel.create({
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      username,
+      name: repoNameWithGit,
+      title: title || name,
+      description: description,
+    });
+
+    // Create activity
+    await this.activityService.createActivity(
+      userId,
+      "REPO_CREATE",
+      `Imported repository ${name}`,
+      description ||
+        `Imported repository ${username}/${name} from ${remoteUrl}`,
+      `/repository/${username}/${name}.git`,
+    );
+
+    return repoNameWithGit;
+  }
+
   async getRepoMetadata(
     username: string,
     repoName: string,

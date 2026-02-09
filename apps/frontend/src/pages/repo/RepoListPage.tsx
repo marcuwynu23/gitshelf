@@ -4,12 +4,21 @@ import {MainLayout} from "~/components/layout/MainLayout";
 import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
 import {RepoList} from "./components/RepoList";
 import {Button, Input, Modal, Breadcrumbs} from "~/components/ui";
-import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
+import {
+  MagnifyingGlassIcon,
+  PlusCircleIcon,
+  CloudArrowDownIcon,
+  BookOpenIcon,
+  DocumentTextIcon,
+  EyeSlashIcon,
+} from "@heroicons/react/24/outline";
 
 export const RepoListPage = () => {
-  const {repos, setRepoName, fetchRepos, createRepo} = useRepoStore();
+  const {repos, setRepoName, fetchRepos, createRepo, importRepo} =
+    useRepoStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createMode, setCreateMode] = useState<"create" | "import">("create");
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoTitle, setNewRepoTitle] = useState("");
   const [newRepoDescription, setNewRepoDescription] = useState("");
@@ -17,6 +26,7 @@ export const RepoListPage = () => {
   const [addReadme, setAddReadme] = useState(false);
   const [addLicense, setAddLicense] = useState(false);
   const [addGitignore, setAddGitignore] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
@@ -47,16 +57,27 @@ export const RepoListPage = () => {
   const handleCreateRepo = () => {
     if (newRepoName.trim()) {
       setRepoName(newRepoName.trim());
-      createRepo(
-        newRepoTitle.trim() || undefined,
-        newRepoDescription.trim() || undefined,
-        {
-          defaultBranch,
-          addReadme,
-          addLicense,
-          addGitignore,
-        },
-      );
+
+      if (createMode === "create") {
+        createRepo(
+          newRepoTitle.trim() || undefined,
+          newRepoDescription.trim() || undefined,
+          {
+            defaultBranch,
+            addReadme,
+            addLicense,
+            addGitignore,
+          },
+        );
+      } else {
+        if (!importUrl.trim()) return;
+        importRepo(
+          importUrl.trim(),
+          newRepoTitle.trim() || undefined,
+          newRepoDescription.trim() || undefined,
+        );
+      }
+
       setNewRepoName("");
       setNewRepoTitle("");
       setNewRepoDescription("");
@@ -64,6 +85,8 @@ export const RepoListPage = () => {
       setAddReadme(false);
       setAddLicense(false);
       setAddGitignore(false);
+      setImportUrl("");
+      setCreateMode("create");
       setShowCreateModal(false);
     }
   };
@@ -151,10 +174,16 @@ export const RepoListPage = () => {
           setAddReadme(false);
           setAddLicense(false);
           setAddGitignore(false);
+          setImportUrl("");
+          setCreateMode("create");
         }}
-        title="Create New Repository"
+        title={
+          createMode === "create"
+            ? "Create New Repository"
+            : "Import Repository"
+        }
         footer={
-          <>
+          <div className="flex gap-3 w-full sm:w-auto">
             <Button
               variant="secondary"
               onClick={() => {
@@ -166,89 +195,188 @@ export const RepoListPage = () => {
                 setAddReadme(false);
                 setAddLicense(false);
                 setAddGitignore(false);
+                setImportUrl("");
+                setCreateMode("create");
               }}
-              className="w-full sm:w-auto"
+              className="flex-1 sm:flex-none"
             >
               Cancel
             </Button>
-            <Button onClick={handleCreateRepo} className="w-full sm:w-auto">
-              Create
+            <Button onClick={handleCreateRepo} className="flex-1 sm:flex-none">
+              {createMode === "create"
+                ? "Create Repository"
+                : "Import Repository"}
             </Button>
-          </>
+          </div>
         }
       >
-        <div className="space-y-4">
-          <Input
-            label="Repository Name"
-            placeholder="my-repository"
-            value={newRepoName}
-            onChange={(e) => setNewRepoName(e.target.value)}
-            required
-          />
-          <Input
-            label="Title (optional)"
-            placeholder="My Awesome Repository"
-            value={newRepoTitle}
-            onChange={(e) => setNewRepoTitle(e.target.value)}
-          />
-          <div className="w-full">
-            <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
-              Description (optional)
-            </label>
-            <textarea
-              className="h-20 w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
-              placeholder="A brief description of your repository"
-              value={newRepoDescription}
-              onChange={(e) => setNewRepoDescription(e.target.value)}
-            />
+        <div className="space-y-6">
+          {/* Tabs */}
+          <div className="flex p-1 bg-[#2d2d2d] rounded-lg">
+            <button
+              onClick={() => setCreateMode("create")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                createMode === "create"
+                  ? "bg-app-surface text-[#e8e8e8] shadow-sm"
+                  : "text-[#808080] hover:text-[#b0b0b0]"
+              }`}
+            >
+              <PlusCircleIcon className="w-4 h-4" />
+              Create New
+            </button>
+            <button
+              onClick={() => setCreateMode("import")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                createMode === "import"
+                  ? "bg-app-surface text-[#e8e8e8] shadow-sm"
+                  : "text-[#808080] hover:text-[#b0b0b0]"
+              }`}
+            >
+              <CloudArrowDownIcon className="w-4 h-4" />
+              Import Repository
+            </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Input
-              label="Default Branch"
-              placeholder="main"
-              value={defaultBranch}
-              onChange={(e) => setDefaultBranch(e.target.value)}
-            />
-          </div>
+          <div className="space-y-4">
+            {createMode === "import" && (
+              <div className="bg-[#2d2d2d]/30 p-4 rounded-lg border border-[#3d3d3d]">
+                <Input
+                  label="Git URL"
+                  placeholder="https://github.com/username/repo.git"
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  required
+                  helperText="The URL of the Git repository you want to import."
+                />
+              </div>
+            )}
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-[#e8e8e8]">
-              Initialize this repository with:
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={addReadme}
-                  onChange={(e) => setAddReadme(e.target.checked)}
-                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  label="Repository Name"
+                  placeholder="my-awesome-project"
+                  value={newRepoName}
+                  onChange={(e) => setNewRepoName(e.target.value)}
+                  required
+                  helperText="Great repository names are short and memorable."
                 />
-                <span className="text-sm text-[#e8e8e8]">
-                  Add a README file
-                </span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={addLicense}
-                  onChange={(e) => setAddLicense(e.target.checked)}
-                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                <Input
+                  label="Title (optional)"
+                  placeholder="My Awesome Project"
+                  value={newRepoTitle}
+                  onChange={(e) => setNewRepoTitle(e.target.value)}
+                  helperText="A human-readable title for your project."
                 />
-                <span className="text-sm text-[#e8e8e8]">
-                  Add a LICENSE file
-                </span>
-              </label>
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={addGitignore}
-                  onChange={(e) => setAddGitignore(e.target.checked)}
-                  className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+              </div>
+
+              <div className="w-full">
+                <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+                  Description (optional)
+                </label>
+                <textarea
+                  className="h-24 w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded-md text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+                  placeholder="What is this project about?"
+                  value={newRepoDescription}
+                  onChange={(e) => setNewRepoDescription(e.target.value)}
                 />
-                <span className="text-sm text-[#e8e8e8]">Add .gitignore</span>
-              </label>
+              </div>
             </div>
+
+            {createMode === "create" && (
+              <div className="pt-2 border-t border-[#3d3d3d]">
+                <h3 className="text-sm font-medium text-[#e8e8e8] mb-3">
+                  Initialization Options
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <Input
+                    label="Default Branch"
+                    placeholder="main"
+                    value={defaultBranch}
+                    onChange={(e) => setDefaultBranch(e.target.value)}
+                    helperText="Usually main or master."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label
+                    className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                      addReadme
+                        ? "bg-app-accent/10 border-app-accent"
+                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <BookOpenIcon
+                        className={`w-5 h-5 ${addReadme ? "text-app-accent" : "text-[#808080]"}`}
+                      />
+                      <input
+                        type="checkbox"
+                        checked={addReadme}
+                        onChange={(e) => setAddReadme(e.target.checked)}
+                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                      />
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${addReadme ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                    >
+                      Add README
+                    </span>
+                  </label>
+
+                  <label
+                    className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                      addLicense
+                        ? "bg-app-accent/10 border-app-accent"
+                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <DocumentTextIcon
+                        className={`w-5 h-5 ${addLicense ? "text-app-accent" : "text-[#808080]"}`}
+                      />
+                      <input
+                        type="checkbox"
+                        checked={addLicense}
+                        onChange={(e) => setAddLicense(e.target.checked)}
+                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                      />
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${addLicense ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                    >
+                      Add License
+                    </span>
+                  </label>
+
+                  <label
+                    className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
+                      addGitignore
+                        ? "bg-app-accent/10 border-app-accent"
+                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <EyeSlashIcon
+                        className={`w-5 h-5 ${addGitignore ? "text-app-accent" : "text-[#808080]"}`}
+                      />
+                      <input
+                        type="checkbox"
+                        checked={addGitignore}
+                        onChange={(e) => setAddGitignore(e.target.checked)}
+                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                      />
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${addGitignore ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                    >
+                      Add .gitignore
+                    </span>
+                  </label>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Modal>
