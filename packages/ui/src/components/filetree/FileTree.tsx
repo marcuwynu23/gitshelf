@@ -5,7 +5,7 @@ import {
   FolderIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
-import React, {useState} from "react";
+import React, { useState } from "react";
 
 export interface FileNode {
   name: string;
@@ -280,8 +280,13 @@ const FileNodeItem: React.FC<{
       </div>
 
       <div className="hidden sm:flex items-center gap-4 shrink-0 text-sm opacity-80">
-        <span className="max-w-[40ch] overflow-hidden text-ellipsis whitespace-nowrap block text-white/90">
-          {node.lastCommitMsg ?? ""}
+        <span
+          className="whitespace-nowrap block text-white/90"
+          title={node.lastCommitMsg ?? ""}
+        >
+          {node.lastCommitMsg && node.lastCommitMsg.length > 25
+            ? `${node.lastCommitMsg.slice(0, 25)}...`
+            : node.lastCommitMsg ?? ""}
         </span>
         <span className="text-xs text-white/90">
           {formatRelative(node.lastCommitTime)}
