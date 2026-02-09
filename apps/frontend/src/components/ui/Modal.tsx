@@ -57,12 +57,12 @@ export const Modal: React.FC<ModalProps> = ({
     md: "max-w-lg",
     lg: "max-w-2xl",
     xl: "max-w-4xl",
-    half: "max-w-full sm:max-w-[90vw] lg:max-w-[50vw] h-full sm:h-auto m-3",
+    half: "max-w-full sm:max-w-[90vw] lg:max-w-[50vw] h-full sm:h-auto",
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm p-4"
       role="dialog"
       aria-modal="true"
       onPointerDown={(e) => {

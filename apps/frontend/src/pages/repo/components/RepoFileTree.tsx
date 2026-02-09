@@ -137,8 +137,10 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     switch (panelView) {
       case "files":
         return normalizedTree.length ? (
-          <div className="bg-app-surface border border-app-border rounded-lg py-2">
-            <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
+          <div className="bg-app-surface border border-app-border rounded-lg py-2 overflow-x-auto">
+            <div className="min-w-full inline-block align-middle">
+              <FileTree nodes={normalizedTree} onFileClick={handleFileClick} />
+            </div>
           </div>
         ) : isLoading ? (
           <LoadingSkeleton />

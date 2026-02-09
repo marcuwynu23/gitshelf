@@ -5,7 +5,7 @@ import {
   FolderIcon,
   PhotoIcon,
 } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import React, {useState} from "react";
 
 export interface FileNode {
   name: string;
@@ -236,7 +236,7 @@ const FileNodeItem: React.FC<{
     return (
       <li>
         <div
-          className="flex items-center justify-between gap-2 py-1 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer select-none transition-colors"
+          className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer select-none transition-colors"
           style={{paddingLeft: `${indent}px`}}
           onClick={() => setOpen(!open)}
         >
@@ -270,7 +270,7 @@ const FileNodeItem: React.FC<{
 
   return (
     <li
-      className="flex items-center justify-between gap-2 py-1 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer transition-colors"
+      className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer transition-colors"
       style={{paddingLeft: `${indent + 20}px`}}
       onClick={() => onFileClick && onFileClick(node.path)}
     >
@@ -286,7 +286,7 @@ const FileNodeItem: React.FC<{
         >
           {node.lastCommitMsg && node.lastCommitMsg.length > 25
             ? `${node.lastCommitMsg.slice(0, 25)}...`
-            : node.lastCommitMsg ?? ""}
+            : (node.lastCommitMsg ?? "")}
         </span>
         <span className="text-xs text-white/90">
           {formatRelative(node.lastCommitTime)}

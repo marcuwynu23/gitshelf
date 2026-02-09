@@ -1,11 +1,17 @@
 // RepoDetail.tsx
-import {Suspense, lazy, useEffect, useMemo, useState} from "react";
+import {Suspense, lazy, useEffect, useMemo, useState, useRef} from "react";
 import {Breadcrumbs} from "~/components/ui";
 import {Badge} from "~/components/ui/Badge";
 import {useCommitStore} from "~/stores/commitStore";
 import {useRepoStore} from "~/stores/repoStore";
 import {useCodeViewStore} from "~/stores/useCodeViewStore";
-import {CommandLineIcon, LinkIcon} from "@heroicons/react/24/outline";
+import {
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  CodeBracketIcon,
+  Square2StackIcon,
+  CheckIcon,
+} from "@heroicons/react/24/outline";
 
 const RepoFileTree = lazy(() =>
   import("./components/RepoFileTree").then((module) => ({
@@ -14,12 +20,17 @@ const RepoFileTree = lazy(() =>
 );
 
 const RepoFileTreeLoading = () => (
-  <div className="flex-1 overflow-auto">
-    <div className="flex items-center justify-center py-12">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-app-accent mx-auto mb-4"></div>
-        <p className="text-sm text-[#b0b0b0]">Loading repository files...</p>
+  <div className="flex-1 overflow-auto bg-app-bg">
+    <div className="flex flex-col items-center justify-center py-20">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-app-accent border-t-transparent"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="h-2 w-2 bg-app-accent rounded-full"></div>
+        </div>
       </div>
+      <p className="mt-4 text-sm font-medium text-[#b0b0b0] animate-pulse">
+        Loading repository files...
+      </p>
     </div>
   </div>
 );
@@ -55,10 +66,35 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   onSettingsClick,
 }) => {
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false);
+  const [isCloneMenuOpen, setIsCloneMenuOpen] = useState(false);
   const [viewQuery, setViewQuery] = useState("");
   const {fileTree, selectedFile, setSelectedFile, viewRepo} = useRepoStore();
   const {commits, fetchCommits} = useCommitStore();
   const [copied, setCopied] = useState<string | null>(null);
+
+  // Refs for click outside
+  const viewMenuRef = useRef<HTMLDivElement>(null);
+  const cloneMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        viewMenuRef.current &&
+        !viewMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsViewMenuOpen(false);
+      }
+      if (
+        cloneMenuRef.current &&
+        !cloneMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsCloneMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleCopy = (value: string) => {
     navigator.clipboard.writeText(value);
@@ -156,15 +192,23 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     <div
       className={`w-full flex flex-col px-4 sm:px-6 lg:px-8 ${className ?? "h-full"}`}
     >
-      <div className="sticky top-0 z-20 bg-app-bg border-b border-app-border py-3 mb-4">
-        <div className="flex flex-col gap-4">
+      <div className="sticky top-0 z-20 bg-app-bg/95 backdrop-blur-sm border-b border-app-border py-4 mb-4 transition-all">
+        <div className="flex flex-col gap-4 w-full">
+          {/* Top Row: Title, Badges, Breadcrumbs */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <p className="text-xl sm:text-lg font-bold truncate">
-                {selectedFile
-                  ? selectedFile.split("/").pop() || selectedFile
-                  : repoTitle}
-              </p>
+              <div className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-[#e8e8e8] tracking-tight truncate">
+                {selectedFile ? (
+                  <>
+                    <span className="opacity-50 font-normal">
+                      {selectedFile.split("/").slice(0, -1).join("/")}/
+                    </span>
+                    <span>{selectedFile.split("/").pop()}</span>
+                  </>
+                ) : (
+                  <span>{repoTitle || displayName(repoName)}</span>
+                )}
+              </div>
               {isArchived && !selectedFile && (
                 <Badge variant="neutral" size="sm" className="shrink-0">
                   Archived
@@ -178,86 +222,87 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
           </div>
 
           {!selectedFile && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 animate-fadeIn">
               {description && (
-                <p className="text-sm text-[#b0b0b0] max-w-4xl whitespace-pre-wrap">
+                <p className="text-sm text-[#b0b0b0] max-w-4xl leading-relaxed">
                   {description}
                 </p>
               )}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-wrap">
-                <div className="relative w-full sm:w-auto">
+
+              {/* Controls Row */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-wrap">
+                {/* Branch/Tag Selector */}
+                <div className="relative w-full sm:w-auto" ref={viewMenuRef}>
                   <button
                     type="button"
-                    className="w-full sm:w-[360px] max-w-full text-left text-xs bg-app-bg border border-app-border rounded px-3 py-2 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent flex items-center justify-between gap-2"
+                    className={`group w-full sm:w-64 flex items-center justify-between gap-2 px-3 py-2 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] hover:border-[#505050] rounded-lg text-sm text-[#e8e8e8] transition-all shadow-sm ${
+                      isViewMenuOpen
+                        ? "ring-2 ring-app-accent/20 border-app-accent"
+                        : ""
+                    }`}
                     onClick={() => setIsViewMenuOpen((v) => !v)}
                   >
-                    <span className="truncate">
-                      {(() => {
-                        const v = viewRef.trim();
-                        if (!v) return ` (${currentBranch ?? "auto"})`;
+                    <div className="flex items-center gap-2 min-w-0">
+                      <CodeBracketIcon className="w-4 h-4 text-[#808080] group-hover:text-app-accent transition-colors" />
+                      <span className="truncate font-medium">
+                        {(() => {
+                          const v = viewRef.trim();
+                          if (!v) return currentBranch ?? "main";
 
-                        const isSha = /^[0-9a-f]{40}$/i.test(v);
-                        if (isSha) {
-                          const commit = normalizedCommits.find(
-                            (c) => c.hash.trim() === v,
-                          );
-                          if (commit) {
-                            const short = v.slice(0, 7);
-                            const msg = (commit.message ?? "").trim();
-                            return msg ? `${short} — ${msg}` : short;
+                          const isSha = /^[0-9a-f]{40}$/i.test(v);
+                          if (isSha) {
+                            const commit = normalizedCommits.find(
+                              (c) => c.hash.trim() === v,
+                            );
+                            if (commit) {
+                              const short = v.slice(0, 7);
+                              return `Commit: ${short}`;
+                            }
+                            return `Commit: ${v.slice(0, 7)}`;
                           }
-                          return v.slice(0, 7);
-                        }
 
-                        return v;
-                      })()}
-                    </span>
-
-                    <svg
-                      className={`h-4 w-4 shrink-0 transition-transform ${isViewMenuOpen ? "rotate-180" : ""}`}
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                          return v;
+                        })()}
+                      </span>
+                    </div>
+                    <ChevronDownIcon
+                      className={`w-4 h-4 text-[#808080] transition-transform duration-200 ${isViewMenuOpen ? "rotate-180" : ""}`}
+                    />
                   </button>
 
                   {isViewMenuOpen && (
                     <div
-                      className="absolute z-50 mt-2 w-full sm:w-90 max-w-full bg-app-surface border border-app-border rounded-lg shadow-lg overflow-hidden"
+                      className="absolute z-50 mt-2 w-full sm:w-80 bg-[#1e1e1e] border border-[#3d3d3d] rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5"
                       role="menu"
                     >
-                      <div className="p-2 border-b border-app-border">
-                        <input
-                          value={viewQuery}
-                          onChange={(e) => setViewQuery(e.target.value)}
-                          placeholder="Search branch or commit..."
-                          className="w-full text-xs bg-app-bg border border-app-border rounded px-2 py-2 text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent"
-                        />
+                      <div className="p-2 border-b border-[#3d3d3d]">
+                        <div className="relative">
+                          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+                          <input
+                            value={viewQuery}
+                            onChange={(e) => setViewQuery(e.target.value)}
+                            placeholder="Find a branch or commit..."
+                            autoFocus
+                            className="w-full pl-9 pr-3 py-2 bg-[#2d2d2d] border border-transparent focus:border-app-accent rounded-lg text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent transition-all"
+                          />
+                        </div>
                       </div>
 
-                      <div className="max-h-[320px] overflow-auto">
+                      <div className="max-h-[320px] overflow-auto py-1">
                         <button
                           type="button"
-                          className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
+                          className="w-full text-left px-3 py-2 text-sm hover:bg-app-accent/10 hover:text-app-accent flex items-center justify-between transition-colors"
                           onClick={() => {
                             setSelectedFile(null);
                             setViewRef("");
                             setIsViewMenuOpen(false);
                           }}
                         >
-                          <span className="truncate">
-                            ({currentBranch ?? "auto"})
+                          <span className="truncate font-medium">
+                            {currentBranch ?? "main"}
                           </span>
                           {viewRef.trim() === "" && (
-                            <span className="text-[10px] text-text-tertiary">
-                              active
-                            </span>
+                            <CheckIcon className="w-4 h-4 text-app-accent" />
                           )}
                         </button>
 
@@ -272,34 +317,37 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                                   .includes(viewQuery.trim().toLowerCase()),
                             );
 
-                          if (filteredBranches.length === 0) return null;
-
-                          return (
-                            <>
-                              <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary">
-                                Branches
-                              </div>
-                              {filteredBranches.map((b) => (
-                                <button
-                                  key={`branch:${b}`}
-                                  type="button"
-                                  className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
-                                  onClick={() => {
-                                    setSelectedFile(null);
-                                    setViewRef(b);
-                                    onChangeView(b);
-                                    setIsViewMenuOpen(false);
-                                  }}
-                                >
-                                  <span className="truncate">{b}</span>
-                                </button>
-                              ))}
-                            </>
-                          );
+                          if (filteredBranches.length > 0) {
+                            return (
+                              <>
+                                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-[#808080] bg-[#2d2d2d]/30 mt-1">
+                                  Branches
+                                </div>
+                                {filteredBranches.map((b) => (
+                                  <button
+                                    key={`branch:${b}`}
+                                    type="button"
+                                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#2d2d2d] flex items-center justify-between transition-colors"
+                                    onClick={() => {
+                                      setSelectedFile(null);
+                                      setViewRef(b);
+                                      onChangeView(b);
+                                      setIsViewMenuOpen(false);
+                                    }}
+                                  >
+                                    <span className="truncate text-[#b0b0b0] hover:text-[#e8e8e8]">
+                                      {b}
+                                    </span>
+                                  </button>
+                                ))}
+                              </>
+                            );
+                          }
+                          return null;
                         })()}
 
-                        <div className="px-3 py-2 text-[10px] uppercase tracking-wide text-text-tertiary border-t border-app-border">
-                          Commits
+                        <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-[#808080] bg-[#2d2d2d]/30 mt-1">
+                          Recent Commits
                         </div>
 
                         {normalizedCommits
@@ -317,13 +365,13 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                             const full = c.hash.trim();
                             const short = full.slice(0, 7);
                             const msg = (c.message ?? "").trim();
-                            const label = msg ? `${short} — ${msg}` : short;
+                            const label = msg ? msg : `Commit ${short}`;
 
                             return (
                               <button
                                 key={`commit:${full}`}
                                 type="button"
-                                className="w-full text-left px-3 py-2 text-xs hover:bg-app-bg/40 flex items-center justify-between"
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-[#2d2d2d] group flex flex-col gap-0.5 transition-colors"
                                 onClick={() => {
                                   setSelectedFile(null);
                                   setViewRef(full);
@@ -331,10 +379,19 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                                   setIsViewMenuOpen(false);
                                 }}
                               >
-                                <span className="truncate">{label}</span>
-                                <span className="text-[10px] text-text-tertiary">
-                                  {short}
+                                <span className="truncate text-[#e8e8e8] w-full">
+                                  {label}
                                 </span>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-[10px] bg-[#2d2d2d] px-1.5 py-0.5 rounded text-[#808080] group-hover:text-app-accent group-hover:bg-app-accent/10 transition-colors">
+                                    {short}
+                                  </span>
+                                  {c.author && (
+                                    <span className="text-[10px] text-[#606060] truncate max-w-[150px]">
+                                      by {c.author}
+                                    </span>
+                                  )}
+                                </div>
                               </button>
                             );
                           })}
@@ -343,62 +400,110 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                   )}
                 </div>
 
+                {/* Action Buttons */}
                 <div className="flex items-center gap-2 w-full sm:w-auto">
-                  {sshAddress && (
+                  {/* Clone Dropdown */}
+                  <div className="relative w-full sm:w-auto" ref={cloneMenuRef}>
                     <button
-                      title={sshAddress}
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-app-bg hover:bg-app-surface rounded border border-app-border transition-colors active:scale-[0.98]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(sshAddress);
-                      }}
+                      type="button"
+                      className={`w-full sm:w-auto justify-center sm:justify-start flex items-center gap-2 px-4 py-2 bg-app-accent hover:bg-app-accent/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm active:scale-[0.98] ${isCloneMenuOpen ? "ring-2 ring-offset-2 ring-offset-[#1e1e1e] ring-app-accent" : ""}`}
+                      onClick={() => setIsCloneMenuOpen((v) => !v)}
                     >
-                      <CommandLineIcon className="w-4 h-4 text-text-secondary" />
-                      <span className="text-xs text-text-secondary font-medium">
-                        SSH
-                      </span>
+                      <CodeBracketIcon className="w-4 h-4" />
+                      <span>Clone</span>
+                      <ChevronDownIcon
+                        className={`w-4 h-4 transition-transform ${isCloneMenuOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
-                  )}
-                  {httpAddress && (
-                    <button
-                      title={httpAddress}
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-app-bg hover:bg-app-surface rounded border border-app-border transition-colors active:scale-[0.98]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(httpAddress);
-                      }}
-                    >
-                      <LinkIcon className="w-4 h-4 text-text-secondary" />
-                      <span className="text-xs text-text-secondary font-medium">
-                        HTTPS
-                      </span>
-                    </button>
-                  )}
+
+                    {isCloneMenuOpen && (
+                      <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-full sm:w-80 bg-[#1e1e1e] border border-[#3d3d3d] rounded-xl shadow-xl p-4 z-50 animate-fadeIn origin-top-left sm:origin-top-right">
+                        <h4 className="text-sm font-semibold text-[#e8e8e8] mb-3">
+                          Clone repository
+                        </h4>
+
+                        <div className="space-y-4">
+                          {httpAddress && (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-xs text-[#b0b0b0]">
+                                <span>HTTPS</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <input
+                                  readOnly
+                                  value={httpAddress}
+                                  className="flex-1 min-w-0 bg-[#2d2d2d] border border-[#3d3d3d] rounded-md px-2 py-1.5 text-xs text-[#e8e8e8] font-mono focus:outline-none focus:border-app-accent"
+                                />
+                                <button
+                                  onClick={() => handleCopy(httpAddress)}
+                                  className="p-1.5 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
+                                  title="Copy to clipboard"
+                                >
+                                  <Square2StackIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                          {sshAddress && (
+                            <div className="space-y-1.5">
+                              <div className="flex items-center justify-between text-xs text-[#b0b0b0]">
+                                <span>SSH</span>
+                              </div>
+                              <div className="flex gap-2">
+                                <input
+                                  readOnly
+                                  value={sshAddress}
+                                  className="flex-1 min-w-0 bg-[#2d2d2d] border border-[#3d3d3d] rounded-md px-2 py-1.5 text-xs text-[#e8e8e8] font-mono focus:outline-none focus:border-app-accent"
+                                />
+                                <button
+                                  onClick={() => handleCopy(sshAddress)}
+                                  className="p-1.5 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
+                                  title="Copy to clipboard"
+                                >
+                                  <Square2StackIcon className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
           )}
           {copied && (
-            <div className="fixed bottom-4 right-4 bg-app-surface border border-[#3d3d3d] px-4 py-2 rounded shadow-lg z-50">
-              <p className="text-sm text-[#e8e8e8]">Copied to clipboard!</p>
+            <div className="fixed bottom-6 right-6 bg-app-surface border border-[#3d3d3d] px-4 py-3 rounded-lg shadow-xl z-50 flex items-center gap-3 animate-slideIn">
+              <div className="bg-green-500/10 p-1 rounded-full">
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-[#e8e8e8]">
+                  Copied to clipboard!
+                </p>
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      <Suspense fallback={<RepoFileTreeLoading />}>
-        <RepoFileTree
-          key={`${repoName}:${viewRef.trim() || "default"}`}
-          selectedRepo={repoName}
-          fileTree={fileTree}
-          branchOrCommit={viewRef}
-          branches={branches}
-          currentBranch={currentBranch}
-          commits={commits}
-          onSwitchBranch={setCurrentBranch}
-          onSettingsClick={onSettingsClick}
-        />
-      </Suspense>
+      <div className="w-full flex-1">
+        <Suspense fallback={<RepoFileTreeLoading />}>
+          <RepoFileTree
+            key={`${repoName}:${viewRef.trim() || "default"}`}
+            selectedRepo={repoName}
+            fileTree={fileTree}
+            branchOrCommit={viewRef}
+            branches={branches}
+            currentBranch={currentBranch}
+            commits={commits}
+            onSwitchBranch={setCurrentBranch}
+            onSettingsClick={onSettingsClick}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 };

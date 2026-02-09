@@ -118,36 +118,41 @@ export const RepoListPage = () => {
         <Breadcrumbs items={breadcrumbs} />
 
         {/* Main Content */}
-        <div className="flex-1 overflow-auto">
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-              <h2 className="text-lg font-semibold text-[#e8e8e8]">
-                All Repositories
-              </h2>
+        <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-[#e8e8e8] tracking-tight">
+                  Repositories
+                </h2>
+                <p className="text-sm text-[#b0b0b0]">
+                  Manage your git repositories and projects
+                </p>
+              </div>
 
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 {/* Search */}
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+                <div className="relative group w-full sm:w-auto">
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#808080] group-focus-within:text-app-accent transition-colors" />
                   <input
                     type="text"
                     placeholder="Search repositories..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-9 w-full sm:w-64 pl-9 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
+                    className="h-10 w-full sm:w-72 pl-10 pr-4 bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-all shadow-sm"
                   />
                 </div>
 
                 {/* Filter */}
-                <div className="flex items-center bg-app-bg border border-[#3d3d3d] rounded p-1">
+                <div className="flex items-center bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg p-1 shadow-sm overflow-x-auto no-scrollbar max-w-full">
                   {(["all", "active", "archived"] as const).map((status) => (
                     <button
                       key={status}
                       onClick={() => setFilterStatus(status)}
-                      className={`px-3 py-1 text-xs font-medium rounded transition-colors capitalize ${
+                      className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all capitalize whitespace-nowrap ${
                         filterStatus === status
-                          ? "bg-app-accent/20 text-app-accent"
-                          : "text-[#808080] hover:text-[#e8e8e8]"
+                          ? "bg-app-surface text-[#e8e8e8] shadow-sm"
+                          : "text-[#808080] hover:text-[#b0b0b0]"
                       }`}
                     >
                       {status}
@@ -157,7 +162,9 @@ export const RepoListPage = () => {
               </div>
             </div>
 
-            <RepoList repos={filteredRepos} selectedRepo={null} />
+            <div className="bg-transparent">
+              <RepoList repos={filteredRepos} selectedRepo={null} />
+            </div>
           </div>
         </div>
       </div>
