@@ -1,8 +1,9 @@
 import {
-  ArchiveBoxIcon,
   ExclamationTriangleIcon,
   PencilIcon,
-  TrashIcon,
+  Cog6ToothIcon,
+  ShieldCheckIcon,
+  KeyIcon,
 } from "@heroicons/react/24/outline";
 import axios from "axios";
 import React, {useEffect, useMemo, useState} from "react";
@@ -112,8 +113,6 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   const renameConfirmed = renameConfirmText.trim() === repoNameWithoutGit;
   const canRename = renameChanged && renameConfirmed;
 
-  const canArchiveToggle = archiveConfirmChecked;
-
   const canDelete = deleteConfirmText.trim() === repoNameWithGit;
 
   const handleSaveMetadata = async () => {
@@ -215,311 +214,353 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     }
   };
 
+  const renderTabButton = (
+    key: TabKey,
+    label: string,
+    icon: React.ReactNode,
+    variant: "default" | "danger" = "default",
+  ) => (
+    <button
+      onClick={() => setActiveTab(key)}
+      className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
+        activeTab === key
+          ? variant === "danger"
+            ? "bg-red-900/10 text-red-400 border-red-500"
+            : "bg-app-accent/10 text-app-accent border-app-accent"
+          : variant === "danger"
+            ? "text-red-400/70 hover:bg-red-900/5 hover:text-red-400 border-transparent"
+            : "text-[#808080] hover:bg-[#2d2d2d] hover:text-[#e8e8e8] border-transparent"
+      }`}
+      type="button"
+    >
+      {icon}
+      {label}
+    </button>
+  );
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={closeAndReset}
       title="Repository Settings"
-      size="half"
+      size="xl"
+      maxHeightClass="max-h-[85vh]"
     >
-      {error && <Alert variant="error">{error}</Alert>}
-      <div data-testid="repo-settings-shell" className="h-full min-h-0">
-        <div className="flex flex-col sm:grid sm:grid-cols-4 gap-4 h-full min-h-0">
-          {/* Left nav (fixed / sticky) */}
-          <nav
-            data-testid="repo-settings-nav"
-            className="w-full sm:col-span-1 border-b sm:border-b-0 sm:border-r border-[#2f2f2f] pb-3 sm:pb-0 sm:pr-3 shrink-0"
-          >
-            <ul className="flex sm:block space-x-2 sm:space-x-0 sm:space-y-2 overflow-x-auto no-scrollbar">
-              <li className="shrink-0">
-                <button
-                  onClick={() => setActiveTab("general")}
-                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
-                    activeTab === "general"
-                      ? "bg-app-accent/10 text-app-accent"
-                      : "hover:bg-[#272727] text-text-primary"
-                  }`}
-                  type="button"
-                >
-                  General
-                </button>
-              </li>
-              <li className="shrink-0">
-                <button
-                  onClick={() => setActiveTab("access")}
-                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
-                    activeTab === "access"
-                      ? "bg-app-accent/10 text-app-accent"
-                      : "hover:bg-[#272727] text-text-primary"
-                  }`}
-                  type="button"
-                >
-                  Access
-                </button>
-              </li>
-              <li className="shrink-0">
-                <button
-                  onClick={() => setActiveTab("danger")}
-                  className={`w-full text-left px-3 py-2 rounded text-sm sm:text-base whitespace-nowrap ${
-                    activeTab === "danger"
-                      ? "bg-red-900/10 text-red-400"
-                      : "hover:bg-[#272727] text-text-primary"
-                  }`}
-                  type="button"
-                >
-                  Danger
-                </button>
-              </li>
-            </ul>
-          </nav>
+      {error && (
+        <Alert variant="error" className="mb-4">
+          {error}
+        </Alert>
+      )}
 
-          {/* Right pane scrolls per tab */}
-          <div
-            data-testid="repo-settings-content"
-            className="flex-1 sm:col-span-3 h-full min-h-0 overflow-y-auto sm:pr-1"
-          >
-            <div className="min-h-full flex flex-col">
-              {activeTab === "general" && (
-                <div className="flex-1 space-y-6 pb-4">
-                  <div className="text-sm text-text-tertiary">
-                    Manage settings for{" "}
-                    <strong className="text-text-primary">
-                      {repoNameWithGit}
-                    </strong>
-                  </div>
+      <div
+        data-testid="repo-settings-shell"
+        className="flex flex-col md:flex-row h-full min-h-[500px] border-t border-[#3d3d3d] -mx-6"
+      >
+        {/* Left Sidebar */}
+        <nav
+          data-testid="repo-settings-nav"
+          className="w-full md:w-64 bg-[#1e1e1e] border-b md:border-b-0 md:border-r border-[#3d3d3d] flex-shrink-0"
+        >
+          <div className="p-4 md:py-6 space-y-1">
+            {renderTabButton(
+              "general",
+              "General",
+              <Cog6ToothIcon className="w-5 h-5" />,
+            )}
+            {renderTabButton(
+              "access",
+              "Access",
+              <ShieldCheckIcon className="w-5 h-5" />,
+            )}
+            <div className="h-px bg-[#3d3d3d] my-2 mx-4" />
+            {renderTabButton(
+              "danger",
+              "Danger Zone",
+              <ExclamationTriangleIcon className="w-5 h-5" />,
+              "danger",
+            )}
+          </div>
+        </nav>
 
-                  {/* Metadata */}
-                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
-                        <PencilIcon className="w-4 h-4 mr-2" />
-                        Title & Description
-                      </h3>
+        {/* Right Content */}
+        <div
+          data-testid="repo-settings-content"
+          className="flex-1 overflow-y-auto bg-app-surface"
+        >
+          <div className="p-6 max-w-3xl mx-auto">
+            {activeTab === "general" && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold text-[#e8e8e8] mb-1">
+                    General Settings
+                  </h3>
+                  <p className="text-sm text-[#808080]">
+                    Manage your repository's main configuration.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Metadata Section */}
+                  <section className="bg-[#2d2d2d]/30 border border-[#3d3d3d] rounded-lg p-5 space-y-5">
+                    <div className="flex items-center gap-2 pb-3 border-b border-[#3d3d3d]">
+                      <PencilIcon className="w-5 h-5 text-app-accent" />
+                      <h4 className="font-medium text-[#e8e8e8]">
+                        Repository Details
+                      </h4>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-                        Title
-                      </label>
+                    <div className="space-y-4">
                       <Input
-                        type="text"
-                        placeholder="Repository title"
+                        label="Repository Name"
+                        value={repoNameWithoutGit}
+                        disabled
+                        className="opacity-60"
+                        helperText="The repository name can only be changed in the Rename section."
+                      />
+
+                      <Input
+                        label="Title"
+                        placeholder="Project Title"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full"
+                        helperText="A human-readable title for your project."
                       />
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-                        Description
-                      </label>
-                      <textarea
-                        placeholder="Repository description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded-md text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-2 focus:ring-app-accent focus:border-transparent resize-none"
-                        rows={3}
-                      />
-                    </div>
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+                          Description
+                        </label>
+                        <textarea
+                          placeholder="What is this project about?"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+                          rows={4}
+                        />
+                        <p className="mt-1 text-xs text-[#808080]">
+                          Brief description of your repository.
+                        </p>
+                      </div>
 
-                    <Button
-                      onClick={handleSaveMetadata}
-                      disabled={!canSaveMeta || isSavingMeta}
-                      className="min-w-[120px]"
-                      type="button"
-                    >
-                      {isSavingMeta ? "Saving..." : "Save"}
-                    </Button>
+                      <div className="pt-2 flex justify-end">
+                        <Button
+                          onClick={handleSaveMetadata}
+                          disabled={!canSaveMeta || isSavingMeta}
+                        >
+                          {isSavingMeta ? "Saving..." : "Save Changes"}
+                        </Button>
+                      </div>
+                    </div>
                   </section>
 
-                  {/* Rename */}
-                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
-                        <PencilIcon className="w-4 h-4 mr-2" />
-                        Rename repository
-                      </h3>
+                  {/* Rename Section */}
+                  <section className="bg-[#2d2d2d]/30 border border-[#3d3d3d] rounded-lg p-5 space-y-5">
+                    <div className="flex items-center gap-2 pb-3 border-b border-[#3d3d3d]">
+                      <KeyIcon className="w-5 h-5 text-[#e8e8e8]" />
+                      <h4 className="font-medium text-[#e8e8e8]">
+                        Rename Repository
+                      </h4>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[#e8e8e8] mb-2">
-                        New name (without .git)
-                      </label>
+                    <div className="space-y-4">
+                      <div className="p-3 bg-app-accent/10 border border-app-accent/20 rounded-md text-sm text-app-accent">
+                        <p className="font-medium">
+                          Warning: This can have unintended side effects.
+                        </p>
+                        <ul className="list-disc list-inside mt-1 opacity-90">
+                          <li>
+                            Existing clones will need to update their remote
+                            URL.
+                          </li>
+                          <li>Links to this repository will break.</li>
+                        </ul>
+                      </div>
+
                       <Input
-                        type="text"
-                        placeholder="repository-name"
+                        label="New Repository Name"
+                        placeholder="new-name"
                         value={newRepoName}
                         onChange={(e) => setNewRepoName(e.target.value)}
-                        className="w-full"
+                        helperText={`Current name: ${repoNameWithoutGit}`}
                       />
-                      <p className="text-xs text-[#808080] mt-1">
-                        This changes URLs and requires updating remotes for
-                        existing clones.
-                      </p>
-                    </div>
 
-                    <div className="mt-2 p-3 rounded border border-yellow-700/50 bg-yellow-900/20">
-                      <div className="flex items-start gap-2">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-[#b0b0b0]">
-                          Type{" "}
-                          <strong className="text-[#e8e8e8]">
-                            {newRepoName}
-                          </strong>{" "}
-                          to confirm rename.
+                      {newRepoName && newRepoName !== repoNameWithoutGit && (
+                        <div className="space-y-3 pt-2 animate-fadeIn">
+                          <Input
+                            label={`To confirm, type "${repoNameWithoutGit}"`}
+                            placeholder={repoNameWithoutGit}
+                            value={renameConfirmText}
+                            onChange={(e) =>
+                              setRenameConfirmText(e.target.value)
+                            }
+                          />
+                          <Button
+                            onClick={handleRename}
+                            disabled={!canRename || isRenaming}
+                            className="w-full sm:w-auto"
+                          >
+                            {isRenaming
+                              ? "Renaming..."
+                              : "I understand, rename this repository"}
+                          </Button>
                         </div>
-                      </div>
-                      <div className="mt-3">
-                        <Input
-                          type="text"
-                          placeholder={`Type "${repoNameWithoutGit}" to confirm`}
-                          value={renameConfirmText}
-                          onChange={(e) => setRenameConfirmText(e.target.value)}
-                          className="w-full"
-                        />
-                      </div>
+                      )}
                     </div>
-                    <Button
-                      onClick={handleRename}
-                      disabled={!canRename || isRenaming}
-                      className="min-w-[160px]"
-                      type="button"
-                    >
-                      {isRenaming ? "Renaming..." : "Rename"}
-                    </Button>
                   </section>
                 </div>
-              )}
+              </div>
+            )}
 
-              {activeTab === "access" && (
-                <div className="flex-1 pb-4">
-                  <div className="text-sm text-text-tertiary pb-4">
-                    Manage collaborators, teams, and access control here.
-                    (Coming soon)
-                  </div>
+            {activeTab === "access" && (
+              <div className="flex flex-col items-center justify-center h-full text-center py-12 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-[#2d2d2d] flex items-center justify-center">
+                  <ShieldCheckIcon className="w-8 h-8 text-[#808080]" />
                 </div>
-              )}
+                <div>
+                  <h3 className="text-lg font-medium text-[#e8e8e8]">
+                    Access Control
+                  </h3>
+                  <p className="text-[#808080] max-w-sm mt-2">
+                    Manage collaborators, teams, and deploy keys. This feature
+                    is currently under development.
+                  </p>
+                </div>
+              </div>
+            )}
 
-              {activeTab === "danger" && (
-                <div className="flex-1 space-y-4 pb-4">
-                  <div className="text-sm text-text-tertiary pb-4">
-                    Danger zone actions for this repository.
-                  </div>
-                  {/* Archive */}
-                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-text-primary flex items-center">
-                        <ArchiveBoxIcon className="w-4 h-4 mr-2" />
-                        {isArchived ? "Unarchive" : "Archive"}
-                      </h3>
+            {activeTab === "danger" && (
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-xl font-semibold text-red-400 mb-1">
+                    Danger Zone
+                  </h3>
+                  <p className="text-sm text-[#808080]">
+                    Destructive actions that affect your repository.
+                  </p>
+                </div>
+
+                <div className="border border-red-900/30 rounded-lg overflow-hidden divide-y divide-red-900/30">
+                  {/* Archive Row */}
+                  <div className="p-5 bg-red-900/5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-medium text-[#e8e8e8]">
+                        {isArchived
+                          ? "Unarchive this repository"
+                          : "Archive this repository"}
+                      </h4>
+                      <p className="text-sm text-[#808080]">
+                        {isArchived
+                          ? "Mark this repository as active again."
+                          : "Mark this repository as read-only and hide it from the main dashboard."}
+                      </p>
+
+                      {archiveConfirmChecked && (
+                        <div className="pt-2">
+                          <Button
+                            variant="secondary"
+                            onClick={handleArchiveToggle}
+                            disabled={isArchiving}
+                            className="text-red-400 hover:text-red-300 border-red-900/30 hover:bg-red-900/10"
+                          >
+                            {isArchiving
+                              ? isArchived
+                                ? "Unarchiving..."
+                                : "Archiving..."
+                              : isArchived
+                                ? "Confirm Unarchive"
+                                : "Confirm Archive"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {!archiveConfirmChecked && (
                       <Button
                         variant="secondary"
-                        onClick={handleArchiveToggle}
-                        disabled={!canArchiveToggle || isArchiving}
-                        className="min-w-[160px]"
-                        type="button"
+                        onClick={() => setArchiveConfirmChecked(true)}
+                        className="text-red-400 hover:text-red-300 border-red-900/30 hover:bg-red-900/10 shrink-0"
                       >
-                        {isArchiving
-                          ? isArchived
-                            ? "Unarchiving..."
-                            : "Archiving..."
-                          : isArchived
-                            ? "Unarchive"
-                            : "Archive"}
+                        {isArchived ? "Unarchive" : "Archive"}
                       </Button>
-                    </div>
+                    )}
+                  </div>
 
-                    <label className="flex items-start gap-2 text-sm text-[#b0b0b0]">
-                      <input
-                        type="checkbox"
-                        checked={archiveConfirmChecked}
-                        onChange={(e) =>
-                          setArchiveConfirmChecked(e.target.checked)
-                        }
-                        className="mt-1"
-                      />
-                      <span>
-                        I understand this will{" "}
-                        {isArchived
-                          ? "restore visibility/access"
-                          : "hide the repo from the main list"}
-                        .
-                      </span>
-                    </label>
-                  </section>
-                  <section className="space-y-3 border border-[#2f2f2f] rounded-lg p-4">
-                    <div className=" space-y-3">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-semibold text-red-400 flex items-center">
-                          <TrashIcon className="w-4 h-4 mr-2" />
-                          Delete repository
-                        </h3>
-
-                        {!deleteExpanded && (
-                          <Button
-                            variant="danger"
-                            onClick={() => setDeleteExpanded((v) => !v)}
-                            type="button"
-                          >
-                            Delete
-                          </Button>
-                        )}
-                      </div>
+                  {/* Delete Row */}
+                  <div className="p-5 bg-red-900/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="space-y-1 flex-1">
+                      <h4 className="text-sm font-medium text-[#e8e8e8]">
+                        Delete this repository
+                      </h4>
+                      <p className="text-sm text-[#808080]">
+                        Once you delete a repository, there is no going back.
+                        Please be certain.
+                      </p>
 
                       {deleteExpanded && (
-                        <>
-                          <div className="flex items-start space-x-3 p-3 bg-red-900/20 border border-red-700/50 rounded-lg">
-                            <ExclamationTriangleIcon className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
-                            <div className="text-sm text-[#b0b0b0]">
-                              This action <strong>cannot be undone</strong>.
-                              Type{" "}
-                              <strong className="text-[#e8e8e8]">
-                                {repoNameWithGit}
-                              </strong>{" "}
-                              to confirm deletion.
-                            </div>
+                        <div className="mt-4 p-4 bg-[#1a1a1a] border border-red-900/50 rounded-md space-y-4 animate-fadeIn">
+                          <div className="flex items-start gap-3">
+                            <ExclamationTriangleIcon className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                            <p className="text-sm text-[#e8e8e8]">
+                              This will permanently delete the{" "}
+                              <strong>{repoNameWithGit}</strong> repository, all
+                              its files, branches, tags, and commits.
+                            </p>
                           </div>
 
-                          <Input
-                            type="text"
-                            placeholder={`Type "${repoNameWithGit}" to confirm`}
-                            value={deleteConfirmText}
-                            onChange={(e) =>
-                              setDeleteConfirmText(e.target.value)
-                            }
-                            className="w-full"
-                          />
+                          <div>
+                            <label className="block text-xs text-[#808080] mb-1.5">
+                              Type <strong>{repoNameWithGit}</strong> to
+                              confirm:
+                            </label>
+                            <Input
+                              value={deleteConfirmText}
+                              onChange={(e) =>
+                                setDeleteConfirmText(e.target.value)
+                              }
+                              placeholder={repoNameWithGit}
+                              className="border-red-900/50 focus:border-red-500 focus:ring-red-500/20"
+                            />
+                          </div>
 
-                          <div className="flex gap-2">
+                          <div className="flex gap-3">
+                            <Button
+                              variant="danger"
+                              onClick={handleDelete}
+                              disabled={!canDelete || isDeleting}
+                              className="w-full sm:w-auto"
+                            >
+                              {isDeleting
+                                ? "Deleting..."
+                                : "I understand, delete this repository"}
+                            </Button>
                             <Button
                               variant="secondary"
                               onClick={() => {
                                 setDeleteExpanded(false);
                                 setDeleteConfirmText("");
                               }}
-                              className="flex-1"
-                              type="button"
+                              className="w-full sm:w-auto"
                             >
                               Cancel
                             </Button>
-                            <Button
-                              variant="danger"
-                              onClick={handleDelete}
-                              disabled={!canDelete || isDeleting}
-                              className="flex-1"
-                              type="button"
-                            >
-                              {isDeleting ? "Deleting..." : "Confirm delete"}
-                            </Button>
                           </div>
-                        </>
+                        </div>
                       )}
                     </div>
-                  </section>
+
+                    {!deleteExpanded && (
+                      <Button
+                        variant="danger"
+                        onClick={() => setDeleteExpanded(true)}
+                        className="shrink-0"
+                      >
+                        Delete repository
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
