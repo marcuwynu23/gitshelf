@@ -1,7 +1,9 @@
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {Button, Input, Alert} from "~/components/ui";
+import {AuthLayout} from "~/components/layout/AuthLayout";
 import {useAuthStore} from "~/stores/authStore";
+import Logo from "~/assets/logo.svg";
 
 export const Register = () => {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ export const Register = () => {
         formData.username,
         formData.name,
         formData.email,
-        formData.password
+        formData.password,
       );
       navigate("/dashboard");
     } catch (err: any) {
@@ -56,50 +58,57 @@ export const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-app-bg px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-semibold text-[#e8e8e8] mb-2">
-              Create an account
-            </h1>
-            <p className="text-sm text-[#b0b0b0]">
-              Sign up to get started with GitShelf
-            </p>
-          </div>
+    <AuthLayout>
+      {/* Brand Header */}
+      <div className="text-center lg:text-left mb-8 animate-fadeIn">
+        <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 mx-auto">
+          <img src={Logo} alt="GitShelf" className="w-7 h-7" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+          Create an account
+        </h1>
+        <p className="text-[#b0b0b0] text-base sm:text-lg">
+          Join <span className="text-[#e8e8e8] font-medium">GitShelf</span>{" "}
+          today
+        </p>
+      </div>
 
-          {/* Error Alert */}
-          {error && (
-            <Alert variant="error" className="mb-4">
-              {error}
-            </Alert>
-          )}
+      <div className="w-full px-4 sm:px-0 animate-slideUp">
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="error" className="mb-6 animate-shake">
+            {error}
+          </Alert>
+        )}
 
-          {/* Register Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Username"
-              type="text"
-              name="username"
-              placeholder="johndoe"
-              value={formData.username}
-              onChange={handleChange}
-              required
-              autoComplete="username"
-              helperText="3-20 characters, letters, numbers, underscores, or hyphens"
-            />
+        {/* Register Form */}
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Input
+                label="Username"
+                type="text"
+                name="username"
+                placeholder="johndoe"
+                value={formData.username}
+                onChange={handleChange}
+                required
+                autoComplete="username"
+                className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              />
 
-            <Input
-              label="Full Name"
-              type="text"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              autoComplete="name"
-            />
+              <Input
+                label="Full Name"
+                type="text"
+                name="name"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                autoComplete="name"
+                className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              />
+            </div>
 
             <Input
               label="Email"
@@ -110,6 +119,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               autoComplete="email"
+              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
 
             <Input
@@ -122,6 +132,7 @@ export const Register = () => {
               required
               autoComplete="new-password"
               helperText="Must be at least 8 characters"
+              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
 
             <Input
@@ -133,25 +144,37 @@ export const Register = () => {
               onChange={handleChange}
               required
               autoComplete="new-password"
+              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
-
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Creating account..." : "Create account"}
-            </Button>
-          </form>
-
-          {/* Sign in link */}
-          <div className="mt-6 text-center text-sm text-[#b0b0b0]">
-            Already have an account?{" "}
-            <Link
-              to="/auth/login"
-              className="text-app-accent hover:text-[#5a95f5] transition-colors font-medium"
-            >
-              Sign in
-            </Link>
           </div>
-        </div>
+
+          <Button
+            type="submit"
+            className="w-full h-11 text-base font-medium shadow-lg shadow-app-accent/20 hover:shadow-app-accent/30 transition-all mt-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Creating account...</span>
+              </div>
+            ) : (
+              "Create account"
+            )}
+          </Button>
+        </form>
       </div>
-    </div>
+
+      {/* Sign in link */}
+      <p className="mt-8 text-center text-sm text-[#b0b0b0] animate-fadeIn delay-100">
+        Already have an account?{" "}
+        <Link
+          to="/auth/login"
+          className="text-app-accent hover:text-[#5a95f5] transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };

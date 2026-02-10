@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -18,7 +18,8 @@
   --color-text-secondary: #b0b0b0;
   --color-text-tertiary: #808080;
 
-  --font-family-sans: "Mona Sans", "Inter", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
+  --font-family-sans: "Inter", "Mona Sans", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
+  --font-family-display: "Mona Sans", "Inter", "Roboto", sans-serif;
   --font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
 }
 
@@ -56,6 +57,35 @@ body {
   100% {
     background-position: 200% 0;
   }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.animate-shake {
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
 
 /* Markdown body styling */
