@@ -10,6 +10,7 @@ export const Login = () => {
   const login = useAuthStore((state) => state.login);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +20,7 @@ export const Login = () => {
     setLoading(true);
 
     try {
-      await login(username, password);
+      await login(username, password, rememberMe);
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "Failed to login. Please try again.");
@@ -93,7 +94,12 @@ export const Login = () => {
           <div className="flex items-center">
             <label className="flex items-center gap-3 cursor-pointer group">
               <div className="relative flex items-center">
-                <input type="checkbox" className="peer sr-only" />
+                <input
+                  type="checkbox"
+                  className="peer sr-only"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
                 <div className="w-5 h-5 border-2 border-app-border rounded bg-app-surface peer-checked:bg-app-accent peer-checked:border-app-accent transition-all"></div>
                 <svg
                   className="absolute w-3.5 h-3.5 text-text-on-accent left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
