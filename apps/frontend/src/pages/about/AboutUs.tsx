@@ -1,3 +1,4 @@
+import {useNavigate} from "react-router-dom";
 import {
   CodeBracketIcon,
   HeartIcon,
@@ -5,11 +6,31 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
   BoltIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 
 export const AboutUs = () => {
+  const navigate = useNavigate();
+
+  const handleClose = () => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto px-4 py-2">
+    <div className="max-w-4xl mx-auto px-4 py-2 relative">
+      {/* Close Button */}
+      <button
+        onClick={handleClose}
+        className="absolute top-2 right-4 p-2 rounded-full hover:bg-app-accent/10 text-text-secondary hover:text-text-primary transition-colors z-50"
+        aria-label="Close"
+      >
+        <XMarkIcon className="w-6 h-6" />
+      </button>
+
       {/* Hero Section */}
       <div className="text-center mb-16 animate-slideUp">
         <div className="inline-flex items-center justify-center p-3 bg-app-accent/10 rounded-full mb-6">
@@ -29,23 +50,37 @@ export const AboutUs = () => {
       </div>
 
       {/* Stats/Mission Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 animate-slideUp" style={{animationDelay: "100ms"}}>
+      <div
+        className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 animate-slideUp"
+        style={{animationDelay: "100ms"}}
+      >
         <div className="text-center p-6 rounded-2xl bg-app-surface border border-app-border">
           <div className="text-3xl font-bold text-text-primary mb-2">100%</div>
-          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">Open Source</div>
+          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">
+            Source Available
+          </div>
         </div>
         <div className="text-center p-6 rounded-2xl bg-app-surface border border-app-border">
           <div className="text-3xl font-bold text-text-primary mb-2">Fast</div>
-          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">Performance</div>
+          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">
+            Performance
+          </div>
         </div>
         <div className="text-center p-6 rounded-2xl bg-app-surface border border-app-border">
-          <div className="text-3xl font-bold text-text-primary mb-2">Secure</div>
-          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">By Default</div>
+          <div className="text-3xl font-bold text-text-primary mb-2">
+            Secure
+          </div>
+          <div className="text-sm text-text-secondary font-medium uppercase tracking-wider">
+            By Default
+          </div>
         </div>
       </div>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 animate-slideUp" style={{animationDelay: "200ms"}}>
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 animate-slideUp"
+        style={{animationDelay: "200ms"}}
+      >
         <div className="group p-6 rounded-2xl bg-app-surface border border-app-border hover:border-app-accent/50 hover:shadow-lg hover:shadow-app-accent/5 transition-all duration-300">
           <div className="w-12 h-12 bg-app-accent/10 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
             <CodeBracketIcon className="w-6 h-6 text-app-accent" />
@@ -55,7 +90,8 @@ export const AboutUs = () => {
           </h3>
           <p className="text-text-secondary leading-relaxed">
             A clean, distraction-free interface for managing your repositories,
-            reviewing code, and collaborating with your team without the clutter.
+            reviewing code, and collaborating with your team without the
+            clutter.
           </p>
         </div>
 
@@ -67,8 +103,9 @@ export const AboutUs = () => {
             Secure by Design
           </h3>
           <p className="text-text-secondary leading-relaxed">
-            Enterprise-grade security with robust authentication, granular access
-            controls, and secure communication channels to protect your intellectual property.
+            Enterprise-grade security with robust authentication, granular
+            access controls, and secure communication channels to protect your
+            intellectual property.
           </p>
         </div>
 
@@ -77,11 +114,11 @@ export const AboutUs = () => {
             <GlobeAltIcon className="w-6 h-6 text-blue-500" />
           </div>
           <h3 className="text-xl font-semibold text-text-primary mb-3">
-            Open Source
+            Source Available
           </h3>
           <p className="text-text-secondary leading-relaxed">
-            Built on open-source technologies with a belief in transparency.
-            Community-driven development ensures we solve real-world problems.
+            Built with a belief in transparency. The source code is available
+            for educational and personal use, fostering learning and trust.
           </p>
         </div>
 
@@ -100,14 +137,17 @@ export const AboutUs = () => {
       </div>
 
       {/* Footer */}
-      <div className="border-t border-app-border pt-8 text-center animate-slideUp" style={{animationDelay: "300ms"}}>
+      <div
+        className="border-t border-app-border pt-8 text-center animate-slideUp"
+        style={{animationDelay: "300ms"}}
+      >
         <div className="flex items-center justify-center gap-2 mb-4">
           <BoltIcon className="w-5 h-5 text-yellow-500" />
-          <span className="text-text-primary font-medium">Powered by Modern Tech</span>
+          <span className="text-text-primary font-medium">
+            Powered by Modern Tech
+          </span>
         </div>
-        <p className="text-text-tertiary text-sm mb-2">
-          Version 1.0.0
-        </p>
+        <p className="text-text-tertiary text-sm mb-2">Version 1.0.0</p>
         <p className="text-text-tertiary text-sm">
           &copy; {new Date().getFullYear()} GitShelf Inc. All rights reserved.
         </p>
