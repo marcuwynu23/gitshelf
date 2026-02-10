@@ -33,14 +33,14 @@ export const BranchList: React.FC<BranchListProps> = ({
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
-        <CodeBracketIcon className="w-4 h-4 text-[#808080]" />
-        <h2 className="text-sm font-semibold text-[#e8e8e8] uppercase tracking-wider">
+        <CodeBracketIcon className="w-4 h-4 text-text-tertiary" />
+        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">
           Branches
         </h2>
       </div>
 
       {branches.length === 0 ? (
-        <p className="text-[#808080] text-xs">No branches found</p>
+        <p className="text-text-tertiary text-xs">No branches found</p>
       ) : (
         <div className="space-y-1">
           {previewBranches.map((branch) => (
@@ -76,20 +76,20 @@ export const BranchList: React.FC<BranchListProps> = ({
       >
         <div className="space-y-4">
           <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
             <input
               type="text"
               placeholder="Search branches..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-9 pl-9 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
+              className="w-full h-9 pl-9 pr-3 bg-app-bg border border-app-border rounded text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
               autoFocus
             />
           </div>
 
           <div className="space-y-1 max-h-[50vh] overflow-y-auto pr-1">
             {filteredBranches.length === 0 ? (
-              <p className="text-center text-sm text-[#808080] py-4">
+              <p className="text-center text-sm text-text-tertiary py-4">
                 No branches found
               </p>
             ) : (
@@ -125,7 +125,7 @@ const BranchRow: React.FC<{
       className={`group flex items-center justify-between p-2.5 rounded border transition-all ${
         isCurrent
           ? "bg-app-accent/10 border-app-accent cursor-default"
-          : "bg-transparent border-transparent hover:bg-[#353535] hover:border-[#3d3d3d] cursor-pointer"
+          : "bg-transparent border-transparent hover:bg-app-hover hover:border-app-border cursor-pointer"
       }`}
     >
       <div className="flex items-center gap-3">
@@ -133,14 +133,14 @@ const BranchRow: React.FC<{
           className={`w-4 h-4 ${
             isCurrent
               ? "text-app-accent"
-              : "text-[#808080] group-hover:text-[#b0b0b0]"
+              : "text-text-tertiary group-hover:text-text-secondary"
           }`}
         />
         <span
           className={`text-sm font-mono ${
             isCurrent
-              ? "text-[#e8e8e8] font-medium"
-              : "text-[#b0b0b0] group-hover:text-[#e8e8e8]"
+              ? "text-text-primary font-medium"
+              : "text-text-secondary group-hover:text-text-primary"
           }`}
         >
           {branch}

@@ -76,21 +76,21 @@ export const Modal: React.FC<ModalProps> = ({
           "w-full",
           maxHeightClass,
           "flex flex-col", // ✅ critical
-          "bg-app-surface border border-[#3d3d3d] rounded-lg shadow-2xl",
+          "bg-app-surface border border-app-border rounded-lg shadow-2xl",
           "overflow-hidden", // ✅ ensures body becomes the scroll container
         ].join(" ")}
         data-testid="modal-container"
       >
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[#3d3d3d] flex-shrink-0">
-            <h2 className="text-lg font-semibold text-[#e8e8e8]">{title}</h2>
+          <div className="flex items-center justify-between px-6 py-4 border-b border-app-border flex-shrink-0">
+            <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
             <button
               onClick={onClose}
-              className="p-1 hover:bg-[#353535] rounded transition-colors"
+              className="p-1 hover:bg-app-hover rounded transition-colors"
               aria-label="Close"
               type="button"
             >
-              <XMarkIcon className="w-5 h-5 text-[#b0b0b0]" />
+              <XMarkIcon className="w-5 h-5 text-text-secondary" />
             </button>
           </div>
         )}
@@ -104,7 +104,7 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
 
         {footer && (
-          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-6 py-4 border-t border-[#3d3d3d] flex-shrink-0">
+          <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2 px-6 py-4 border-t border-app-border flex-shrink-0">
             {footer}
           </div>
         )}

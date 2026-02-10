@@ -1,12 +1,112 @@
-import {useState} from "react";
-import {useNavigate, useLocation} from "react-router-dom";
+import {useState, useRef, useEffect} from "react";
+import {useLocation, Link} from "react-router-dom";
 import {
-  CommandLineIcon,
   FolderOpenIcon,
-  LinkIcon,
+  ChevronDownIcon,
+  DocumentDuplicateIcon,
 } from "@heroicons/react/24/outline";
 import {Badge} from "~/components/ui/Badge";
 import type {RepoItem} from "~/props/Repos";
+
+interface CloneDropdownProps {
+  sshUrl?: string | null;
+  httpUrl?: string | null;
+  onCopy: (val: string) => void;
+}
+
+const CloneDropdown: React.FC<CloneDropdownProps> = ({
+  sshUrl,
+  httpUrl,
+  onCopy,
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!sshUrl && !httpUrl) return null;
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
+        className="flex items-center gap-2 px-3 py-1.5 bg-app-surface border border-app-border rounded-lg text-xs font-medium text-text-primary hover:bg-app-hover transition-colors shadow-sm"
+      >
+        <span>Clone</span>
+        <ChevronDownIcon className="w-3 h-3 text-text-secondary" />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-1 w-72 bg-app-surface border border-app-border rounded-lg shadow-xl z-50 py-1">
+          {sshUrl && (
+            <div className="px-3 py-2 border-b border-app-border last:border-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-text-primary">
+                  SSH
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-[10px] bg-app-bg p-1.5 rounded border border-app-border text-text-secondary truncate font-mono">
+                  {sshUrl}
+                </code>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(sshUrl);
+                    setIsOpen(false);
+                  }}
+                  className="p-1.5 hover:bg-app-hover rounded text-text-primary transition-colors"
+                  title="Copy SSH URL"
+                >
+                  <DocumentDuplicateIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          {httpUrl && (
+            <div className="px-3 py-2 border-b border-app-border last:border-0">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-text-primary">
+                  HTTPS
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-[10px] bg-app-bg p-1.5 rounded border border-app-border text-text-secondary truncate font-mono">
+                  {httpUrl}
+                </code>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCopy(httpUrl);
+                    setIsOpen(false);
+                  }}
+                  className="p-1.5 hover:bg-app-hover rounded text-text-primary transition-colors"
+                  title="Copy HTTPS URL"
+                >
+                  <DocumentDuplicateIcon className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 interface RepoListProps {
   repos: RepoItem[];
@@ -15,7 +115,6 @@ interface RepoListProps {
 
 export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = (value: string) => {
@@ -45,10 +144,10 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
 
   if (repos.length === 0) {
     return (
-      <div className="text-center py-12 sm:py-20 bg-[#2d2d2d]/10 rounded-xl border border-[#3d3d3d] border-dashed">
-        <FolderOpenIcon className="w-12 h-12 text-[#808080] mx-auto mb-3 opacity-50" />
-        <p className="text-[#e8e8e8] font-medium">No repositories found</p>
-        <p className="text-[#808080] text-sm mt-1">
+      <div className="text-center py-12 sm:py-20 bg-app-surface/10 rounded-xl border border-app-border border-dashed">
+        <FolderOpenIcon className="w-12 h-12 text-text-tertiary mx-auto mb-3 opacity-50" />
+        <p className="text-text-primary font-medium">No repositories found</p>
+        <p className="text-text-tertiary text-sm mt-1">
           Create a new repository to get started
         </p>
       </div>
@@ -62,40 +161,42 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
         return (
           <div
             key={repo.name}
-            onClick={() => navigate(getRepoUrl(repo.name))}
-            className={`group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl border transition-all duration-200 cursor-pointer ${
+            className={`group relative flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-xl border transition-all duration-200 ${
               isActive
-                ? "bg-app-accent/5 border-app-accent shadow-[0_0_0_1px_rgba(var(--app-accent),0.2)]"
-                : "bg-[#2d2d2d]/40 border-[#3d3d3d] hover:bg-[#2d2d2d]/60 hover:border-[#505050] hover:shadow-md hover:-translate-y-0.5"
+                ? "bg-app-hover border-app-accent/30"
+                : "bg-app-surface/40 border-app-border hover:bg-app-surface/60 hover:border-app-border hover:shadow-sm"
             }`}
           >
             {/* Left: Icon + Repo Name */}
             <div className="flex items-start gap-4 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-[#3d3d3d]/50 flex items-center justify-center shrink-0 border border-[#4d4d4d]/30 group-hover:border-[#4d4d4d]/50 transition-colors">
-                <FolderOpenIcon className="w-5 h-5 text-app-accent opacity-80" />
+              <div className="w-10 h-10 rounded-lg bg-app-border/50 flex items-center justify-center shrink-0 border border-app-border/30 group-hover:border-app-border/50 transition-colors">
+                <FolderOpenIcon className="w-5 h-5 text-text-secondary group-hover:text-text-primary transition-colors" />
               </div>
 
               <div className="flex flex-col gap-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-base text-[#e8e8e8] truncate group-hover:text-app-accent transition-colors">
+                  <Link
+                    to={getRepoUrl(repo.name)}
+                    className="font-semibold text-base text-text-primary truncate hover:text-app-accent hover:underline transition-colors"
+                  >
                     {displayName(repo.title || repo.name)}
-                  </span>
+                  </Link>
                   {repo.archived && (
                     <Badge
                       variant="neutral"
                       size="sm"
-                      className="text-[10px] py-0 h-5 bg-[#3d3d3d] border-[#4d4d4d]"
+                      className="text-[10px] py-0 h-5 bg-app-border border-app-border"
                     >
                       Archived
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-xs text-[#808080]">
+                <div className="flex items-center gap-2 text-xs text-text-tertiary">
                   <span className="font-mono opacity-70">{repo.name}</span>
                 </div>
                 {repo.description && (
                   <p
-                    className="text-sm text-[#b0b0b0] line-clamp-2 mt-1"
+                    className="text-sm text-text-secondary line-clamp-2 mt-1"
                     title={repo.description}
                   >
                     {truncateDescription(repo.description)}
@@ -105,51 +206,19 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
             </div>
 
             {/* Right: Action Buttons */}
-            <div className="flex items-center gap-2 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#3d3d3d]/50 sm:pl-4">
-              {/* Copy Buttons */}
-              <div className="flex items-center gap-1 bg-[#1e1e1e]/50 rounded-lg p-1 border border-[#3d3d3d]/50">
-                {repo.sshAddress && (
-                  <button
-                    title="Copy SSH URL"
-                    className="p-1.5 hover:bg-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopy(repo.sshAddress!);
-                    }}
-                  >
-                    <CommandLineIcon className="w-4 h-4" />
-                  </button>
-                )}
-                {repo.httpAddress && (
-                  <button
-                    title="Copy HTTPS URL"
-                    className="p-1.5 hover:bg-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopy(repo.httpAddress!);
-                    }}
-                  >
-                    <LinkIcon className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                className="ml-2 inline-flex items-center justify-center gap-2 px-4 py-2 bg-app-surface hover:bg-[#3d3d3d] rounded-lg border border-[#3d3d3d] hover:border-[#505050] transition-all text-sm font-medium text-[#e8e8e8] shadow-sm active:scale-[0.98]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(getRepoUrl(repo.name));
-                }}
-              >
-                Open
-              </button>
+            <div className="flex items-center gap-2 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-app-border/50 sm:pl-4">
+              <CloneDropdown
+                sshUrl={repo.sshAddress}
+                httpUrl={repo.httpAddress}
+                onCopy={handleCopy}
+              />
             </div>
           </div>
         );
       })}
       {copied && (
-        <div className="fixed bottom-4 right-4 bg-app-surface border border-[#3d3d3d] px-4 py-2 rounded shadow-lg">
-          <p className="text-sm text-[#e8e8e8]">Copied to clipboard!</p>
+        <div className="fixed bottom-4 right-4 bg-app-surface border border-app-border px-4 py-2 rounded shadow-lg">
+          <p className="text-sm text-text-primary">Copied to clipboard!</p>
         </div>
       )}
     </div>

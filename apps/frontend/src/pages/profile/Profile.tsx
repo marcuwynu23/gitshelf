@@ -144,7 +144,7 @@ export const Profile = () => {
 
         {/* Page Header */}
         <div className="mb-6">
-          <p className="text-sm text-[#b0b0b0]">
+          <p className="text-sm text-text-secondary">
             Manage your profile information and account settings
           </p>
         </div>
@@ -166,7 +166,7 @@ export const Profile = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Profile Card */}
             <div className="lg:col-span-1">
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
                 <div className="text-center">
                   {/* Avatar */}
                   <div className="mb-4">
@@ -174,29 +174,29 @@ export const Profile = () => {
                       <img
                         src={profile.avatar}
                         alt={profile.name}
-                        className="w-24 h-24 rounded-full mx-auto border-2 border-[#3d3d3d]"
+                        className="w-24 h-24 rounded-full mx-auto border-2 border-app-border"
                       />
                     ) : (
-                      <div className="w-24 h-24 rounded-full mx-auto bg-app-accent/10 flex items-center justify-center border-2 border-[#3d3d3d]">
+                      <div className="w-24 h-24 rounded-full mx-auto bg-app-accent/10 flex items-center justify-center border-2 border-app-border">
                         <UserIcon className="w-12 h-12 text-app-accent" />
                       </div>
                     )}
                   </div>
 
                   {/* Name */}
-                  <h2 className="text-xl font-semibold text-[#e8e8e8] mb-2">
+                  <h2 className="text-xl font-semibold text-text-primary mb-2">
                     {profile?.name || "User"}
                   </h2>
 
                   {/* Email */}
-                  <div className="flex items-center justify-center gap-2 text-sm text-[#b0b0b0] mb-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-text-secondary mb-4">
                     <EnvelopeIcon className="w-4 h-4" />
                     <span>{profile?.email}</span>
                   </div>
 
                   {/* Member Since */}
                   {profile?.createdAt && (
-                    <div className="flex items-center justify-center gap-2 text-xs text-[#808080] mb-4">
+                    <div className="flex items-center justify-center gap-2 text-xs text-text-tertiary mb-4">
                       <CalendarIcon className="w-4 h-4" />
                       <span>
                         Member since{" "}
@@ -207,7 +207,9 @@ export const Profile = () => {
 
                   {/* Bio */}
                   {profile?.bio && (
-                    <p className="text-sm text-[#b0b0b0] mb-4">{profile.bio}</p>
+                    <p className="text-sm text-text-secondary mb-4">
+                      {profile.bio}
+                    </p>
                   )}
 
                   {/* Settings Link */}
@@ -223,8 +225,8 @@ export const Profile = () => {
             {/* Profile Form */}
             <div className="lg:col-span-2 space-y-6">
               {/* Profile Information */}
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-text-primary mb-4">
                   Profile Information
                 </h2>
                 <div className="space-y-4">
@@ -246,7 +248,7 @@ export const Profile = () => {
                   />
 
                   <div>
-                    <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+                    <label className="block text-sm font-medium text-text-primary mb-1.5">
                       Bio
                     </label>
                     <textarea
@@ -255,7 +257,7 @@ export const Profile = () => {
                       onChange={handleChange}
                       placeholder="Tell us about yourself..."
                       rows={4}
-                      className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+                      className="w-full px-3 py-2 bg-app-surface border border-app-border rounded text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
                     />
                   </div>
 
@@ -266,8 +268,8 @@ export const Profile = () => {
               </div>
 
               {/* Change Password */}
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
-                <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+              <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                <h2 className="text-lg font-semibold text-text-primary mb-4">
                   Change Password
                 </h2>
                 <div className="space-y-4">

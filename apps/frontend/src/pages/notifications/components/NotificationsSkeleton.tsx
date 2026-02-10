@@ -16,16 +16,19 @@ export const NotificationsSkeleton = () => {
 
       {/* Notifications Content Skeleton */}
       <div className="flex-1 overflow-auto">
-        <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+        <div className="bg-app-surface border border-app-border rounded-lg p-6">
           <div className="flex items-center justify-between mb-6">
             <SkeletonTitle className="w-40" />
             <Skeleton className="h-8 w-20" />
           </div>
 
           <div className="space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="flex items-start gap-4 p-4 border border-[#3d3d3d] rounded-lg">
-                <div className="w-8 h-8 bg-[#808080] rounded-full opacity-50 flex-shrink-0 mt-1" />
+            {Array.from({length: 5}).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-start gap-4 p-4 border border-app-border rounded-lg"
+              >
+                <div className="w-8 h-8 bg-app-border rounded-full opacity-50 flex-shrink-0 mt-1" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">

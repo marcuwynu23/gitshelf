@@ -176,25 +176,25 @@ const FileNodeItem: React.FC<{
     if (deviconClass) {
       return {
         icon: <Devicon klass={deviconClass} title={name} />,
-        textColor: "text-white/90",
+        textColor: "text-text-primary",
       };
     }
 
     // Fallback to generic code icon
     return {
-      icon: <CodeBracketIcon className="w-4 h-4 text-white/60" />,
-      textColor: "text-white/90",
+      icon: <CodeBracketIcon className="w-4 h-4 text-text-tertiary" />,
+      textColor: "text-text-primary",
     };
   };
 
   const getFolderAppearance = (name: string) => {
     const lower = name.toLowerCase();
-    let icon = <FolderIcon className="w-4 h-4 text-white/70" />;
-    let textColor = "text-white/90";
+    let icon = <FolderIcon className="w-4 h-4 text-text-secondary" />;
+    let textColor = "text-text-primary";
 
     if (lower.includes("src")) {
-      icon = <FolderIcon className="w-4 h-4 text-blue-400" />;
-      textColor = "text-blue-400";
+      icon = <FolderIcon className="w-4 h-4 text-app-accent" />;
+      textColor = "text-app-accent";
     } else if (lower.includes("assets")) {
       icon = <FolderIcon className="w-4 h-4 text-pink-400" />;
       textColor = "text-pink-400";
@@ -236,13 +236,13 @@ const FileNodeItem: React.FC<{
     return (
       <li>
         <div
-          className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer select-none transition-colors"
+          className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-hover cursor-pointer select-none transition-colors"
           style={{paddingLeft: `${indent}px`}}
           onClick={() => setOpen(!open)}
         >
           <div className="flex items-center gap-1.5 min-w-0">
             <ChevronRightIcon
-              className={`w-3 h-3 text-white/40 transition-transform ${open ? "rotate-90" : ""}`}
+              className={`w-3 h-3 text-text-tertiary transition-transform ${open ? "rotate-90" : ""}`}
             />
             {icon}
             <span className={`text-sm font-medium ${textColor} truncate`}>
@@ -251,7 +251,7 @@ const FileNodeItem: React.FC<{
           </div>
           <div className="hidden sm:flex items-center gap-4 shrink-0 opacity-60 text-sm">
             <span className="text-ellipsis max-w-[28ch]">—</span>
-            <span className="text-xs text-white/50">—</span>
+            <span className="text-xs text-text-tertiary">—</span>
           </div>
         </div>
 
@@ -270,7 +270,7 @@ const FileNodeItem: React.FC<{
 
   return (
     <li
-      className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-surface/50 cursor-pointer transition-colors"
+      className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-hover cursor-pointer transition-colors"
       style={{paddingLeft: `${indent + 20}px`}}
       onClick={() => onFileClick && onFileClick(node.path)}
     >
@@ -281,14 +281,14 @@ const FileNodeItem: React.FC<{
 
       <div className="hidden sm:flex items-center gap-4 shrink-0 text-sm opacity-80">
         <span
-          className="whitespace-nowrap block text-white/90"
+          className="whitespace-nowrap block text-text-primary"
           title={node.lastCommitMsg ?? ""}
         >
           {node.lastCommitMsg && node.lastCommitMsg.length > 25
             ? `${node.lastCommitMsg.slice(0, 25)}...`
             : (node.lastCommitMsg ?? "")}
         </span>
-        <span className="text-xs text-white/90">
+        <span className="text-xs text-text-primary">
           {formatRelative(node.lastCommitTime)}
         </span>
       </div>

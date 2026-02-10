@@ -18,7 +18,7 @@ export const Badge: React.FC<BadgeProps> = ({
     warning: "bg-warning/15 text-warning border-warning/30",
     error: "bg-error/15 text-error border-error/30",
     info: "bg-info/15 text-info border-info/30",
-    neutral: "bg-app-surface text-[#b0b0b0] border-[#3d3d3d]",
+    neutral: "bg-app-surface text-text-secondary border-app-border",
     primary: "bg-app-accent/15 text-app-accent border-app-accent/30",
   };
 

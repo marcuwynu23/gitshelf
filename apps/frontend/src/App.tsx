@@ -1,5 +1,7 @@
 import {BrowserRouter, Routes, Route, Navigate} from "react-router-dom";
-import {Suspense, lazy} from "react";
+import {Suspense, lazy, useEffect} from "react";
+import {useThemeStore} from "./stores/themeStore";
+import AboutUs from "./pages/about/AboutUs";
 
 // Lazy load page components for code splitting
 const Dashboard = lazy(() =>
@@ -66,12 +68,18 @@ const PageLoading = () => (
   <div className="min-h-screen bg-app-bg flex items-center justify-center">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-app-accent mx-auto mb-4"></div>
-      <p className="text-[#b0b0b0]">Loading...</p>
+      <p className="text-text-secondary">Loading...</p>
     </div>
   </div>
 );
 
 const App = () => {
+  const {initTheme} = useThemeStore();
+
+  useEffect(() => {
+    initTheme();
+  }, [initTheme]);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoading />}>
@@ -143,6 +151,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <HelpPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/about"
+            element={
+              <ProtectedRoute>
+                <AboutUs />
               </ProtectedRoute>
             }
           />

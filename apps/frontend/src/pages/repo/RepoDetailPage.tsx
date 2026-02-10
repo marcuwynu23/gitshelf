@@ -23,6 +23,7 @@ export const RepoDetailPage = () => {
   const {branches, currentBranch, setCurrentBranch, fetchBranches} =
     useBranchStore();
   const [repoMetadata, setRepoMetadata] = useState<RepoMetadata | null>(null);
+  const [loading, setLoading] = useState(true);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const repoName = name ? decodeURIComponent(name) : null;
@@ -38,6 +39,7 @@ export const RepoDetailPage = () => {
       const repoNameWithGit = repoName.includes(".git")
         ? repoName
         : `${repoName}.git`;
+      setLoading(true);
       axios
         .get(`/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`)
         .then((res) => {
@@ -48,6 +50,9 @@ export const RepoDetailPage = () => {
           if (err.response?.status !== 404) {
             console.error("Failed to fetch repo metadata:", err);
           }
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   }, [repoName, fetchCommits, fetchBranches]);
@@ -60,6 +65,17 @@ export const RepoDetailPage = () => {
 
   if (!repoName) {
     return null;
+  }
+
+  if (loading) {
+    return (
+      <MainLayout
+        activeSidebarItem="repos"
+        rightSidebar={<HelpSidebarContent />}
+      >
+        <RepoDetailSkeleton />
+      </MainLayout>
+    );
   }
 
   return (

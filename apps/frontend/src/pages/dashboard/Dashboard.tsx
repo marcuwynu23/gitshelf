@@ -107,10 +107,10 @@ export const Dashboard = () => {
 
         {/* Welcome Section */}
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-[#e8e8e8]">
+          <h1 className="text-3xl font-bold text-text-primary">
             Welcome back, {user?.name || user?.username || "Developer"}!
           </h1>
-          <p className="text-[#b0b0b0]">
+          <p className="text-text-secondary">
             Here's what's happening with your projects today.
           </p>
         </div>
@@ -118,54 +118,54 @@ export const Dashboard = () => {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {/* Total Repositories */}
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-5 hover:border-app-accent/50 transition-colors group">
+          <div className="bg-app-surface border border-app-border rounded-xl p-5 hover:border-text-primary/30 transition-colors group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
-                <FolderIcon className="w-6 h-6 text-blue-500" />
+              <div className="p-2 bg-app-hover rounded-lg transition-colors">
+                <FolderIcon className="w-6 h-6 text-text-primary" />
               </div>
-              <span className="text-xs font-medium text-[#808080] bg-[#2a2a2a] px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-text-tertiary bg-app-hover px-2 py-1 rounded-full">
                 Total
               </span>
             </div>
             <div>
-              <p className="text-sm text-[#808080] mb-1">Repositories</p>
-              <p className="text-3xl font-bold text-[#e8e8e8]">
+              <p className="text-sm text-text-tertiary mb-1">Repositories</p>
+              <p className="text-3xl font-bold text-text-primary">
                 {stats.totalRepos}
               </p>
             </div>
           </div>
 
           {/* Total Commits */}
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-5 hover:border-app-accent/50 transition-colors group">
+          <div className="bg-app-surface border border-app-border rounded-xl p-5 hover:border-text-primary/30 transition-colors group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-purple-500/10 rounded-lg group-hover:bg-purple-500/20 transition-colors">
-                <CodeBracketIcon className="w-6 h-6 text-purple-500" />
+              <div className="p-2 bg-app-hover rounded-lg transition-colors">
+                <CodeBracketIcon className="w-6 h-6 text-text-primary" />
               </div>
-              <span className="text-xs font-medium text-[#808080] bg-[#2a2a2a] px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-text-tertiary bg-app-hover px-2 py-1 rounded-full">
                 All Time
               </span>
             </div>
             <div>
-              <p className="text-sm text-[#808080] mb-1">Total Commits</p>
-              <p className="text-3xl font-bold text-[#e8e8e8]">
+              <p className="text-sm text-text-tertiary mb-1">Total Commits</p>
+              <p className="text-3xl font-bold text-text-primary">
                 {stats.totalCommits.toLocaleString()}
               </p>
             </div>
           </div>
 
           {/* Total Branches */}
-          <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-5 hover:border-app-accent/50 transition-colors group">
+          <div className="bg-app-surface border border-app-border rounded-xl p-5 hover:border-text-primary/30 transition-colors group">
             <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-green-500/10 rounded-lg group-hover:bg-green-500/20 transition-colors">
-                <ShareIcon className="w-6 h-6 text-green-500" />
+              <div className="p-2 bg-app-hover rounded-lg transition-colors">
+                <ShareIcon className="w-6 h-6 text-text-primary" />
               </div>
-              <span className="text-xs font-medium text-[#808080] bg-[#2a2a2a] px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-text-tertiary bg-app-hover px-2 py-1 rounded-full">
                 Active
               </span>
             </div>
             <div>
-              <p className="text-sm text-[#808080] mb-1">Branches</p>
-              <p className="text-3xl font-bold text-[#e8e8e8]">
+              <p className="text-sm text-text-tertiary mb-1">Branches</p>
+              <p className="text-3xl font-bold text-text-primary">
                 {stats.totalBranches}
               </p>
             </div>
@@ -177,26 +177,26 @@ export const Dashboard = () => {
           {/* Left Column: Recent Repositories */}
           <div className="lg:col-span-2 flex flex-col gap-6">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-[#e8e8e8]">
+              <h2 className="text-xl font-semibold text-text-primary">
                 Recent Repositories
               </h2>
               <Link
                 to="/repositories"
-                className="text-sm text-app-accent hover:text-[#5a95f5] transition-colors flex items-center gap-1"
+                className="text-sm text-text-primary opacity-60 hover:opacity-100 transition-opacity flex items-center gap-1"
               >
                 View all <ArrowRightIcon className="w-4 h-4" />
               </Link>
             </div>
 
             {stats.recentRepos.length === 0 ? (
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-8 text-center">
-                <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center mx-auto mb-4">
-                  <FolderIcon className="w-8 h-8 text-[#808080]" />
+              <div className="bg-app-surface border border-app-border rounded-xl p-8 text-center">
+                <div className="w-16 h-16 bg-app-hover rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FolderIcon className="w-8 h-8 text-text-tertiary" />
                 </div>
-                <h3 className="text-lg font-medium text-[#e8e8e8] mb-2">
+                <h3 className="text-lg font-medium text-text-primary mb-2">
                   No repositories found
                 </h3>
-                <p className="text-[#808080] mb-6 max-w-sm mx-auto">
+                <p className="text-text-tertiary mb-6 max-w-sm mx-auto">
                   Get started by creating your first repository to track your
                   code.
                 </p>
@@ -210,11 +210,11 @@ export const Dashboard = () => {
                   <Link
                     key={repo.name}
                     to={getRepoUrl(repo.name)}
-                    className="group bg-app-surface border border-[#3d3d3d] rounded-xl p-5 hover:border-app-accent/50 hover:shadow-lg hover:shadow-app-accent/5 transition-all"
+                    className="group bg-app-surface border border-app-border rounded-xl p-5 hover:border-text-primary/30 hover:shadow-lg hover:shadow-black/5 transition-all"
                   >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="p-2 bg-[#2a2a2a] rounded-lg group-hover:bg-app-accent/10 transition-colors">
-                        <FolderIcon className="w-5 h-5 text-[#b0b0b0] group-hover:text-app-accent transition-colors" />
+                      <div className="p-2 bg-app-bg rounded-lg group-hover:bg-app-hover transition-colors">
+                        <FolderIcon className="w-5 h-5 text-text-secondary group-hover:text-text-primary transition-colors" />
                       </div>
                       {repo.archived && (
                         <Badge variant="neutral" size="sm">
@@ -222,10 +222,10 @@ export const Dashboard = () => {
                         </Badge>
                       )}
                     </div>
-                    <h3 className="font-semibold text-[#e8e8e8] mb-1 truncate group-hover:text-app-accent transition-colors">
+                    <h3 className="font-semibold text-text-primary mb-1 truncate group-hover:underline transition-all">
                       {displayName(repo.name)}
                     </h3>
-                    <p className="text-sm text-[#808080] line-clamp-2 h-10">
+                    <p className="text-sm text-text-tertiary line-clamp-2 h-10">
                       {repo.description || "No description provided."}
                     </p>
                   </Link>
@@ -237,58 +237,60 @@ export const Dashboard = () => {
           {/* Right Column: Quick Actions & Activity */}
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-6">
-              <h2 className="text-xl font-semibold text-[#e8e8e8]">
+              <h2 className="text-xl font-semibold text-text-primary">
                 Quick Actions
               </h2>
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-xl p-1 overflow-hidden">
+              <div className="bg-app-surface border border-app-border rounded-xl p-1 overflow-hidden">
                 <button
                   onClick={() => navigate("/repositories")}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
+                  className="w-full flex items-center gap-4 p-4 hover:bg-app-hover transition-colors text-left group border-b border-app-border last:border-0"
                 >
-                  <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:scale-110 transition-transform">
+                  <div className="p-2 bg-app-hover rounded-lg text-text-primary group-hover:scale-110 transition-transform">
                     <PlusIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#e8e8e8]">
+                    <h3 className="font-medium text-text-primary">
                       New Repository
                     </h3>
-                    <p className="text-xs text-[#808080]">
+                    <p className="text-xs text-text-tertiary">
                       Create a new project
                     </p>
                   </div>
-                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowRightIcon className="w-4 h-4 text-text-tertiary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
 
                 <button
                   onClick={() => navigate("/help")}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group border-b border-[#3d3d3d] last:border-0"
+                  className="w-full flex items-center gap-4 p-4 hover:bg-app-hover transition-colors text-left group border-b border-app-border last:border-0"
                 >
-                  <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500 group-hover:scale-110 transition-transform">
+                  <div className="p-2 bg-app-hover rounded-lg text-text-primary group-hover:scale-110 transition-transform">
                     <BookOpenIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#e8e8e8]">
+                    <h3 className="font-medium text-text-primary">
                       Documentation
                     </h3>
-                    <p className="text-xs text-[#808080]">Learn how to use</p>
+                    <p className="text-xs text-text-tertiary">
+                      Learn how to use
+                    </p>
                   </div>
-                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowRightIcon className="w-4 h-4 text-text-tertiary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
 
                 <button
                   onClick={() => navigate("/settings")}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-[#2a2a2a] transition-colors text-left group"
+                  className="w-full flex items-center gap-4 p-4 hover:bg-app-hover transition-colors text-left group"
                 >
-                  <div className="p-2 bg-orange-500/10 rounded-lg text-orange-500 group-hover:scale-110 transition-transform">
+                  <div className="p-2 bg-app-hover rounded-lg text-text-primary group-hover:scale-110 transition-transform">
                     <Cog6ToothIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-[#e8e8e8]">Settings</h3>
-                    <p className="text-xs text-[#808080]">
+                    <h3 className="font-medium text-text-primary">Settings</h3>
+                    <p className="text-xs text-text-tertiary">
                       Manage your account
                     </p>
                   </div>
-                  <ArrowRightIcon className="w-4 h-4 text-[#808080] ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <ArrowRightIcon className="w-4 h-4 text-text-tertiary ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
               </div>
             </div>

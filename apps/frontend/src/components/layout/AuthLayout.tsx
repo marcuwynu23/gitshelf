@@ -109,7 +109,7 @@ export const AuthLayout = ({
   return (
     <div className="min-h-[100dvh] flex flex-col lg:flex-row bg-app-bg relative overflow-hidden">
       {/* Left Panel - Info & Branding (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-3/4 relative flex-col justify-between p-16 bg-[#16181d]  overflow-hiddenX">
+      <div className="hidden lg:flex lg:w-3/4 relative flex-col justify-between p-16 bg-app-surface  overflow-hiddenX">
         {/* Background Effects (Left Side) */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div
@@ -119,7 +119,7 @@ export const AuthLayout = ({
             }}
           />
           <div
-            className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse delay-700 transition-transform duration-100 ease-out will-change-transform"
+            className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-app-accent/10 rounded-full blur-[120px] animate-pulse delay-700 transition-transform duration-100 ease-out will-change-transform"
             style={{
               transform: `translate(${mousePosition.centerX}px, ${mousePosition.centerY}px)`,
             }}
@@ -134,15 +134,15 @@ export const AuthLayout = ({
             <div className="w-10 h-10 flex items-center justify-center">
               <img src={Logo} alt="GitShelf" className="w-8 h-8" />
             </div>
-            <span className="text-lg font-bold text-[#e8e8e8] tracking-tight">
+            <span className="text-lg font-bold text-text-primary tracking-tight">
               GitShelf
             </span>
           </div>
 
           <div className="space-y-8 max-w-2xl mb-auto font-display">
-            <h1 className="text-4xl lg:text-6xl font-bold text-[#e8e8e8] tracking-tight leading-tight">
+            <h1 className="text-4xl lg:text-6xl font-bold text-text-primary tracking-tight leading-tight">
               Simple, Fast <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-app-accent to-blue-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-app-accent to-app-accent-hover">
                 Source Code Manager
               </span>
             </h1>
@@ -160,11 +160,11 @@ export const AuthLayout = ({
                 >
                   <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3 text-app-accent mb-2">
-                      <h3 className="text-xl lg:text-3xl font-bold text-[#e8e8e8]">
+                      <h3 className="text-xl lg:text-3xl font-bold text-text-primary">
                         {slide.title}
                       </h3>
                     </div>
-                    <p className="text-base lg:text-xl text-[#b0b0b0] leading-relaxed max-w-xl">
+                    <p className="text-base lg:text-xl text-text-secondary leading-relaxed max-w-xl">
                       {slide.description}
                     </p>
                   </div>
@@ -180,8 +180,8 @@ export const AuthLayout = ({
                   onClick={() => setCurrentSlide(index)}
                   className={`h-2 rounded-full transition-all duration-300 ${
                     index === currentSlide
-                      ? "w-12 bg-app-accent shadow-[0_0_10px_rgba(66,133,244,0.5)]"
-                      : "w-3 bg-[#3d3d3d] hover:bg-[#666] hover:w-4"
+                      ? "w-12 bg-app-accent shadow-[0_0_10px] shadow-app-accent/50"
+                      : "w-3 bg-app-border hover:bg-text-tertiary hover:w-4"
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -190,14 +190,14 @@ export const AuthLayout = ({
           </div>
 
           {/* Footer/Copyright */}
-          <div className="relative z-10 text-sm text-[#666] mt-8">
+          <div className="relative z-10 text-sm text-text-tertiary mt-8">
             © {new Date().getFullYear()} GitShelf Inc. All rights reserved.
           </div>
         </div>
       </div>
 
       {/* Right Panel - Form (Mobile: Full Screen, Desktop: Half Screen) */}
-      <div className="w-full lg:w-1/4 flex flex-col relative z-10 h-[100dvh] overflow-y-auto bg-gradient-to-br from-[#0f1012] to-[#0f1116]">
+      <div className="w-full lg:w-1/4 flex flex-col relative z-10 h-[100dvh] overflow-y-auto bg-gradient-to-br from-app-bg to-app-surface">
         {/* Spotlight Effect (Global/Right side focused) */}
         <div
           className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-300"
@@ -209,7 +209,7 @@ export const AuthLayout = ({
         {/* Mobile Background Decor (Hidden on Desktop) */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none lg:hidden">
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-app-accent/5 rounded-full blur-[100px] animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full blur-[100px] animate-pulse delay-700" />
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-app-accent/5 rounded-full blur-[100px] animate-pulse delay-700" />
         </div>
 
         <div

@@ -13,7 +13,7 @@ export const RepoSettingsFooter: React.FC<RepoSettingsFooterProps> = ({
       <Button
         size="sm"
         onClick={onSettingsClick}
-        className="bg-transparent! border-0! shadow-none! text-text-secondary hover:text-text-primary !hover:bg-[#353535]"
+        className="bg-transparent! border-0! shadow-none! text-text-secondary hover:text-text-primary !hover:bg-app-hover"
         aria-label="Open repository settings"
       >
         <Cog6ToothIcon className="w-4 h-4" />

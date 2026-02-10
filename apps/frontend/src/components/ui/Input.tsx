@@ -16,7 +16,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5 text-left">
+          <label className="block text-sm font-medium text-text-primary mb-1.5 text-left">
             {label}
           </label>
         )}
@@ -24,7 +24,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             type={inputType}
-            className={`h-10 w-full px-3 bg-app-surface border border-[#3d3d3d] rounded text-base sm:text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors ${
+            className={`h-10 w-full px-3 bg-app-surface border border-app-border rounded text-base sm:text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors ${
               error ? "border-error focus:ring-error focus:border-error" : ""
             } ${className} ${isPassword ? "pr-10" : ""}`}
             {...props}
@@ -33,7 +33,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#808080] hover:text-[#e8e8e8] focus:outline-none transition-colors cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary focus:outline-none transition-colors cursor-pointer"
               tabIndex={-1}
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
@@ -68,7 +68,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         {error && <p className="mt-1 text-xs text-error text-left">{error}</p>}
         {helperText && !error && (
-          <p className="mt-1 text-xs text-[#808080] text-left">{helperText}</p>
+          <p className="mt-1 text-xs text-text-tertiary text-left">
+            {helperText}
+          </p>
         )}
       </div>
     );

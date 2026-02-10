@@ -156,7 +156,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Mobile Menu Button */}
         <button
           type="button"
-          className="md:hidden p-1 text-text-secondary hover:text-text-primary rounded-md hover:bg-white/5"
+          className="md:hidden p-1 text-text-secondary hover:text-text-primary rounded-md hover:bg-app-hover"
           onClick={onMenuClick}
         >
           <Bars3Icon className="w-6 h-6" />
@@ -187,14 +187,14 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative hidden sm:block">
           <button
             onClick={() => setIsSearchModalOpen(true)}
-            className="h-8 w-40 lg:w-56 pl-8 pr-3 bg-app-bg border border-[#3d3d3d] rounded text-sm text-[#808080] flex items-center hover:border-[#505050] transition-colors text-left"
+            className="h-8 w-40 lg:w-56 pl-8 pr-3 bg-app-bg border border-app-border rounded text-sm text-text-tertiary flex items-center hover:border-text-tertiary transition-colors text-left"
           >
             Search...
-            <span className="ml-auto text-xs border border-[#3d3d3d] rounded px-1.5 py-0.5 text-[#606060]">
+            <span className="ml-auto text-xs border border-app-border rounded px-1.5 py-0.5 text-text-tertiary">
               Ctrl K
             </span>
           </button>
-          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
         </div>
 
         <SearchModal
@@ -207,26 +207,26 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             ref={notificationButtonRef}
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-1.5 hover:bg-[#353535] rounded transition-colors"
+            className="relative p-1.5 hover:bg-app-hover rounded transition-colors"
             aria-label="Notifications"
           >
-            <BellIcon className="w-5 h-5 text-[#b0b0b0]" />
+            <BellIcon className="w-5 h-5 text-text-secondary hover:text-text-primary transition-colors" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-app-accent rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-text-primary rounded-full ring-2 ring-app-surface" />
             )}
           </button>
           {showNotifications && (
             <div
               ref={notificationRef}
-              className="absolute right-0 mt-1 w-80 bg-app-surface border border-[#3d3d3d] rounded shadow-lg z-50 max-h-96 overflow-hidden flex flex-col"
+              className="absolute right-0 mt-1 w-80 bg-app-surface border border-app-border rounded shadow-lg z-50 max-h-96 overflow-hidden flex flex-col"
             >
               {/* Header */}
-              <div className="px-4 py-3 border-b border-[#3d3d3d] flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-[#e8e8e8]">
+              <div className="px-4 py-3 border-b border-app-border flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-text-primary">
                   Notifications
                 </h3>
                 {unreadCount > 0 && (
-                  <span className="text-xs text-[#b0b0b0]">
+                  <span className="text-xs text-text-secondary">
                     {unreadCount} new
                   </span>
                 )}
@@ -236,36 +236,38 @@ export const Header: React.FC<HeaderProps> = ({
               <div className="overflow-y-auto max-h-80">
                 {notifications.length === 0 ? (
                   <div className="px-4 py-8 text-center">
-                    <BellIcon className="w-8 h-8 text-[#808080] mx-auto mb-2" />
-                    <p className="text-sm text-[#b0b0b0]">No notifications</p>
+                    <BellIcon className="w-8 h-8 text-text-tertiary mx-auto mb-2" />
+                    <p className="text-sm text-text-secondary">
+                      No notifications
+                    </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-[#3d3d3d]">
+                  <div className="divide-y divide-app-border">
                     {notifications.slice(0, 5).map((notification) => {
                       const Icon = getNotificationIcon(notification.type);
                       return (
                         <div
                           key={notification.id}
-                          className={`px-4 py-3 hover:bg-[#353535] transition-colors ${!notification.read ? "bg-app-accent/5" : ""}`}
+                          className={`px-4 py-3 hover:bg-app-hover transition-colors ${!notification.read ? "bg-app-hover/30" : ""}`}
                         >
                           <div className="flex items-start gap-3">
                             <div
-                              className={`p-1.5 rounded flex-shrink-0 ${!notification.read ? "bg-app-accent/10" : "bg-app-bg"}`}
+                              className={`p-1.5 rounded flex-shrink-0 ${!notification.read ? "bg-app-hover" : "bg-app-bg"}`}
                             >
                               <Icon
-                                className={`w-4 h-4 ${!notification.read ? "text-app-accent" : "text-[#b0b0b0]"}`}
+                                className={`w-4 h-4 ${!notification.read ? "text-text-primary" : "text-text-secondary"}`}
                               />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p
-                                className={`text-xs font-medium mb-1 ${!notification.read ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                                className={`text-xs ${!notification.read ? "font-semibold text-text-primary" : "font-medium text-text-secondary"} mb-1`}
                               >
                                 {notification.title}
                               </p>
-                              <p className="text-xs text-[#b0b0b0] line-clamp-2 mb-1">
+                              <p className="text-xs text-text-secondary line-clamp-2 mb-1">
                                 {notification.message}
                               </p>
-                              <p className="text-[10px] text-[#808080]">
+                              <p className="text-[10px] text-text-tertiary">
                                 {formatTime(notification.timestamp)}
                               </p>
                             </div>
@@ -279,11 +281,11 @@ export const Header: React.FC<HeaderProps> = ({
 
               {/* Footer */}
               {notifications.length > 0 && (
-                <div className="px-4 py-2 border-t border-[#3d3d3d]">
+                <div className="px-4 py-2 border-t border-app-border">
                   <Link
                     to="/notifications"
                     onClick={() => setShowNotifications(false)}
-                    className="flex items-center justify-between text-xs text-app-accent hover:text-[#5a95f5] transition-colors"
+                    className="flex items-center justify-between text-xs text-text-primary opacity-60 hover:opacity-100 hover:underline transition-all"
                   >
                     <span>View all notifications</span>
                     <ChevronRightIcon className="w-4 h-4" />
@@ -298,26 +300,26 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="relative">
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 p-1 hover:bg-[#353535] rounded transition-colors"
+            className="flex items-center gap-2 p-1 hover:bg-app-hover rounded transition-colors"
           >
             {user?.avatar ? (
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-7 h-7 rounded-full border border-[#3d3d3d]"
+                className="w-7 h-7 rounded-full border border-app-border"
               />
             ) : (
-              <UserCircleIcon className="w-7 h-7 text-[#b0b0b0]" />
+              <UserCircleIcon className="w-7 h-7 text-text-secondary" />
             )}
           </button>
           {showUserMenu && (
-            <div className="absolute right-0 mt-1 w-48 sm:w-56 lg:w-64 bg-app-surface border border-[#3d3d3d] rounded shadow-lg py-1 z-50">
-              <div className="px-3 py-2 border-b border-[#3d3d3d] min-w-0">
-                <p className="text-sm font-medium text-[#e8e8e8] truncate">
+            <div className="absolute right-0 mt-1 w-48 sm:w-56 lg:w-64 bg-app-surface border border-app-border rounded shadow-lg py-1 z-50">
+              <div className="px-3 py-2 border-b border-app-border min-w-0">
+                <p className="text-sm font-medium text-text-primary truncate">
                   {user?.name || "User"}
                 </p>
                 <p
-                  className="text-xs text-[#808080] truncate"
+                  className="text-xs text-text-tertiary truncate"
                   title={authUser?.email || "user@example.com"}
                 >
                   {authUser?.email || "user@example.com"}
@@ -326,20 +328,20 @@ export const Header: React.FC<HeaderProps> = ({
               <Link
                 to="/profile"
                 onClick={() => setShowUserMenu(false)}
-                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
+                className="block px-3 py-2 text-sm text-text-secondary hover:bg-app-hover transition-colors whitespace-nowrap"
               >
                 Profile
               </Link>
               <Link
                 to="/settings"
                 onClick={() => setShowUserMenu(false)}
-                className="block px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
+                className="block px-3 py-2 text-sm text-text-secondary hover:bg-app-hover transition-colors whitespace-nowrap"
               >
                 Settings
               </Link>
               <button
                 onClick={handleLogout}
-                className="w-full text-left px-3 py-2 text-sm text-[#b0b0b0] hover:bg-[#353535] transition-colors whitespace-nowrap"
+                className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-app-hover transition-colors whitespace-nowrap"
               >
                 Sign out
               </button>

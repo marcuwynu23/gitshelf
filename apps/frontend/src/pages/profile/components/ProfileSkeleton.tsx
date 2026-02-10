@@ -19,7 +19,7 @@ export const ProfileSkeleton = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Info Card */}
           <div className="lg:col-span-1">
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+            <div className="bg-app-surface border border-app-border rounded-lg p-6">
               <div className="flex flex-col items-center text-center">
                 <Skeleton className="w-20 h-20 rounded-full mb-4" />
                 <SkeletonTitle className="w-24 mb-2" />
@@ -30,7 +30,7 @@ export const ProfileSkeleton = () => {
 
           {/* Profile Form */}
           <div className="lg:col-span-2">
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+            <div className="bg-app-surface border border-app-border rounded-lg p-6">
               <SkeletonTitle className="w-32 mb-6" />
 
               <div className="space-y-6">
@@ -59,7 +59,7 @@ export const ProfileSkeleton = () => {
                 </div>
 
                 {/* Save Button */}
-                <div className="flex justify-end pt-4 border-t border-[#3d3d3d]">
+                <div className="flex justify-end pt-4 border-t border-app-border">
                   <Skeleton className="h-8 w-24" />
                 </div>
               </div>
