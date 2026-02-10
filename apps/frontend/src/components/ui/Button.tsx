@@ -1,7 +1,7 @@
 import type {ButtonHTMLAttributes, ReactNode} from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "tertiary" | "danger";
+  variant?: "primary" | "secondary" | "tertiary" | "danger" | "ghost";
   size?: "sm" | "md" | "lg";
   children: ReactNode;
 }
@@ -31,6 +31,8 @@ export const Button: React.FC<ButtonProps> = ({
       "bg-transparent text-text-secondary border-transparent hover:text-text-primary hover:bg-app-hover active:scale-[0.98]",
     danger:
       "bg-error/10 text-error border-error/30 hover:bg-error/20 hover:border-error/40 active:scale-[0.98]",
+    ghost:
+      "bg-transparent text-text-primary border-transparent hover:bg-app-hover active:scale-[0.98]",
   };
 
   return (

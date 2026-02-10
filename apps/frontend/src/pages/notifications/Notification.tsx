@@ -2,13 +2,12 @@ import {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {MainLayout} from "~/components/layout/MainLayout";
 import {HelpSidebarContent} from "~/components/layout/HelpSidebar";
-import {Breadcrumbs, Button, Badge} from "~/components/ui";
+import {Breadcrumbs, Button} from "~/components/ui";
 import {NotificationsSkeleton} from "./components/NotificationsSkeleton";
 import {
   BellIcon,
   CheckIcon,
   XMarkIcon,
-  ClockIcon,
   CodeBracketIcon,
   ShareIcon,
 } from "@heroicons/react/24/outline";
@@ -181,160 +180,137 @@ export const Notification = () => {
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
-        {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">
-              Notifications
-            </h1>
-            <p className="text-sm text-text-secondary">
-              {unreadCount > 0
-                ? `${unreadCount} unread notification${
-                    unreadCount > 1 ? "s" : ""
-                  }`
-                : "All caught up!"}
-            </p>
-          </div>
-          {unreadCount > 0 && (
-            <Button onClick={markAllAsRead} variant="secondary" size="sm">
-              Mark all as read
-            </Button>
-          )}
-        </div>
-
-        {/* Filter Tabs */}
-        <div className="flex gap-2 mb-4 border-b border-app-border">
-          <button
-            onClick={() => setFilter("all")}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-              filter === "all"
-                ? "text-app-accent border-app-accent"
-                : "text-text-secondary border-transparent hover:text-text-primary"
-            }`}
-          >
-            All ({notifications.length})
-          </button>
-          <button
-            onClick={() => setFilter("unread")}
-            className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
-              filter === "unread"
-                ? "text-app-accent border-app-accent"
-                : "text-text-secondary border-transparent hover:text-text-primary"
-            }`}
-          >
-            Unread ({unreadCount})
-          </button>
-        </div>
-
-        {/* Notifications List */}
-        <div className="flex-1 overflow-auto">
-          {filteredNotifications.length === 0 ? (
-            <div className="bg-app-surface border border-app-border rounded-lg p-12 text-center">
-              <BellIcon className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
-              <p className="text-text-secondary text-lg mb-2">
-                {filter === "unread"
-                  ? "No unread notifications"
-                  : "No notifications"}
-              </p>
-              <p className="text-text-tertiary text-sm">
-                You're all caught up! New notifications will appear here.
-              </p>
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-text-primary tracking-tight">
+                  Notifications
+                </h2>
+                <p className="text-sm text-text-secondary">
+                  {unreadCount > 0
+                    ? `${unreadCount} unread notification${
+                        unreadCount > 1 ? "s" : ""
+                      }`
+                    : "All caught up!"}
+                </p>
+              </div>
+              {unreadCount > 0 && (
+                <Button onClick={markAllAsRead} variant="secondary" size="sm">
+                  Mark all as read
+                </Button>
+              )}
             </div>
-          ) : (
+
+            {/* Filter */}
+            <div className="flex items-center gap-2 mb-4">
+              <Button
+                variant={filter === "all" ? "primary" : "ghost"}
+                size="sm"
+                onClick={() => setFilter("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={filter === "unread" ? "primary" : "ghost"}
+                size="sm"
+                onClick={() => setFilter("unread")}
+              >
+                Unread
+              </Button>
+            </div>
+
             <div className="space-y-2">
-              {filteredNotifications.map((notification) => {
-                const Icon =
-                  notification.icon || getNotificationIcon(notification.type);
-                return (
+              {filteredNotifications.length === 0 ? (
+                <div className="text-center py-12 bg-app-surface border border-app-border rounded-lg">
+                  <BellIcon className="w-12 h-12 text-text-tertiary mx-auto mb-3" />
+                  <h3 className="text-lg font-medium text-text-primary mb-1">
+                    No notifications
+                  </h3>
+                  <p className="text-text-secondary">
+                    {filter === "unread"
+                      ? "You have no unread notifications."
+                      : "You have no notifications yet."}
+                  </p>
+                </div>
+              ) : (
+                filteredNotifications.map((notif) => (
                   <div
-                    key={notification.id}
-                    className={`bg-app-surface border border-app-border rounded-lg p-4 transition-colors ${
-                      !notification.read
-                        ? "bg-app-accent/5 border-app-accent/30"
-                        : "hover:bg-app-hover"
+                    key={notif.id}
+                    className={`group relative flex items-start gap-4 p-4 rounded-lg border transition-all ${
+                      notif.read
+                        ? "bg-app-surface border-app-border"
+                        : "bg-app-accent/5 border-app-accent/20"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
-                      {/* Icon */}
-                      <div
-                        className={`p-2 rounded flex-shrink-0 ${
-                          !notification.read ? "bg-app-accent/10" : "bg-app-bg"
-                        }`}
-                      >
-                        <Icon
-                          className={`w-5 h-5 ${
-                            !notification.read
-                              ? "text-app-accent"
-                              : "text-text-secondary"
-                          }`}
-                        />
+                    <div
+                      className={`p-2 rounded-full shrink-0 ${
+                        notif.read
+                          ? "bg-app-bg text-text-secondary"
+                          : "bg-app-accent/10 text-app-accent"
+                      }`}
+                    >
+                      {(() => {
+                        const Icon = getNotificationIcon(notif.type);
+                        return <Icon className="w-5 h-5" />;
+                      })()}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h4
+                            className={`text-sm font-medium ${
+                              notif.read
+                                ? "text-text-primary"
+                                : "text-text-primary font-semibold"
+                            }`}
+                          >
+                            {notif.title}
+                          </h4>
+                          <p className="text-sm text-text-secondary mt-0.5 line-clamp-2">
+                            {notif.message}
+                          </p>
+                        </div>
+                        <span className="text-xs text-text-tertiary whitespace-nowrap shrink-0">
+                          {formatTime(notif.timestamp)}
+                        </span>
                       </div>
 
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <h3
-                                className={`text-sm font-medium ${
-                                  !notification.read
-                                    ? "text-text-primary"
-                                    : "text-text-secondary"
-                                }`}
-                              >
-                                {notification.title}
-                              </h3>
-                              {!notification.read && (
-                                <Badge variant="primary" size="sm">
-                                  New
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-text-secondary mb-2">
-                              {notification.message}
-                            </p>
-                            <div className="flex items-center gap-2 text-xs text-text-tertiary">
-                              <ClockIcon className="w-3 h-3" />
-                              <span>{formatTime(notification.timestamp)}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-2 mt-3">
-                          {notification.link && (
-                            <Link
-                              to={notification.link}
-                              onClick={() => markAsRead(notification.id)}
-                              className="text-xs text-app-accent hover:text-app-accent-hover transition-colors"
-                            >
-                              View →
-                            </Link>
-                          )}
-                          {!notification.read && (
-                            <button
-                              onClick={() => markAsRead(notification.id)}
-                              className="text-xs text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1"
-                            >
-                              <CheckIcon className="w-3 h-3" />
-                              Mark as read
-                            </button>
-                          )}
-                          <button
-                            onClick={() => deleteNotification(notification.id)}
-                            className="text-xs text-text-secondary hover:text-error transition-colors flex items-center gap-1 ml-auto"
+                      <div className="flex items-center gap-4 mt-3">
+                        {notif.link && (
+                          <Link
+                            to={notif.link}
+                            className="text-xs font-medium text-app-accent hover:underline flex items-center gap-1"
                           >
-                            <XMarkIcon className="w-3 h-3" />
-                            Delete
+                            View details
+                            <ShareIcon className="w-3 h-3" />
+                          </Link>
+                        )}
+                        {!notif.read && (
+                          <button
+                            onClick={() => markAsRead(notif.id)}
+                            className="text-xs font-medium text-text-secondary hover:text-text-primary flex items-center gap-1 transition-colors"
+                          >
+                            <CheckIcon className="w-3 h-3" />
+                            Mark as read
                           </button>
-                        </div>
+                        )}
+                        <button
+                          onClick={() => deleteNotification(notif.id)}
+                          className="text-xs font-medium text-text-tertiary hover:text-error flex items-center gap-1 transition-colors ml-auto opacity-0 group-hover:opacity-100"
+                        >
+                          <XMarkIcon className="w-3 h-3" />
+                          Delete
+                        </button>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                ))
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </MainLayout>
