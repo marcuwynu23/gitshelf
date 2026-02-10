@@ -20,14 +20,14 @@ interface AuthStore {
     username: string,
     name: string,
     email: string,
-    password: string
+    password: string,
   ) => Promise<void>;
   logout: () => void;
   fetchProfile: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   changePassword: (
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<void>;
 }
 
@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     username: string,
     name: string,
     email: string,
-    password: string
+    password: string,
   ) => {
     try {
       const res = await axios.post("/api/auth/register", {
@@ -119,11 +119,34 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       });
     } catch (err: any) {
       throw new Error(
-        err?.response?.data?.error || "Failed to change password"
+        err?.response?.data?.error || "Failed to change password",
       );
     }
   },
 }));
+
+// Set up axios response interceptor for global error handling
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const {logout} = useAuthStore.getState();
+
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401) {
+      logout();
+    }
+    // Handle 502/504 Bad Gateway/Timeout (Backend down)
+    else if (error.response?.status === 502 || error.response?.status === 504) {
+      logout();
+    }
+    // Handle Network Errors (No response - e.g. ECONNREFUSED)
+    else if (!error.response && error.code !== "ERR_CANCELED") {
+      logout();
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 // Initialize user from localStorage on mount
 if (typeof window !== "undefined") {
