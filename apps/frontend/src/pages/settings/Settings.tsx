@@ -144,328 +144,344 @@ export const Settings = () => {
         {/* Breadcrumbs */}
         <Breadcrumbs items={breadcrumbs} />
 
-        {/* Page Header */}
-        <div className="mb-6">
-          <p className="text-sm text-text-secondary">
-            Manage your account settings and preferences
-          </p>
-        </div>
-
-        {/* Alerts */}
-        {success && <Alert variant="success">{success}</Alert>}
-        {error && <Alert variant="error">{error}</Alert>}
-
-        {/* Settings Content */}
-        <div className="flex-1 overflow-auto">
-          {fetching ? (
-            <SettingsSkeleton />
-          ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-              {/* Tabs Sidebar */}
-              <div className="lg:col-span-1">
-                <div className="bg-app-surface border border-app-border rounded-lg p-2">
-                  <nav className="space-y-1">
-                    {tabs.map((tab) => {
-                      const Icon = tab.icon;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => setActiveTab(tab.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${
-                            activeTab === tab.id
-                              ? "bg-app-accent/10 text-app-accent"
-                              : "text-text-secondary hover:text-text-primary hover:bg-app-hover"
-                          }`}
-                        >
-                          <Icon className="w-5 h-5" />
-                          <span>{tab.label}</span>
-                        </button>
-                      );
-                    })}
-                  </nav>
-                </div>
+        {/* Main Content */}
+        <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold text-text-primary tracking-tight">
+                  Settings
+                </h2>
+                <p className="text-sm text-text-secondary">
+                  Manage your account settings and preferences
+                </p>
               </div>
+            </div>
 
-              {/* Settings Panel */}
-              <div className="lg:col-span-3">
-                <div className="bg-app-surface border border-app-border rounded-lg p-6">
-                  {/* General Settings */}
-                  {activeTab === "general" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-lg font-semibold text-text-primary mb-4">
-                          General Settings
-                        </h2>
-                        <div className="space-y-4">
-                          <Select
-                            label="Language"
-                            value={generalSettings.language}
-                            onChange={(value) =>
-                              setGeneralSettings({
-                                ...generalSettings,
-                                language: value,
-                              })
-                            }
-                            options={[
-                              {value: "en", label: "English"},
-                              {value: "es", label: "Spanish"},
-                              {value: "fr", label: "French"},
-                              {value: "de", label: "German"},
-                            ]}
-                          />
+            {/* Alerts */}
+            {success && <Alert variant="success">{success}</Alert>}
+            {error && <Alert variant="error">{error}</Alert>}
 
-                          <Select
-                            label="Timezone"
-                            value={generalSettings.timezone}
-                            onChange={(value) =>
-                              setGeneralSettings({
-                                ...generalSettings,
-                                timezone: value,
-                              })
-                            }
-                            options={[
-                              {value: "UTC", label: "UTC"},
-                              {
-                                value: "America/New_York",
-                                label: "Eastern Time",
-                              },
-                              {value: "America/Chicago", label: "Central Time"},
-                              {
-                                value: "America/Los_Angeles",
-                                label: "Pacific Time",
-                              },
-                              {value: "Europe/London", label: "London"},
-                              {value: "Europe/Paris", label: "Paris"},
-                            ]}
-                          />
+            {/* Settings Content */}
+            {fetching ? (
+              <SettingsSkeleton />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                {/* Tabs Sidebar */}
+                <div className="lg:col-span-1">
+                  <div className="bg-app-surface border border-app-border rounded-lg p-2">
+                    <nav className="space-y-1">
+                      {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                          <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${
+                              activeTab === tab.id
+                                ? "bg-app-accent/10 text-app-accent"
+                                : "text-text-secondary hover:text-text-primary hover:bg-app-hover"
+                            }`}
+                          >
+                            <Icon className="w-5 h-5" />
+                            <span>{tab.label}</span>
+                          </button>
+                        );
+                      })}
+                    </nav>
+                  </div>
+                </div>
 
-                          <Select
-                            label="Date Format"
-                            value={generalSettings.dateFormat}
-                            onChange={(value) =>
-                              setGeneralSettings({
-                                ...generalSettings,
-                                dateFormat: value,
-                              })
-                            }
-                            options={[
-                              {value: "MM/DD/YYYY", label: "MM/DD/YYYY"},
-                              {value: "DD/MM/YYYY", label: "DD/MM/YYYY"},
-                              {value: "YYYY-MM-DD", label: "YYYY-MM-DD"},
-                            ]}
-                          />
+                {/* Settings Panel */}
+                <div className="lg:col-span-3">
+                  <div className="bg-app-surface border border-app-border rounded-lg p-6">
+                    {/* General Settings */}
+                    {activeTab === "general" && (
+                      <div className="space-y-6">
+                        <div>
+                          <h2 className="text-lg font-semibold text-text-primary mb-4">
+                            General Settings
+                          </h2>
+                          <div className="space-y-4">
+                            <Select
+                              label="Language"
+                              value={generalSettings.language}
+                              onChange={(value) =>
+                                setGeneralSettings({
+                                  ...generalSettings,
+                                  language: value,
+                                })
+                              }
+                              options={[
+                                {value: "en", label: "English"},
+                                {value: "es", label: "Spanish"},
+                                {value: "fr", label: "French"},
+                                {value: "de", label: "German"},
+                              ]}
+                            />
+
+                            <Select
+                              label="Timezone"
+                              value={generalSettings.timezone}
+                              onChange={(value) =>
+                                setGeneralSettings({
+                                  ...generalSettings,
+                                  timezone: value,
+                                })
+                              }
+                              options={[
+                                {value: "UTC", label: "UTC"},
+                                {
+                                  value: "America/New_York",
+                                  label: "Eastern Time",
+                                },
+                                {
+                                  value: "America/Chicago",
+                                  label: "Central Time",
+                                },
+                                {
+                                  value: "America/Los_Angeles",
+                                  label: "Pacific Time",
+                                },
+                                {value: "Europe/London", label: "London"},
+                                {value: "Europe/Paris", label: "Paris"},
+                              ]}
+                            />
+
+                            <Select
+                              label="Date Format"
+                              value={generalSettings.dateFormat}
+                              onChange={(value) =>
+                                setGeneralSettings({
+                                  ...generalSettings,
+                                  dateFormat: value,
+                                })
+                              }
+                              options={[
+                                {value: "MM/DD/YYYY", label: "MM/DD/YYYY"},
+                                {value: "DD/MM/YYYY", label: "DD/MM/YYYY"},
+                                {value: "YYYY-MM-DD", label: "YYYY-MM-DD"},
+                              ]}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Notification Settings */}
-                  {activeTab === "notifications" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-lg font-semibold text-text-primary mb-4">
-                          Notification Preferences
-                        </h2>
-                        <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-text-primary">
-                                Email Notifications
-                              </p>
-                              <p className="text-xs text-text-secondary mt-1">
-                                Receive notifications via email
-                              </p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notificationSettings.emailNotifications}
-                              onChange={(e) =>
-                                setNotificationSettings({
-                                  ...notificationSettings,
-                                  emailNotifications: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                            />
-                          </label>
+                    {/* Notification Settings */}
+                    {activeTab === "notifications" && (
+                      <div className="space-y-6">
+                        <div>
+                          <h2 className="text-lg font-semibold text-text-primary mb-4">
+                            Notification Preferences
+                          </h2>
+                          <div className="space-y-4">
+                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  Email Notifications
+                                </p>
+                                <p className="text-xs text-text-secondary mt-1">
+                                  Receive notifications via email
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={
+                                  notificationSettings.emailNotifications
+                                }
+                                onChange={(e) =>
+                                  setNotificationSettings({
+                                    ...notificationSettings,
+                                    emailNotifications: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              />
+                            </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-text-primary">
-                                Push Notifications
-                              </p>
-                              <p className="text-xs text-text-secondary mt-1">
-                                Receive browser push notifications
-                              </p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notificationSettings.pushNotifications}
-                              onChange={(e) =>
-                                setNotificationSettings({
-                                  ...notificationSettings,
-                                  pushNotifications: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                            />
-                          </label>
+                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  Push Notifications
+                                </p>
+                                <p className="text-xs text-text-secondary mt-1">
+                                  Receive browser push notifications
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={notificationSettings.pushNotifications}
+                                onChange={(e) =>
+                                  setNotificationSettings({
+                                    ...notificationSettings,
+                                    pushNotifications: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              />
+                            </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-text-primary">
-                                Commit Notifications
-                              </p>
-                              <p className="text-xs text-text-secondary mt-1">
-                                Get notified about new commits
-                              </p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notificationSettings.commitNotifications}
-                              onChange={(e) =>
-                                setNotificationSettings({
-                                  ...notificationSettings,
-                                  commitNotifications: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                            />
-                          </label>
+                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  Commit Notifications
+                                </p>
+                                <p className="text-xs text-text-secondary mt-1">
+                                  Get notified about new commits
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={
+                                  notificationSettings.commitNotifications
+                                }
+                                onChange={(e) =>
+                                  setNotificationSettings({
+                                    ...notificationSettings,
+                                    commitNotifications: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              />
+                            </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-text-primary">
-                                Branch Notifications
-                              </p>
-                              <p className="text-xs text-text-secondary mt-1">
-                                Get notified about branch changes
-                              </p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={notificationSettings.branchNotifications}
-                              onChange={(e) =>
-                                setNotificationSettings({
-                                  ...notificationSettings,
-                                  branchNotifications: e.target.checked,
-                                })
-                              }
-                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                            />
-                          </label>
+                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  Branch Notifications
+                                </p>
+                                <p className="text-xs text-text-secondary mt-1">
+                                  Get notified about branch changes
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={
+                                  notificationSettings.branchNotifications
+                                }
+                                onChange={(e) =>
+                                  setNotificationSettings({
+                                    ...notificationSettings,
+                                    branchNotifications: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              />
+                            </label>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Security Settings */}
-                  {activeTab === "security" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-lg font-semibold text-text-primary mb-4">
-                          Security Settings
-                        </h2>
-                        <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                            <div>
-                              <p className="text-sm font-medium text-text-primary">
-                                Two-Factor Authentication
-                              </p>
-                              <p className="text-xs text-text-secondary mt-1">
-                                Add an extra layer of security to your account
-                              </p>
-                            </div>
-                            <input
-                              type="checkbox"
-                              checked={securitySettings.twoFactorEnabled}
-                              onChange={(e) =>
+                    {/* Security Settings */}
+                    {activeTab === "security" && (
+                      <div className="space-y-6">
+                        <div>
+                          <h2 className="text-lg font-semibold text-text-primary mb-4">
+                            Security Settings
+                          </h2>
+                          <div className="space-y-4">
+                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                              <div>
+                                <p className="text-sm font-medium text-text-primary">
+                                  Two-Factor Authentication
+                                </p>
+                                <p className="text-xs text-text-secondary mt-1">
+                                  Add an extra layer of security to your account
+                                </p>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={securitySettings.twoFactorEnabled}
+                                onChange={(e) =>
+                                  setSecuritySettings({
+                                    ...securitySettings,
+                                    twoFactorEnabled: e.target.checked,
+                                  })
+                                }
+                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              />
+                            </label>
+
+                            <Select
+                              label="Session Timeout (minutes)"
+                              value={securitySettings.sessionTimeout}
+                              onChange={(value) =>
                                 setSecuritySettings({
                                   ...securitySettings,
-                                  twoFactorEnabled: e.target.checked,
+                                  sessionTimeout: value,
                                 })
                               }
-                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                              options={[
+                                {value: "15", label: "15 minutes"},
+                                {value: "30", label: "30 minutes"},
+                                {value: "60", label: "1 hour"},
+                                {value: "120", label: "2 hours"},
+                                {value: "0", label: "Never"},
+                              ]}
                             />
-                          </label>
-
-                          <Select
-                            label="Session Timeout (minutes)"
-                            value={securitySettings.sessionTimeout}
-                            onChange={(value) =>
-                              setSecuritySettings({
-                                ...securitySettings,
-                                sessionTimeout: value,
-                              })
-                            }
-                            options={[
-                              {value: "15", label: "15 minutes"},
-                              {value: "30", label: "30 minutes"},
-                              {value: "60", label: "1 hour"},
-                              {value: "120", label: "2 hours"},
-                              {value: "0", label: "Never"},
-                            ]}
-                          />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Appearance Settings */}
-                  {activeTab === "appearance" && (
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-lg font-semibold text-text-primary mb-4">
-                          Appearance
-                        </h2>
-                        <div className="space-y-4">
-                          <Select
-                            label="Theme"
-                            value={appearanceSettings.theme}
-                            onChange={(value) => {
-                              setAppearanceSettings({
-                                ...appearanceSettings,
-                                theme: value,
-                              });
-                              setTheme(value as any);
-                            }}
-                            options={[
-                              {value: "dark", label: "Dark"},
-                              {value: "light", label: "Light"},
-                              {value: "auto", label: "Auto"},
-                            ]}
-                          />
+                    {/* Appearance Settings */}
+                    {activeTab === "appearance" && (
+                      <div className="space-y-6">
+                        <div>
+                          <h2 className="text-lg font-semibold text-text-primary mb-4">
+                            Appearance
+                          </h2>
+                          <div className="space-y-4">
+                            <Select
+                              label="Theme"
+                              value={appearanceSettings.theme}
+                              onChange={(value) => {
+                                setAppearanceSettings({
+                                  ...appearanceSettings,
+                                  theme: value,
+                                });
+                                setTheme(value as any);
+                              }}
+                              options={[
+                                {value: "dark", label: "Dark"},
+                                {value: "light", label: "Light"},
+                                {value: "auto", label: "Auto"},
+                              ]}
+                            />
 
-                          <Select
-                            label="Font Size"
-                            value={appearanceSettings.fontSize}
-                            onChange={(value) =>
-                              setAppearanceSettings({
-                                ...appearanceSettings,
-                                fontSize: value,
-                              })
-                            }
-                            options={[
-                              {value: "small", label: "Small"},
-                              {value: "medium", label: "Medium"},
-                              {value: "large", label: "Large"},
-                            ]}
-                          />
+                            <Select
+                              label="Font Size"
+                              value={appearanceSettings.fontSize}
+                              onChange={(value) =>
+                                setAppearanceSettings({
+                                  ...appearanceSettings,
+                                  fontSize: value,
+                                })
+                              }
+                              options={[
+                                {value: "small", label: "Small"},
+                                {value: "medium", label: "Medium"},
+                                {value: "large", label: "Large"},
+                              ]}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Save Button */}
-                  <div className="mt-8 pt-6 border-t border-app-border">
-                    <Button onClick={handleSave} disabled={loading}>
-                      {loading ? "Saving..." : "Save Changes"}
-                    </Button>
+                    {/* Save Button */}
+                    <div className="mt-8 pt-6 border-t border-app-border">
+                      <Button onClick={handleSave} disabled={loading}>
+                        {loading ? "Saving..." : "Save Changes"}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </MainLayout>
