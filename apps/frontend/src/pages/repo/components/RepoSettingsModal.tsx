@@ -225,11 +225,11 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
       className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
         activeTab === key
           ? variant === "danger"
-            ? "bg-red-900/10 text-red-400 border-red-500"
+            ? "bg-error/10 text-error border-error"
             : "bg-app-accent/10 text-app-accent border-app-accent"
           : variant === "danger"
-            ? "text-red-400/70 hover:bg-red-900/5 hover:text-red-400 border-transparent"
-            : "text-[#808080] hover:bg-[#2d2d2d] hover:text-[#e8e8e8] border-transparent"
+            ? "text-error/70 hover:bg-error/5 hover:text-error border-transparent"
+            : "text-text-tertiary hover:bg-app-hover hover:text-text-primary border-transparent"
       }`}
       type="button"
     >
@@ -254,12 +254,12 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
 
       <div
         data-testid="repo-settings-shell"
-        className="flex flex-col md:flex-row h-full min-h-[500px] border-t border-[#3d3d3d] -mx-6"
+        className="flex flex-col md:flex-row h-full min-h-[500px] border-t border-app-border -mx-6"
       >
         {/* Left Sidebar */}
         <nav
           data-testid="repo-settings-nav"
-          className="w-full md:w-64 bg-[#1e1e1e] border-b md:border-b-0 md:border-r border-[#3d3d3d] flex-shrink-0"
+          className="w-full md:w-64 bg-app-surface border-b md:border-b-0 md:border-r border-app-border flex-shrink-0"
         >
           <div className="p-4 md:py-6 space-y-1">
             {renderTabButton(
@@ -272,7 +272,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
               "Access",
               <ShieldCheckIcon className="w-5 h-5" />,
             )}
-            <div className="h-px bg-[#3d3d3d] my-2 mx-4" />
+            <div className="h-px bg-app-border my-2 mx-4" />
             {renderTabButton(
               "danger",
               "Danger Zone",
@@ -291,20 +291,20 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
             {activeTab === "general" && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-xl font-semibold text-[#e8e8e8] mb-1">
+                  <h3 className="text-xl font-semibold text-text-primary mb-1">
                     General Settings
                   </h3>
-                  <p className="text-sm text-[#808080]">
+                  <p className="text-sm text-text-tertiary">
                     Manage your repository's main configuration.
                   </p>
                 </div>
 
                 <div className="space-y-6">
                   {/* Metadata Section */}
-                  <section className="bg-[#2d2d2d]/30 border border-[#3d3d3d] rounded-lg p-5 space-y-5">
-                    <div className="flex items-center gap-2 pb-3 border-b border-[#3d3d3d]">
+                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-5 space-y-5">
+                    <div className="flex items-center gap-2 pb-3 border-b border-app-border">
                       <PencilIcon className="w-5 h-5 text-app-accent" />
-                      <h4 className="font-medium text-[#e8e8e8]">
+                      <h4 className="font-medium text-text-primary">
                         Repository Details
                       </h4>
                     </div>
@@ -327,17 +327,17 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       />
 
                       <div className="w-full">
-                        <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
                           Description
                         </label>
                         <textarea
                           placeholder="What is this project about?"
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
-                          className="w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+                          className="w-full px-3 py-2 bg-app-surface border border-app-border rounded text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
                           rows={4}
                         />
-                        <p className="mt-1 text-xs text-[#808080]">
+                        <p className="mt-1 text-xs text-text-tertiary">
                           Brief description of your repository.
                         </p>
                       </div>
@@ -354,10 +354,10 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   </section>
 
                   {/* Rename Section */}
-                  <section className="bg-[#2d2d2d]/30 border border-[#3d3d3d] rounded-lg p-5 space-y-5">
-                    <div className="flex items-center gap-2 pb-3 border-b border-[#3d3d3d]">
-                      <KeyIcon className="w-5 h-5 text-[#e8e8e8]" />
-                      <h4 className="font-medium text-[#e8e8e8]">
+                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-5 space-y-5">
+                    <div className="flex items-center gap-2 pb-3 border-b border-app-border">
+                      <KeyIcon className="w-5 h-5 text-text-primary" />
+                      <h4 className="font-medium text-text-primary">
                         Rename Repository
                       </h4>
                     </div>
@@ -413,14 +413,14 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
 
             {activeTab === "access" && (
               <div className="flex flex-col items-center justify-center h-full text-center py-12 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-[#2d2d2d] flex items-center justify-center">
-                  <ShieldCheckIcon className="w-8 h-8 text-[#808080]" />
+                <div className="w-16 h-16 rounded-full bg-app-surface flex items-center justify-center">
+                  <ShieldCheckIcon className="w-8 h-8 text-text-tertiary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-[#e8e8e8]">
+                  <h3 className="text-lg font-medium text-text-primary">
                     Access Control
                   </h3>
-                  <p className="text-[#808080] max-w-sm mt-2">
+                  <p className="text-text-tertiary max-w-sm mt-2">
                     Manage collaborators, teams, and deploy keys. This feature
                     is currently under development.
                   </p>
@@ -431,24 +431,24 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
             {activeTab === "danger" && (
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-xl font-semibold text-red-400 mb-1">
+                  <h3 className="text-xl font-semibold text-error mb-1">
                     Danger Zone
                   </h3>
-                  <p className="text-sm text-[#808080]">
+                  <p className="text-sm text-text-tertiary">
                     Destructive actions that affect your repository.
                   </p>
                 </div>
 
-                <div className="border border-red-900/30 rounded-lg overflow-hidden divide-y divide-red-900/30">
+                <div className="border border-error/30 rounded-lg overflow-hidden divide-y divide-error/30">
                   {/* Archive Row */}
-                  <div className="p-5 bg-red-900/5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="p-5 bg-error/5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1">
-                      <h4 className="text-sm font-medium text-[#e8e8e8]">
+                      <h4 className="text-sm font-medium text-text-primary">
                         {isArchived
                           ? "Unarchive this repository"
                           : "Archive this repository"}
                       </h4>
-                      <p className="text-sm text-[#808080]">
+                      <p className="text-sm text-text-tertiary">
                         {isArchived
                           ? "Mark this repository as active again."
                           : "Mark this repository as read-only and hide it from the main dashboard."}
@@ -460,7 +460,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                             variant="secondary"
                             onClick={handleArchiveToggle}
                             disabled={isArchiving}
-                            className="text-red-400 hover:text-red-300 border-red-900/30 hover:bg-red-900/10"
+                            className="text-error hover:text-error/80 border-error/30 hover:bg-error/10"
                           >
                             {isArchiving
                               ? isArchived
@@ -478,7 +478,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       <Button
                         variant="secondary"
                         onClick={() => setArchiveConfirmChecked(true)}
-                        className="text-red-400 hover:text-red-300 border-red-900/30 hover:bg-red-900/10 shrink-0"
+                        className="text-error hover:text-error/80 border-error/30 hover:bg-error/10 shrink-0"
                       >
                         {isArchived ? "Unarchive" : "Archive"}
                       </Button>
@@ -486,21 +486,21 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   </div>
 
                   {/* Delete Row */}
-                  <div className="p-5 bg-red-900/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="p-5 bg-error/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-1 flex-1">
-                      <h4 className="text-sm font-medium text-[#e8e8e8]">
+                      <h4 className="text-sm font-medium text-text-primary">
                         Delete this repository
                       </h4>
-                      <p className="text-sm text-[#808080]">
+                      <p className="text-sm text-text-tertiary">
                         Once you delete a repository, there is no going back.
                         Please be certain.
                       </p>
 
                       {deleteExpanded && (
-                        <div className="mt-4 p-4 bg-[#1a1a1a] border border-red-900/50 rounded-md space-y-4 animate-fadeIn">
+                        <div className="mt-4 p-4 bg-app-bg border border-error/50 rounded-md space-y-4 animate-fadeIn">
                           <div className="flex items-start gap-3">
-                            <ExclamationTriangleIcon className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                            <p className="text-sm text-[#e8e8e8]">
+                            <ExclamationTriangleIcon className="w-5 h-5 text-error shrink-0 mt-0.5" />
+                            <p className="text-sm text-text-primary">
                               This will permanently delete the{" "}
                               <strong>{repoNameWithGit}</strong> repository, all
                               its files, branches, tags, and commits.
@@ -508,7 +508,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                           </div>
 
                           <div>
-                            <label className="block text-xs text-[#808080] mb-1.5">
+                            <label className="block text-xs text-text-tertiary mb-1.5">
                               Type <strong>{repoNameWithGit}</strong> to
                               confirm:
                             </label>
@@ -518,7 +518,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                                 setDeleteConfirmText(e.target.value)
                               }
                               placeholder={repoNameWithGit}
-                              className="border-red-900/50 focus:border-red-500 focus:ring-red-500/20"
+                              className="border-error/50 focus:border-error focus:ring-error/20"
                             />
                           </div>
 

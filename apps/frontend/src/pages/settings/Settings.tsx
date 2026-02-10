@@ -11,8 +11,10 @@ import {
   ShieldCheckIcon,
   GlobeAltIcon,
 } from "@heroicons/react/24/outline";
+import {useThemeStore} from "~/stores/themeStore";
 
 export const Settings = () => {
+  const {setTheme} = useThemeStore();
   const [activeTab, setActiveTab] = useState<
     "general" | "notifications" | "security" | "appearance"
   >("general");
@@ -71,6 +73,7 @@ export const Settings = () => {
         }
         if (settings.appearance) {
           setAppearanceSettings(settings.appearance);
+          setTheme(settings.appearance.theme as any);
         }
       } catch (err: any) {
         // If 401, user is not authenticated - that's okay, use defaults
@@ -143,7 +146,7 @@ export const Settings = () => {
 
         {/* Page Header */}
         <div className="mb-6">
-          <p className="text-sm text-[#b0b0b0]">
+          <p className="text-sm text-text-secondary">
             Manage your account settings and preferences
           </p>
         </div>
@@ -160,7 +163,7 @@ export const Settings = () => {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
               {/* Tabs Sidebar */}
               <div className="lg:col-span-1">
-                <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-2">
+                <div className="bg-app-surface border border-app-border rounded-lg p-2">
                   <nav className="space-y-1">
                     {tabs.map((tab) => {
                       const Icon = tab.icon;
@@ -171,7 +174,7 @@ export const Settings = () => {
                           className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${
                             activeTab === tab.id
                               ? "bg-app-accent/10 text-app-accent"
-                              : "text-[#b0b0b0] hover:text-[#e8e8e8] hover:bg-[#353535]"
+                              : "text-text-secondary hover:text-text-primary hover:bg-app-hover"
                           }`}
                         >
                           <Icon className="w-5 h-5" />
@@ -185,12 +188,12 @@ export const Settings = () => {
 
               {/* Settings Panel */}
               <div className="lg:col-span-3">
-                <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+                <div className="bg-app-surface border border-app-border rounded-lg p-6">
                   {/* General Settings */}
                   {activeTab === "general" && (
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-4">
                           General Settings
                         </h2>
                         <div className="space-y-4">
@@ -260,16 +263,16 @@ export const Settings = () => {
                   {activeTab === "notifications" && (
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-4">
                           Notification Preferences
                         </h2>
                         <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-[#3d3d3d] cursor-pointer hover:bg-[#353535] transition-colors">
+                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
                             <div>
-                              <p className="text-sm font-medium text-[#e8e8e8]">
+                              <p className="text-sm font-medium text-text-primary">
                                 Email Notifications
                               </p>
-                              <p className="text-xs text-[#b0b0b0] mt-1">
+                              <p className="text-xs text-text-secondary mt-1">
                                 Receive notifications via email
                               </p>
                             </div>
@@ -282,16 +285,16 @@ export const Settings = () => {
                                   emailNotifications: e.target.checked,
                                 })
                               }
-                              className="w-4 h-4 rounded border-[#3d3d3d] bg-app-surface text-app-accent focus:ring-app-accent"
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
                             />
                           </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-[#3d3d3d] cursor-pointer hover:bg-[#353535] transition-colors">
+                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
                             <div>
-                              <p className="text-sm font-medium text-[#e8e8e8]">
+                              <p className="text-sm font-medium text-text-primary">
                                 Push Notifications
                               </p>
-                              <p className="text-xs text-[#b0b0b0] mt-1">
+                              <p className="text-xs text-text-secondary mt-1">
                                 Receive browser push notifications
                               </p>
                             </div>
@@ -304,16 +307,16 @@ export const Settings = () => {
                                   pushNotifications: e.target.checked,
                                 })
                               }
-                              className="w-4 h-4 rounded border-[#3d3d3d] bg-app-surface text-app-accent focus:ring-app-accent"
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
                             />
                           </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-[#3d3d3d] cursor-pointer hover:bg-[#353535] transition-colors">
+                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
                             <div>
-                              <p className="text-sm font-medium text-[#e8e8e8]">
+                              <p className="text-sm font-medium text-text-primary">
                                 Commit Notifications
                               </p>
-                              <p className="text-xs text-[#b0b0b0] mt-1">
+                              <p className="text-xs text-text-secondary mt-1">
                                 Get notified about new commits
                               </p>
                             </div>
@@ -326,16 +329,16 @@ export const Settings = () => {
                                   commitNotifications: e.target.checked,
                                 })
                               }
-                              className="w-4 h-4 rounded border-[#3d3d3d] bg-app-surface text-app-accent focus:ring-app-accent"
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
                             />
                           </label>
 
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-[#3d3d3d] cursor-pointer hover:bg-[#353535] transition-colors">
+                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
                             <div>
-                              <p className="text-sm font-medium text-[#e8e8e8]">
+                              <p className="text-sm font-medium text-text-primary">
                                 Branch Notifications
                               </p>
-                              <p className="text-xs text-[#b0b0b0] mt-1">
+                              <p className="text-xs text-text-secondary mt-1">
                                 Get notified about branch changes
                               </p>
                             </div>
@@ -348,7 +351,7 @@ export const Settings = () => {
                                   branchNotifications: e.target.checked,
                                 })
                               }
-                              className="w-4 h-4 rounded border-[#3d3d3d] bg-app-surface text-app-accent focus:ring-app-accent"
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
                             />
                           </label>
                         </div>
@@ -360,16 +363,16 @@ export const Settings = () => {
                   {activeTab === "security" && (
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-4">
                           Security Settings
                         </h2>
                         <div className="space-y-4">
-                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-[#3d3d3d] cursor-pointer hover:bg-[#353535] transition-colors">
+                          <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
                             <div>
-                              <p className="text-sm font-medium text-[#e8e8e8]">
+                              <p className="text-sm font-medium text-text-primary">
                                 Two-Factor Authentication
                               </p>
-                              <p className="text-xs text-[#b0b0b0] mt-1">
+                              <p className="text-xs text-text-secondary mt-1">
                                 Add an extra layer of security to your account
                               </p>
                             </div>
@@ -382,7 +385,7 @@ export const Settings = () => {
                                   twoFactorEnabled: e.target.checked,
                                 })
                               }
-                              className="w-4 h-4 rounded border-[#3d3d3d] bg-app-surface text-app-accent focus:ring-app-accent"
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
                             />
                           </label>
 
@@ -412,19 +415,20 @@ export const Settings = () => {
                   {activeTab === "appearance" && (
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-4">
                           Appearance
                         </h2>
                         <div className="space-y-4">
                           <Select
                             label="Theme"
                             value={appearanceSettings.theme}
-                            onChange={(value) =>
+                            onChange={(value) => {
                               setAppearanceSettings({
                                 ...appearanceSettings,
                                 theme: value,
-                              })
-                            }
+                              });
+                              setTheme(value as any);
+                            }}
                             options={[
                               {value: "dark", label: "Dark"},
                               {value: "light", label: "Light"},
@@ -453,7 +457,7 @@ export const Settings = () => {
                   )}
 
                   {/* Save Button */}
-                  <div className="mt-8 pt-6 border-t border-[#3d3d3d]">
+                  <div className="mt-8 pt-6 border-t border-app-border">
                     <Button onClick={handleSave} disabled={loading}>
                       {loading ? "Saving..." : "Save Changes"}
                     </Button>

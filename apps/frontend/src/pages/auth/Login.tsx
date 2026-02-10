@@ -35,12 +35,12 @@ export const Login = () => {
         <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 mx-auto">
           <img src={Logo} alt="GitShelf" className="w-7 h-7" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight mb-2">
           Welcome back
         </h1>
-        <p className="text-[#b0b0b0] text-base sm:text-lg">
+        <p className="text-text-secondary text-base sm:text-lg">
           Sign in to continue to{" "}
-          <span className="text-[#e8e8e8] font-medium">GitShelf</span>
+          <span className="text-text-primary font-medium">GitShelf</span>
         </p>
       </div>
 
@@ -63,17 +63,17 @@ export const Login = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               autoComplete="username"
-              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-[#e8e8e8]">
+                <label className="block text-sm font-medium text-text-primary">
                   Password
                 </label>
                 <Link
                   to="/auth/recovery"
-                  className="text-xs text-app-accent hover:text-[#5a95f5] transition-colors font-medium"
+                  className="text-xs text-app-accent hover:text-app-accent-hover transition-colors font-medium"
                 >
                   Forgot password?
                 </Link>
@@ -85,7 +85,7 @@ export const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+                className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
               />
             </div>
           </div>
@@ -94,9 +94,9 @@ export const Login = () => {
             <label className="flex items-center gap-3 cursor-pointer group">
               <div className="relative flex items-center">
                 <input type="checkbox" className="peer sr-only" />
-                <div className="w-5 h-5 border-2 border-[#3d3d3d] rounded bg-[#161616] peer-checked:bg-app-accent peer-checked:border-app-accent transition-all"></div>
+                <div className="w-5 h-5 border-2 border-app-border rounded bg-app-surface peer-checked:bg-app-accent peer-checked:border-app-accent transition-all"></div>
                 <svg
-                  className="absolute w-3.5 h-3.5 text-white left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                  className="absolute w-3.5 h-3.5 text-text-on-accent left-0.5 top-0.5 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -109,7 +109,7 @@ export const Login = () => {
                   />
                 </svg>
               </div>
-              <span className="text-sm text-[#b0b0b0] group-hover:text-[#e8e8e8] transition-colors">
+              <span className="text-sm text-text-secondary group-hover:text-text-primary transition-colors">
                 Remember me
               </span>
             </label>
@@ -122,7 +122,7 @@ export const Login = () => {
           >
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-text-on-accent/30 border-t-text-on-accent rounded-full animate-spin" />
                 <span>Signing in...</span>
               </div>
             ) : (
@@ -133,11 +133,11 @@ export const Login = () => {
       </div>
 
       {/* Sign up link */}
-      <p className="mt-8 text-center text-sm text-[#b0b0b0] animate-fadeIn delay-100">
+      <p className="mt-8 text-center text-sm text-text-secondary animate-fadeIn delay-100">
         Don't have an account?{" "}
         <Link
           to="/auth/register"
-          className="text-app-accent hover:text-[#5a95f5] transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
+          className="text-app-accent hover:text-app-accent-hover transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
         >
           Create an account
         </Link>

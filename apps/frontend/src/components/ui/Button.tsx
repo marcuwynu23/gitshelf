@@ -24,11 +24,11 @@ export const Button: React.FC<ButtonProps> = ({
 
   const variantStyles = {
     primary:
-      "bg-app-accent text-white border-app-accent hover:bg-[#5a95f5] hover:border-[#5a95f5] shadow-sm active:scale-[0.98]",
+      "bg-app-accent text-text-on-accent border-app-accent hover:bg-app-accent-hover hover:border-app-accent-hover shadow-sm active:scale-[0.98]",
     secondary:
-      "bg-app-surface text-[#e8e8e8] border-[#3d3d3d] hover:bg-[#353535] hover:border-[#3d3d3d] active:scale-[0.98]",
+      "bg-app-surface text-text-primary border-app-border hover:bg-app-hover hover:border-app-border active:scale-[0.98]",
     tertiary:
-      "bg-transparent text-[#b0b0b0] border-transparent hover:text-[#e8e8e8] hover:bg-[#353535] active:scale-[0.98]",
+      "bg-transparent text-text-secondary border-transparent hover:text-text-primary hover:bg-app-hover active:scale-[0.98]",
     danger:
       "bg-error/10 text-error border-error/30 hover:bg-error/20 hover:border-error/40 active:scale-[0.98]",
   };

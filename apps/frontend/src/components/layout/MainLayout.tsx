@@ -2,7 +2,6 @@ import {useState, type ReactNode} from "react";
 import {Header} from "./Header";
 import {Sidebar} from "./Sidebar";
 import {RightSidebar} from "./RightSidebar";
-import {Footer} from "./Footer";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -46,7 +45,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
         {/* Main Content */}
         <main className="flex-1 overflow-auto bg-app-bg flex flex-col">
           <div className="px-4 py-6 w-full flex-1">{children}</div>
-          <Footer />
         </main>
 
         {/* Right Sidebar (Contextual) */}

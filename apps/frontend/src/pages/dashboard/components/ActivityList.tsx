@@ -24,17 +24,17 @@ export const ActivityList = () => {
     switch (type) {
       case "PUSH":
       case "COMMIT":
-        return <CodeBracketIcon className="w-4 h-4 text-purple-400" />;
+        return <CodeBracketIcon className="w-4 h-4 text-text-primary" />;
       case "REPO_CREATE":
       case "BRANCH_CREATE":
-        return <PlusIcon className="w-4 h-4 text-green-400" />;
+        return <PlusIcon className="w-4 h-4 text-text-primary" />;
       case "REPO_DELETE":
       case "BRANCH_DELETE":
-        return <TrashIcon className="w-4 h-4 text-red-400" />;
+        return <TrashIcon className="w-4 h-4 text-text-primary" />;
       case "MEMBER_ADD":
-        return <UserPlusIcon className="w-4 h-4 text-blue-400" />;
+        return <UserPlusIcon className="w-4 h-4 text-text-primary" />;
       default:
-        return <CommandLineIcon className="w-4 h-4 text-gray-400" />;
+        return <CommandLineIcon className="w-4 h-4 text-text-primary" />;
     }
   };
 
@@ -53,7 +53,7 @@ export const ActivityList = () => {
               key={i}
               className="w-full flex items-center gap-4 p-4 border-b border-app-border last:border-0"
             >
-              <div className="p-2 bg-white/5 rounded-lg">
+              <div className="p-2 bg-app-hover rounded-lg">
                 <SkeletonText className="w-5 h-5" />
               </div>
               <div className="flex-1">
@@ -96,7 +96,7 @@ export const ActivityList = () => {
         </h2>
         <Link
           to="/activities"
-          className="text-xs text-app-accent hover:underline"
+          className="text-xs text-text-primary opacity-60 hover:opacity-100 hover:underline transition-opacity"
         >
           View all
         </Link>
@@ -106,17 +106,17 @@ export const ActivityList = () => {
         {activities.slice(0, 5).map((activity) => (
           <div
             key={activity.id}
-            className={`group w-full flex items-start gap-4 p-4 border-b border-app-border last:border-0 transition-colors hover:bg-white/5 ${
-              !activity.read ? "bg-white/[0.02]" : ""
+            className={`group w-full flex items-start gap-4 p-4 border-b border-app-border last:border-0 transition-colors hover:bg-app-hover ${
+              !activity.read ? "bg-app-hover/30" : ""
             }`}
           >
-            <div className="mt-0.5 p-2 bg-[#2a2a2a] rounded-lg shrink-0">
+            <div className="mt-0.5 p-2 bg-app-hover rounded-lg shrink-0">
               {getActivityIcon(activity.type)}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-medium text-text-primary truncate pr-2">
+                <p className={`text-sm text-text-primary truncate pr-2 ${!activity.read ? "font-semibold" : "font-medium"}`}>
                   {getActivityMessage(activity)}
                 </p>
                 <span className="text-[10px] text-text-tertiary whitespace-nowrap shrink-0 mt-0.5">
@@ -133,7 +133,7 @@ export const ActivityList = () => {
               {activity.link && (
                 <Link
                   to={activity.link}
-                  className="inline-flex items-center gap-1 mt-2 text-[10px] font-medium text-app-accent hover:underline"
+                  className="inline-flex items-center gap-1 mt-2 text-[10px] font-medium text-text-primary opacity-60 hover:opacity-100 hover:underline transition-opacity"
                   onClick={() => !activity.read && markAsRead(activity.id)}
                 >
                   View details <ArrowRightIcon className="w-3 h-3" />
@@ -143,7 +143,7 @@ export const ActivityList = () => {
 
             {!activity.read && (
               <div
-                className="w-2 h-2 rounded-full bg-app-accent mt-2 shrink-0"
+                className="w-1.5 h-1.5 rounded-full bg-text-primary mt-2 shrink-0"
                 title="Unread"
               />
             )}

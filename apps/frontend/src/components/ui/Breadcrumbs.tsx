@@ -19,13 +19,13 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({items}) => {
     <nav className="flex items-center gap-2 text-xs sm:text-sm mb-4">
       {items.map((crumb, idx) => (
         <div key={idx} className="flex items-center gap-2">
-          {idx > 0 && <span className="text-[#808080]">/</span>}
+          {idx > 0 && <span className="text-text-tertiary">/</span>}
           {crumb.href ? (
             <Link
               to={crumb.href}
-              className={`text-[#b0b0b0] hover:text-[#e8e8e8] transition-colors ${
+              className={`text-text-secondary hover:text-text-primary transition-colors ${
                 idx === items.length - 1
-                  ? "text-[#e8e8e8] font-medium cursor-default pointer-events-none"
+                  ? "text-text-primary font-medium cursor-default pointer-events-none"
                   : "cursor-pointer"
               }`}
             >
@@ -34,9 +34,9 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({items}) => {
           ) : crumb.onClick ? (
             <button
               onClick={crumb.onClick}
-              className={`text-[#b0b0b0] hover:text-[#e8e8e8] transition-colors ${
+              className={`text-text-secondary hover:text-text-primary transition-colors ${
                 idx === items.length - 1
-                  ? "text-[#e8e8e8] font-medium cursor-default"
+                  ? "text-text-primary font-medium cursor-default"
                   : "cursor-pointer"
               }`}
             >
@@ -46,8 +46,8 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({items}) => {
             <span
               className={
                 idx === items.length - 1
-                  ? "text-[#e8e8e8] font-medium"
-                  : "text-[#b0b0b0]"
+                  ? "text-text-primary font-medium"
+                  : "text-text-secondary"
               }
             >
               {crumb.label}

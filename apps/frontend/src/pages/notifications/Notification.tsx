@@ -184,10 +184,10 @@ export const Notification = () => {
         {/* Page Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl sm:text-2xl font-semibold text-[#e8e8e8] mb-1">
+            <h1 className="text-xl sm:text-2xl font-semibold text-text-primary mb-1">
               Notifications
             </h1>
-            <p className="text-sm text-[#b0b0b0]">
+            <p className="text-sm text-text-secondary">
               {unreadCount > 0
                 ? `${unreadCount} unread notification${
                     unreadCount > 1 ? "s" : ""
@@ -203,13 +203,13 @@ export const Notification = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 mb-4 border-b border-[#3d3d3d]">
+        <div className="flex gap-2 mb-4 border-b border-app-border">
           <button
             onClick={() => setFilter("all")}
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
               filter === "all"
                 ? "text-app-accent border-app-accent"
-                : "text-[#b0b0b0] border-transparent hover:text-[#e8e8e8]"
+                : "text-text-secondary border-transparent hover:text-text-primary"
             }`}
           >
             All ({notifications.length})
@@ -219,7 +219,7 @@ export const Notification = () => {
             className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 ${
               filter === "unread"
                 ? "text-app-accent border-app-accent"
-                : "text-[#b0b0b0] border-transparent hover:text-[#e8e8e8]"
+                : "text-text-secondary border-transparent hover:text-text-primary"
             }`}
           >
             Unread ({unreadCount})
@@ -229,14 +229,14 @@ export const Notification = () => {
         {/* Notifications List */}
         <div className="flex-1 overflow-auto">
           {filteredNotifications.length === 0 ? (
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-12 text-center">
-              <BellIcon className="w-12 h-12 text-[#808080] mx-auto mb-4" />
-              <p className="text-[#b0b0b0] text-lg mb-2">
+            <div className="bg-app-surface border border-app-border rounded-lg p-12 text-center">
+              <BellIcon className="w-12 h-12 text-text-tertiary mx-auto mb-4" />
+              <p className="text-text-secondary text-lg mb-2">
                 {filter === "unread"
                   ? "No unread notifications"
                   : "No notifications"}
               </p>
-              <p className="text-[#808080] text-sm">
+              <p className="text-text-tertiary text-sm">
                 You're all caught up! New notifications will appear here.
               </p>
             </div>
@@ -248,10 +248,10 @@ export const Notification = () => {
                 return (
                   <div
                     key={notification.id}
-                    className={`bg-app-surface border border-[#3d3d3d] rounded-lg p-4 transition-colors ${
+                    className={`bg-app-surface border border-app-border rounded-lg p-4 transition-colors ${
                       !notification.read
                         ? "bg-app-accent/5 border-app-accent/30"
-                        : "hover:bg-[#353535]"
+                        : "hover:bg-app-hover"
                     }`}
                   >
                     <div className="flex items-start gap-4">
@@ -265,7 +265,7 @@ export const Notification = () => {
                           className={`w-5 h-5 ${
                             !notification.read
                               ? "text-app-accent"
-                              : "text-[#b0b0b0]"
+                              : "text-text-secondary"
                           }`}
                         />
                       </div>
@@ -278,8 +278,8 @@ export const Notification = () => {
                               <h3
                                 className={`text-sm font-medium ${
                                   !notification.read
-                                    ? "text-[#e8e8e8]"
-                                    : "text-[#b0b0b0]"
+                                    ? "text-text-primary"
+                                    : "text-text-secondary"
                                 }`}
                               >
                                 {notification.title}
@@ -290,10 +290,10 @@ export const Notification = () => {
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-[#b0b0b0] mb-2">
+                            <p className="text-sm text-text-secondary mb-2">
                               {notification.message}
                             </p>
-                            <div className="flex items-center gap-2 text-xs text-[#808080]">
+                            <div className="flex items-center gap-2 text-xs text-text-tertiary">
                               <ClockIcon className="w-3 h-3" />
                               <span>{formatTime(notification.timestamp)}</span>
                             </div>
@@ -306,7 +306,7 @@ export const Notification = () => {
                             <Link
                               to={notification.link}
                               onClick={() => markAsRead(notification.id)}
-                              className="text-xs text-app-accent hover:text-[#5a95f5] transition-colors"
+                              className="text-xs text-app-accent hover:text-app-accent-hover transition-colors"
                             >
                               View →
                             </Link>
@@ -314,7 +314,7 @@ export const Notification = () => {
                           {!notification.read && (
                             <button
                               onClick={() => markAsRead(notification.id)}
-                              className="text-xs text-[#b0b0b0] hover:text-[#e8e8e8] transition-colors flex items-center gap-1"
+                              className="text-xs text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1"
                             >
                               <CheckIcon className="w-3 h-3" />
                               Mark as read
@@ -322,7 +322,7 @@ export const Notification = () => {
                           )}
                           <button
                             onClick={() => deleteNotification(notification.id)}
-                            className="text-xs text-[#b0b0b0] hover:text-error transition-colors flex items-center gap-1 ml-auto"
+                            className="text-xs text-text-secondary hover:text-error transition-colors flex items-center gap-1 ml-auto"
                           >
                             <XMarkIcon className="w-3 h-3" />
                             Delete

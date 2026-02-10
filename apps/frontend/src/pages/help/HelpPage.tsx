@@ -80,7 +80,7 @@ export const HelpPage: React.FC = () => {
 
         {/* Page Header */}
         <div className="mb-6">
-          <p className="text-sm text-[#b0b0b0]">
+          <p className="text-sm text-text-secondary">
             Guides, references, and support for using GitShelf
           </p>
         </div>
@@ -90,7 +90,7 @@ export const HelpPage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Tabs Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-2">
+              <div className="bg-app-surface border border-app-border rounded-lg p-2">
                 <nav className="space-y-1">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
@@ -101,7 +101,7 @@ export const HelpPage: React.FC = () => {
                         className={`w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded transition-colors ${
                           activeTab === tab.id
                             ? "bg-app-accent/10 text-app-accent"
-                            : "text-[#b0b0b0] hover:text-[#e8e8e8] hover:bg-[#353535]"
+                            : "text-text-secondary hover:text-text-primary hover:bg-app-hover"
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -115,7 +115,7 @@ export const HelpPage: React.FC = () => {
 
             {/* Content Panel */}
             <div className="lg:col-span-3">
-              <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6 min-h-[500px]">
+              <div className="bg-app-surface border border-app-border rounded-lg p-6 min-h-[500px]">
                 {/* Documentation */}
                 {activeTab === "docs" && (
                   <div className="space-y-6">
@@ -123,24 +123,24 @@ export const HelpPage: React.FC = () => {
                       <div>
                         <button
                           onClick={() => setSearchParams({tab: "docs"})}
-                          className="flex items-center gap-2 text-sm text-[#b0b0b0] hover:text-[#e8e8e8] mb-4 transition-colors"
+                          className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary mb-4 transition-colors"
                         >
                           <ArrowLeftIcon className="w-4 h-4" />
                           Back to Documentation
                         </button>
-                        <h2 className="text-2xl font-bold text-[#e8e8e8] mb-6">
+                        <h2 className="text-2xl font-bold text-text-primary mb-6">
                           {activeArticle.title}
                         </h2>
-                        <div className="prose prose-invert max-w-none text-[#b0b0b0]">
+                        <div className="prose prose-invert max-w-none text-text-secondary">
                           {activeArticle.content}
                         </div>
                       </div>
                     ) : (
                       <div>
-                        <h2 className="text-lg font-semibold text-[#e8e8e8] mb-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-4">
                           Documentation
                         </h2>
-                        <p className="text-[#b0b0b0] mb-8">
+                        <p className="text-text-secondary mb-8">
                           Welcome to the GitShelf documentation. Select a topic
                           below to get started.
                         </p>
@@ -163,7 +163,7 @@ export const HelpPage: React.FC = () => {
                                           article: doc.id,
                                         })
                                       }
-                                      className="text-[#b0b0b0] hover:text-[#e8e8e8] hover:underline text-left"
+                                      className="text-text-secondary hover:text-text-primary hover:underline text-left"
                                     >
                                       {doc.title}
                                     </button>
@@ -191,7 +191,7 @@ export const HelpPage: React.FC = () => {
                                           article: doc.id,
                                         })
                                       }
-                                      className="text-[#b0b0b0] hover:text-[#e8e8e8] hover:underline text-left"
+                                      className="text-text-secondary hover:text-text-primary hover:underline text-left"
                                     >
                                       {doc.title}
                                     </button>
@@ -209,14 +209,14 @@ export const HelpPage: React.FC = () => {
                 {activeTab === "api" && (
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-2xl font-bold text-[#e8e8e8] mb-4">
+                      <h2 className="text-2xl font-bold text-text-primary mb-4">
                         API References
                       </h2>
-                      <p className="text-[#b0b0b0] mb-6">
+                      <p className="text-text-secondary mb-6">
                         GitShelf provides a REST API to interact with your
                         repositories programmatically. All API access is over
                         HTTPS, and accessed from{" "}
-                        <code className="bg-[#2f2f2f] px-1 py-0.5 rounded text-app-accent">
+                        <code className="bg-app-surface px-1 py-0.5 rounded text-app-accent">
                           https://api.gitshelf.com
                         </code>
                         .
@@ -227,43 +227,43 @@ export const HelpPage: React.FC = () => {
                       {apiEndpoints.map((endpoint) => (
                         <div
                           key={endpoint.id}
-                          className="border border-[#3d3d3d] rounded-lg overflow-hidden"
+                          className="border border-app-border rounded-lg overflow-hidden"
                         >
-                          <div className="bg-[#2f2f2f] px-4 py-3 border-b border-[#3d3d3d] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="bg-app-surface px-4 py-3 border-b border-app-border flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                             <div className="flex items-center gap-3">
                               <span
                                 className={`px-2 py-1 text-xs font-bold rounded uppercase ${
                                   endpoint.method === "GET"
-                                    ? "bg-blue-500/20 text-blue-400"
+                                    ? "bg-info/20 text-info"
                                     : endpoint.method === "POST"
-                                      ? "bg-green-500/20 text-green-400"
+                                      ? "bg-success/20 text-success"
                                       : endpoint.method === "DELETE"
-                                        ? "bg-red-500/20 text-red-400"
-                                        : "bg-yellow-500/20 text-yellow-400"
+                                        ? "bg-error/20 text-error"
+                                        : "bg-warning/20 text-warning"
                                 }`}
                               >
                                 {endpoint.method}
                               </span>
-                              <code className="text-sm text-[#e8e8e8] font-medium">
+                              <code className="text-sm text-text-primary font-medium">
                                 {endpoint.path}
                               </code>
                             </div>
                           </div>
 
                           <div className="p-4 bg-app-surface">
-                            <p className="text-[#b0b0b0] mb-4 text-sm">
+                            <p className="text-text-secondary mb-4 text-sm">
                               {endpoint.description}
                             </p>
 
                             {endpoint.parameters &&
                               endpoint.parameters.length > 0 && (
                                 <div className="mb-4">
-                                  <h4 className="text-xs font-semibold text-[#808080] uppercase tracking-wider mb-2">
+                                  <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
                                     Parameters
                                   </h4>
                                   <div className="overflow-x-auto">
                                     <table className="w-full text-sm text-left">
-                                      <thead className="text-xs text-[#808080] bg-[#2f2f2f] uppercase">
+                                      <thead className="text-xs text-text-tertiary bg-app-surface uppercase">
                                         <tr>
                                           <th className="px-3 py-2 rounded-tl-md">
                                             Name
@@ -282,26 +282,26 @@ export const HelpPage: React.FC = () => {
                                           (param, idx) => (
                                             <tr
                                               key={idx}
-                                              className="border-b border-[#2f2f2f] last:border-0"
+                                              className="border-b border-app-border last:border-0"
                                             >
                                               <td className="px-3 py-2 font-mono text-app-accent">
                                                 {param.name}
                                               </td>
-                                              <td className="px-3 py-2 text-[#b0b0b0]">
+                                              <td className="px-3 py-2 text-text-secondary">
                                                 {param.type}
                                               </td>
                                               <td className="px-3 py-2">
                                                 {param.required ? (
-                                                  <span className="text-red-400 text-xs">
+                                                  <span className="text-error text-xs">
                                                     Yes
                                                   </span>
                                                 ) : (
-                                                  <span className="text-[#808080] text-xs">
+                                                  <span className="text-text-tertiary text-xs">
                                                     No
                                                   </span>
                                                 )}
                                               </td>
-                                              <td className="px-3 py-2 text-[#b0b0b0]">
+                                              <td className="px-3 py-2 text-text-secondary">
                                                 {param.description}
                                               </td>
                                             </tr>
@@ -314,11 +314,11 @@ export const HelpPage: React.FC = () => {
                               )}
 
                             <div>
-                              <h4 className="text-xs font-semibold text-[#808080] uppercase tracking-wider mb-2">
+                              <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-2">
                                 Example Request
                               </h4>
-                              <div className="bg-[#1e1e1e] p-3 rounded-md overflow-x-auto group relative">
-                                <pre className="text-sm font-mono text-[#e8e8e8] whitespace-pre-wrap">
+                              <div className="bg-app-bg p-3 rounded-md overflow-x-auto group relative">
+                                <pre className="text-sm font-mono text-text-primary whitespace-pre-wrap">
                                   {endpoint.example}
                                 </pre>
                               </div>
@@ -334,10 +334,10 @@ export const HelpPage: React.FC = () => {
                 {activeTab === "support" && (
                   <div className="space-y-10">
                     <div>
-                      <h2 className="text-2xl font-bold text-[#e8e8e8] mb-4">
+                      <h2 className="text-2xl font-bold text-text-primary mb-4">
                         Support Center
                       </h2>
-                      <p className="text-[#b0b0b0] mb-8">
+                      <p className="text-text-secondary mb-8">
                         Need help? Choose one of the options below to get in
                         touch with us or find answers to your questions.
                       </p>
@@ -349,15 +349,15 @@ export const HelpPage: React.FC = () => {
                             <a
                               key={option.id}
                               href={option.link}
-                              className="block bg-app-surface border border-[#3d3d3d] rounded-xl p-6 hover:border-app-accent/50 hover:bg-[#2a2a2a] transition-all group"
+                              className="block bg-app-surface border border-app-border rounded-xl p-6 hover:border-app-accent/50 hover:bg-app-hover transition-all group"
                             >
                               <div className="bg-app-accent/10 w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                 <Icon className="w-6 h-6 text-app-accent" />
                               </div>
-                              <h3 className="text-lg font-semibold text-[#e8e8e8] mb-2">
+                              <h3 className="text-lg font-semibold text-text-primary mb-2">
                                 {option.title}
                               </h3>
-                              <p className="text-sm text-[#b0b0b0] mb-4 h-10 line-clamp-2">
+                              <p className="text-sm text-text-secondary mb-4 h-10 line-clamp-2">
                                 {option.description}
                               </p>
                               <span className="text-app-accent text-sm font-medium group-hover:underline">
@@ -371,30 +371,30 @@ export const HelpPage: React.FC = () => {
 
                     {/* FAQ Section */}
                     <div>
-                      <h3 className="text-xl font-bold text-[#e8e8e8] mb-6">
+                      <h3 className="text-xl font-bold text-text-primary mb-6">
                         Frequently Asked Questions
                       </h3>
                       <div className="space-y-4">
                         {faq.map((item, index) => (
                           <div
                             key={index}
-                            className="border border-[#3d3d3d] rounded-lg overflow-hidden bg-app-surface"
+                            className="border border-app-border rounded-lg overflow-hidden bg-app-surface"
                           >
                             <button
                               onClick={() => toggleFaq(index)}
-                              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[#2a2a2a] transition-colors"
+                              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-app-hover transition-colors"
                             >
-                              <span className="font-medium text-[#e8e8e8]">
+                              <span className="font-medium text-text-primary">
                                 {item.question}
                               </span>
                               {openFaq === index ? (
-                                <ChevronUpIcon className="w-5 h-5 text-[#808080]" />
+                                <ChevronUpIcon className="w-5 h-5 text-text-tertiary" />
                               ) : (
-                                <ChevronDownIcon className="w-5 h-5 text-[#808080]" />
+                                <ChevronDownIcon className="w-5 h-5 text-text-tertiary" />
                               )}
                             </button>
                             {openFaq === index && (
-                              <div className="px-6 pb-4 text-[#b0b0b0] text-sm leading-relaxed border-t border-[#3d3d3d]/50 pt-4">
+                              <div className="px-6 pb-4 text-text-secondary text-sm leading-relaxed border-t border-app-border/50 pt-4">
                                 {item.answer}
                               </div>
                             )}

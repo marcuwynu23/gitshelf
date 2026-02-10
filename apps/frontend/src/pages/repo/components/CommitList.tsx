@@ -26,21 +26,21 @@ export const CommitList: React.FC<CommitListProps> = ({
   );
 
   if (!commits || commits.length === 0) {
-    return <p className="text-[#808080] text-xs">No commits found</p>;
+    return <p className="text-text-tertiary text-xs">No commits found</p>;
   }
 
   return (
     <div className="flex-1">
       <div className="flex items-center gap-2 mb-4">
-        <ClockIcon className="w-4 h-4 text-[#808080]" />
-        <h2 className="text-sm font-semibold text-[#e8e8e8] uppercase tracking-wider">
+        <ClockIcon className="w-4 h-4 text-text-tertiary" />
+        <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider">
           Commits
         </h2>
       </div>
 
       <div className="relative pl-2">
         {/* Timeline line */}
-        <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-[#3d3d3d]" />
+        <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-app-border" />
 
         <CommitItems commits={latestCommits} />
       </div>
@@ -67,7 +67,7 @@ export const CommitList: React.FC<CommitListProps> = ({
       >
         <div className="max-h-[60vh] overflow-y-auto pr-2 relative pl-2">
           {/* Timeline line in modal */}
-          <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-[#3d3d3d]" />
+          <div className="absolute left-[11px] top-2 bottom-2 w-[1px] bg-app-border" />
           <CommitItems commits={commits} />
         </div>
       </Modal>
@@ -80,11 +80,11 @@ const CommitItems: React.FC<{commits: Commit[]}> = ({commits}) => (
     {commits.map((c) => (
       <li key={c.hash} className="group relative flex gap-4 items-start">
         {/* Timeline dot */}
-        <div className="mt-1.5 w-2 h-2 rounded-full bg-[#505050] ring-4 ring-app-bg group-hover:bg-app-accent transition-colors shrink-0 z-10" />
+        <div className="mt-1.5 w-2 h-2 rounded-full bg-text-tertiary ring-4 ring-app-bg group-hover:bg-app-accent transition-colors shrink-0 z-10" />
 
-        <div className="flex-1 min-w-0 bg-transparent rounded-md group-hover:bg-[#353535]/50 transition-colors -ml-2 pl-2 py-1 pr-2">
+        <div className="flex-1 min-w-0 bg-transparent rounded-md group-hover:bg-app-hover/50 transition-colors -ml-2 pl-2 py-1 pr-2">
           <div className="flex items-baseline justify-between gap-2 mb-0.5">
-            <span className="text-sm font-medium text-[#e8e8e8] truncate">
+            <span className="text-sm font-medium text-text-primary truncate">
               {c.message}
             </span>
             <span className="text-[10px] font-mono text-app-accent shrink-0 bg-app-accent/10 px-1.5 py-0.5 rounded">
@@ -92,8 +92,8 @@ const CommitItems: React.FC<{commits: Commit[]}> = ({commits}) => (
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-[#808080]">
-            <span className="font-medium text-[#b0b0b0] truncate max-w-[150px]">
+          <div className="flex items-center gap-2 text-xs text-text-tertiary">
+            <span className="font-medium text-text-secondary truncate max-w-[150px]">
               {c.author}
             </span>
             <span>•</span>

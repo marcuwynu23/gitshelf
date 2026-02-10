@@ -41,7 +41,7 @@ export const Recovery = () => {
               className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg"
             />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight mb-2">
             Check your email
           </h1>
         </div>
@@ -66,15 +66,15 @@ export const Recovery = () => {
               </div>
             </div>
 
-            <p className="text-[#b0b0b0] mb-8 leading-relaxed">
+            <p className="text-text-secondary mb-8 leading-relaxed">
               We've sent a password recovery link to <br />
-              <strong className="text-[#e8e8e8] font-medium">{email}</strong>
+              <strong className="text-text-primary font-medium">{email}</strong>
             </p>
 
             <Link to="/auth/login">
               <Button
                 variant="secondary"
-                className="w-full h-11 text-base font-medium bg-[#2a2a2a] border-[#3d3d3d] hover:bg-[#333] hover:border-[#4d4d4d] transition-all"
+                className="w-full h-11 text-base font-medium bg-app-surface border-app-border hover:bg-app-surface-hover hover:border-app-border-hover transition-all"
               >
                 Back to sign in
               </Button>
@@ -92,10 +92,10 @@ export const Recovery = () => {
         <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 mx-auto">
           <img src={Logo} alt="GitShelf" className="w-7 h-7" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight mb-2">
           Reset password
         </h1>
-        <p className="text-[#b0b0b0] text-base sm:text-lg">
+        <p className="text-text-secondary text-base sm:text-lg">
           Enter your email to receive instructions
         </p>
       </div>
@@ -118,7 +118,7 @@ export const Recovery = () => {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+            className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
           />
 
           <Button
@@ -128,7 +128,7 @@ export const Recovery = () => {
           >
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-text-on-accent/30 border-t-text-on-accent rounded-full animate-spin" />
                 <span>Sending...</span>
               </div>
             ) : (
@@ -139,11 +139,11 @@ export const Recovery = () => {
       </div>
 
       {/* Sign in link */}
-      <p className="mt-8 text-center text-sm text-[#b0b0b0] animate-fadeIn delay-100">
+      <p className="mt-8 text-center text-sm text-text-secondary animate-fadeIn delay-100">
         Remember your password?{" "}
         <Link
           to="/auth/login"
-          className="text-app-accent hover:text-[#5a95f5] transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
+          className="text-app-accent hover:text-app-accent-hover transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
         >
           Sign in
         </Link>

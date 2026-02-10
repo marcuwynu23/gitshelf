@@ -12,9 +12,10 @@ import {
   DocumentTextIcon,
   EyeSlashIcon,
 } from "@heroicons/react/24/outline";
+import {RepoListSkeleton} from "./components/RepoListSkeleton";
 
 export const RepoListPage = () => {
-  const {repos, setRepoName, fetchRepos, createRepo, importRepo} =
+  const {repos, setRepoName, fetchRepos, createRepo, importRepo, isLoading} =
     useRepoStore();
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -113,61 +114,65 @@ export const RepoListPage = () => {
         </Button>
       }
     >
-      <div className="h-full flex flex-col">
-        {/* Breadcrumbs */}
-        <Breadcrumbs items={breadcrumbs} />
+      {isLoading && repos.length === 0 ? (
+        <RepoListSkeleton />
+      ) : (
+        <div className="h-full flex flex-col">
+          {/* Breadcrumbs */}
+          <Breadcrumbs items={breadcrumbs} />
 
-        {/* Main Content */}
-        <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="w-full space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1">
-                <h2 className="text-2xl font-bold text-[#e8e8e8] tracking-tight">
-                  Repositories
-                </h2>
-                <p className="text-sm text-[#b0b0b0]">
-                  Manage your git repositories and projects
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                {/* Search */}
-                <div className="relative group w-full sm:w-auto">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#808080] group-focus-within:text-app-accent transition-colors" />
-                  <input
-                    type="text"
-                    placeholder="Search repositories..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-10 w-full sm:w-72 pl-10 pr-4 bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-all shadow-sm"
-                  />
+          {/* Main Content */}
+          <div className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="w-full space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold text-text-primary tracking-tight">
+                    Repositories
+                  </h2>
+                  <p className="text-sm text-text-secondary">
+                    Manage your git repositories and projects
+                  </p>
                 </div>
 
-                {/* Filter */}
-                <div className="flex items-center bg-[#2d2d2d] border border-[#3d3d3d] rounded-lg p-1 shadow-sm overflow-x-auto no-scrollbar max-w-full">
-                  {(["all", "active", "archived"] as const).map((status) => (
-                    <button
-                      key={status}
-                      onClick={() => setFilterStatus(status)}
-                      className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all capitalize whitespace-nowrap ${
-                        filterStatus === status
-                          ? "bg-app-surface text-[#e8e8e8] shadow-sm"
-                          : "text-[#808080] hover:text-[#b0b0b0]"
-                      }`}
-                    >
-                      {status}
-                    </button>
-                  ))}
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                  {/* Search */}
+                  <div className="relative group w-full sm:w-auto">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary group-focus-within:text-app-accent transition-colors" />
+                    <input
+                      type="text"
+                      placeholder="Search repositories..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-10 w-full sm:w-72 pl-10 pr-4 bg-app-surface border border-app-border rounded-lg text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-all shadow-sm"
+                    />
+                  </div>
+
+                  {/* Filter */}
+                  <div className="flex items-center bg-app-surface border border-app-border rounded-lg p-1 shadow-sm overflow-x-auto no-scrollbar max-w-full">
+                    {(["all", "active", "archived"] as const).map((status) => (
+                      <button
+                        key={status}
+                        onClick={() => setFilterStatus(status)}
+                        className={`px-4 py-1.5 text-xs font-medium rounded-md transition-all capitalize whitespace-nowrap ${
+                          filterStatus === status
+                            ? "bg-app-hover text-text-primary shadow-sm"
+                            : "text-text-tertiary hover:text-text-secondary"
+                        }`}
+                      >
+                        {status}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="bg-transparent">
-              <RepoList repos={filteredRepos} selectedRepo={null} />
+              <div className="bg-transparent">
+                <RepoList repos={filteredRepos} selectedRepo={null} />
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Create Repository Modal */}
       <Modal
@@ -219,13 +224,13 @@ export const RepoListPage = () => {
       >
         <div className="space-y-6">
           {/* Tabs */}
-          <div className="flex p-1 bg-[#2d2d2d] rounded-lg">
+          <div className="flex p-1 bg-app-surface rounded-lg">
             <button
               onClick={() => setCreateMode("create")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 createMode === "create"
-                  ? "bg-app-surface text-[#e8e8e8] shadow-sm"
-                  : "text-[#808080] hover:text-[#b0b0b0]"
+                  ? "bg-app-hover text-text-primary shadow-sm"
+                  : "text-text-tertiary hover:text-text-secondary"
               }`}
             >
               <PlusCircleIcon className="w-4 h-4" />
@@ -235,8 +240,8 @@ export const RepoListPage = () => {
               onClick={() => setCreateMode("import")}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                 createMode === "import"
-                  ? "bg-app-surface text-[#e8e8e8] shadow-sm"
-                  : "text-[#808080] hover:text-[#b0b0b0]"
+                  ? "bg-app-hover text-text-primary shadow-sm"
+                  : "text-text-tertiary hover:text-text-secondary"
               }`}
             >
               <CloudArrowDownIcon className="w-4 h-4" />
@@ -246,7 +251,7 @@ export const RepoListPage = () => {
 
           <div className="space-y-4">
             {createMode === "import" && (
-              <div className="bg-[#2d2d2d]/30 p-4 rounded-lg border border-[#3d3d3d]">
+              <div className="bg-app-surface/30 p-4 rounded-lg border border-app-border">
                 <Input
                   label="Git URL"
                   placeholder="https://github.com/username/repo.git"
@@ -278,11 +283,11 @@ export const RepoListPage = () => {
               </div>
 
               <div className="w-full">
-                <label className="block text-sm font-medium text-[#e8e8e8] mb-1.5">
+                <label className="block text-sm font-medium text-text-primary mb-1.5">
                   Description (optional)
                 </label>
                 <textarea
-                  className="h-24 w-full px-3 py-2 bg-app-surface border border-[#3d3d3d] rounded-md text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
+                  className="h-24 w-full px-3 py-2 bg-app-surface border border-app-border rounded-md text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors resize-none"
                   placeholder="What is this project about?"
                   value={newRepoDescription}
                   onChange={(e) => setNewRepoDescription(e.target.value)}
@@ -291,8 +296,8 @@ export const RepoListPage = () => {
             </div>
 
             {createMode === "create" && (
-              <div className="pt-2 border-t border-[#3d3d3d]">
-                <h3 className="text-sm font-medium text-[#e8e8e8] mb-3">
+              <div className="pt-2 border-t border-app-border">
+                <h3 className="text-sm font-medium text-text-primary mb-3">
                   Initialization Options
                 </h3>
 
@@ -311,22 +316,22 @@ export const RepoListPage = () => {
                     className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
                       addReadme
                         ? "bg-app-accent/10 border-app-accent"
-                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                        : "bg-app-surface/30 border-app-border hover:border-app-border"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <BookOpenIcon
-                        className={`w-5 h-5 ${addReadme ? "text-app-accent" : "text-[#808080]"}`}
+                        className={`w-5 h-5 ${addReadme ? "text-app-accent" : "text-text-tertiary"}`}
                       />
                       <input
                         type="checkbox"
                         checked={addReadme}
                         onChange={(e) => setAddReadme(e.target.checked)}
-                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                        className="rounded bg-app-bg border-app-border text-app-accent focus:ring-app-accent"
                       />
                     </div>
                     <span
-                      className={`text-xs font-medium ${addReadme ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                      className={`text-xs font-medium ${addReadme ? "text-text-primary" : "text-text-secondary"}`}
                     >
                       Add README
                     </span>
@@ -336,22 +341,22 @@ export const RepoListPage = () => {
                     className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
                       addLicense
                         ? "bg-app-accent/10 border-app-accent"
-                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                        : "bg-app-surface/30 border-app-border hover:border-app-border"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <DocumentTextIcon
-                        className={`w-5 h-5 ${addLicense ? "text-app-accent" : "text-[#808080]"}`}
+                        className={`w-5 h-5 ${addLicense ? "text-app-accent" : "text-text-tertiary"}`}
                       />
                       <input
                         type="checkbox"
                         checked={addLicense}
                         onChange={(e) => setAddLicense(e.target.checked)}
-                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                        className="rounded bg-app-bg border-app-border text-app-accent focus:ring-app-accent"
                       />
                     </div>
                     <span
-                      className={`text-xs font-medium ${addLicense ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                      className={`text-xs font-medium ${addLicense ? "text-text-primary" : "text-text-secondary"}`}
                     >
                       Add License
                     </span>
@@ -361,22 +366,22 @@ export const RepoListPage = () => {
                     className={`flex flex-col gap-2 p-3 rounded-lg border cursor-pointer transition-all ${
                       addGitignore
                         ? "bg-app-accent/10 border-app-accent"
-                        : "bg-[#2d2d2d]/30 border-[#3d3d3d] hover:border-[#505050]"
+                        : "bg-app-surface/30 border-app-border hover:border-app-border"
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <EyeSlashIcon
-                        className={`w-5 h-5 ${addGitignore ? "text-app-accent" : "text-[#808080]"}`}
+                        className={`w-5 h-5 ${addGitignore ? "text-app-accent" : "text-text-tertiary"}`}
                       />
                       <input
                         type="checkbox"
                         checked={addGitignore}
                         onChange={(e) => setAddGitignore(e.target.checked)}
-                        className="rounded bg-app-bg border-gray-600 text-app-accent focus:ring-app-accent"
+                        className="rounded bg-app-bg border-app-border text-app-accent focus:ring-app-accent"
                       />
                     </div>
                     <span
-                      className={`text-xs font-medium ${addGitignore ? "text-[#e8e8e8]" : "text-[#b0b0b0]"}`}
+                      className={`text-xs font-medium ${addGitignore ? "text-text-primary" : "text-text-secondary"}`}
                     >
                       Add .gitignore
                     </span>

@@ -44,8 +44,8 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "files"}
             className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "files"
-                ? "bg-app-accent text-white shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+                ? "bg-app-accent text-text-on-accent shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
             }`}
           >
             <CodeBracketIcon className="w-4 h-4" />
@@ -57,8 +57,8 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "readme"}
             className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "readme"
-                ? "bg-app-accent text-white shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+                ? "bg-app-accent text-text-on-accent shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
             }`}
           >
             <DocumentTextIcon className="w-4 h-4" />
@@ -70,8 +70,8 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "branches"}
             className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "branches"
-                ? "bg-app-accent text-white shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+                ? "bg-app-accent text-text-on-accent shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
             }`}
           >
             <ShareIcon className="w-4 h-4" />
@@ -83,8 +83,8 @@ export const RepoFileTreeHeader: FC<Props> = ({
             aria-pressed={panelView === "commits"}
             className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
               panelView === "commits"
-                ? "bg-app-accent text-white shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-white/5"
+                ? "bg-app-accent text-text-on-accent shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
             }`}
           >
             <CommandLineIcon className="w-4 h-4" />
@@ -94,7 +94,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
           {onSettingsClick && (
             <button
               onClick={onSettingsClick}
-              className="flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium text-text-tertiary hover:text-text-primary hover:bg-white/3 whitespace-nowrap transition-colors"
+              className="flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium text-text-tertiary hover:text-text-primary hover:bg-app-hover whitespace-nowrap transition-colors"
             >
               <Cog6ToothIcon className="w-4 h-4" />
               <span className="hidden sm:inline">Settings</span>

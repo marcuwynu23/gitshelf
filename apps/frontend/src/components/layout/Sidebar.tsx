@@ -9,7 +9,10 @@ import {
   UserIcon,
   QuestionMarkCircleIcon,
   ClockIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
+import {AboutUs} from "~/pages/about/AboutUs";
+import {Modal} from "~/components/ui";
 
 interface SidebarItem {
   id: string;
@@ -38,6 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose,
 }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [showAboutModal, setShowAboutModal] = useState(false);
   const location = useLocation();
 
   const getItemPath = (itemId: string): string => {
@@ -114,6 +118,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           label: "Help",
           icon: QuestionMarkCircleIcon,
         },
+        {
+          id: "about",
+          label: "About Us",
+          icon: InformationCircleIcon,
+        },
       ],
     },
   ];
@@ -123,29 +132,29 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/10 z-30 md:hidden backdrop-blur transition-opacity"
+          className="fixed inset-0 bg-black/10 z-30 md:hidden transition-opacity"
           onClick={onClose}
         />
       )}
 
       <div
-        className={`bg-app-surface border-r border-[#3d3d3d] transition-all duration-300 flex flex-col z-40
+        className={`bg-app-surface  transition-all duration-300 flex flex-col z-40
           fixed inset-y-0 left-0 h-full md:relative md:translate-x-0
           ${isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           ${collapsed ? "w-14" : "w-56"}
         `}
       >
         {/* Collapse Button */}
-        <div className="h-14 flex items-center justify-end px-4 border-b border-[#3d3d3d]">
+        <div className="h-14 flex items-center justify-end px-4">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 hover:bg-[#353535] rounded transition-colors"
+            className="p-1.5 hover:bg-app-hover rounded transition-colors"
             aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? (
-              <Bars3Icon className="w-5 h-5 text-[#b0b0b0]" />
+              <Bars3Icon className="w-5 h-5 text-text-secondary" />
             ) : (
-              <ChevronLeftIcon className="w-5 h-5 text-[#b0b0b0]" />
+              <ChevronLeftIcon className="w-5 h-5 text-text-secondary" />
             )}
           </button>
         </div>
@@ -156,7 +165,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div key={groupIdx} className={groupIdx > 0 ? "mt-6" : ""}>
               {!collapsed && (
                 <div className="px-4 mb-2">
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#808080]">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-text-tertiary">
                     {group.label}
                   </span>
                 </div>
@@ -166,6 +175,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   const Icon = item.icon;
                   const isActive = isItemActive(item.id);
                   const itemPath = getItemPath(item.id);
+
+                  if (item.id === "about") {
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setShowAboutModal(true)}
+                        className={`w-full flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors relative group text-text-secondary hover:text-text-primary hover:bg-app-hover`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        {!collapsed && <span>{item.label}</span>}
+                        {collapsed && (
+                          <span className="absolute left-full ml-2 px-2 py-1.5 bg-app-surface text-text-primary text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                            {item.label}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  }
+
                   return (
                     <Link
                       key={item.id}
@@ -173,14 +201,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onClick={() => onItemClick?.(item.id)}
                       className={`w-full flex items-center gap-3 px-4 py-2 text-sm font-medium transition-colors relative group ${
                         isActive
-                          ? "text-app-accent bg-app-accent/10 border-l-2 border-app-accent"
-                          : "text-[#b0b0b0] hover:text-[#e8e8e8] hover:bg-[#353535]"
+                          ? "text-app-accent bg-app-accent/10 "
+                          : "text-text-secondary hover:text-text-primary hover:bg-app-hover"
                       }`}
                     >
                       <Icon className="w-5 h-5 flex-shrink-0" />
                       {!collapsed && <span>{item.label}</span>}
                       {collapsed && (
-                        <span className="absolute left-full ml-2 px-2 py-1.5 bg-app-surface border border-[#3d3d3d] text-[#e8e8e8] text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                        <span className="absolute left-full ml-2 px-2 py-1.5 bg-app-surface text-text-primary text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
                           {item.label}
                         </span>
                       )}
@@ -192,6 +220,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </nav>
       </div>
+
+      <Modal
+        isOpen={showAboutModal}
+        onClose={() => setShowAboutModal(false)}
+        title=""
+        size="xl"
+      >
+        <AboutUs />
+      </Modal>
     </>
   );
 };

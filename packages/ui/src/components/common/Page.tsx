@@ -6,7 +6,7 @@ interface PageProps extends HTMLAttributes<HTMLDivElement> {
 
 export function Page({className = "", children, ...props}: PageProps) {
   return (
-    <div className={`min-h-screen bg-[#181818] ${className}`} {...props}>
+    <div className={`min-h-screen bg-app-bg ${className}`} {...props}>
       {children}
     </div>
   );

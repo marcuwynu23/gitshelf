@@ -1,22 +1,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
-@theme {
-  /* GitLab-inspired color palette - Dark mode */
-  --color-app-bg: #272727;
-  --color-app-surface: #2d2d2d;
-  --color-app-border: #3d3d3d;
-  --color-app-hover: #353535;
-  --color-app-accent: #4285f4;
-  --color-app-accent-hover: #5a95f5;
-  --color-success: #34a853;
-  --color-warning: #fbbc04;
-  --color-error: #ea4335;
-  --color-info: #4285f4;
+:root {
+  /* Default Dark Theme Variables */
+  --app-bg: #272727;
+  --app-surface: #2d2d2d;
+  --app-border: #3d3d3d;
+  --app-hover: #353535;
+  --app-accent: #4285f4;
+  --app-accent-hover: #5a95f5;
+  --success: #34a853;
+  --warning: #fbbc04;
+  --error: #ea4335;
+  --info: #4285f4;
+  --text-on-accent: #ffffff;
+  --text-primary: #e8e8e8;
+  --text-secondary: #b0b0b0;
+  --text-tertiary: #808080;
+}
 
-  --color-text-primary: #e8e8e8;
-  --color-text-secondary: #b0b0b0;
-  --color-text-tertiary: #808080;
+:root[data-theme="light"] {
+  /* Light Theme Variables */
+  --app-bg: #ffffff;
+  --app-surface: #f8f9fa;
+  --app-border: #e2e8f0;
+  --app-hover: #f1f5f9;
+  --app-accent: #2563eb;
+  --app-accent-hover: #1d4ed8;
+  --text-on-accent: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+}
+
+@theme {
+  /* GitLab-inspired color palette - Uses CSS variables for theming */
+  --color-app-bg: var(--app-bg);
+  --color-app-surface: var(--app-surface);
+  --color-app-border: var(--app-border);
+  --color-app-hover: var(--app-hover);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-hover: var(--app-accent-hover);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  --color-text-on-accent: var(--text-on-accent);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
 
   --font-family-sans: "Inter", "Mona Sans", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
   --font-family-display: "Mona Sans", "Inter", "Roboto", sans-serif;
@@ -44,7 +78,7 @@ body {
 
 /* Skeleton loading animation */
 .skeleton-loading {
-  background: linear-gradient(90deg, #3d3d3d 25%, #4a4a4a 50%, #3d3d3d 75%);
+  background: linear-gradient(90deg, var(--color-app-border) 25%, var(--color-app-hover) 50%, var(--color-app-border) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

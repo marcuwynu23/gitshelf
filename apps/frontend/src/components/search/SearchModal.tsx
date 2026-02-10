@@ -117,11 +117,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({isOpen, onClose}) => {
     >
       <div className="flex flex-col gap-4">
         <div className="relative">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#808080]" />
+          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
           <input
             ref={inputRef}
             type="text"
-            className="w-full bg-app-bg border border-[#3d3d3d] rounded-md py-2.5 pl-10 pr-4 text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:border-app-accent focus:ring-1 focus:ring-app-accent transition-colors"
+            className="w-full bg-app-bg border border-app-border rounded-md py-2.5 pl-10 pr-4 text-text-primary placeholder-text-tertiary focus:outline-none focus:border-app-accent focus:ring-1 focus:ring-app-accent transition-colors"
             placeholder="Search repositories, pages, settings..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
@@ -130,11 +130,11 @@ export const SearchModal: React.FC<SearchModalProps> = ({isOpen, onClose}) => {
 
         <div className="min-h-[200px] max-h-[400px] overflow-y-auto">
           {query.trim() === "" ? (
-            <div className="text-center text-[#808080] py-8">
+            <div className="text-center text-text-tertiary py-8">
               <p>Type to search...</p>
             </div>
           ) : results.length === 0 ? (
-            <div className="text-center text-[#808080] py-8">
+            <div className="text-center text-text-tertiary py-8">
               <p>No results found for "{query}"</p>
             </div>
           ) : (
@@ -143,19 +143,19 @@ export const SearchModal: React.FC<SearchModalProps> = ({isOpen, onClose}) => {
                 <button
                   key={result.id}
                   onClick={() => handleSelect(result)}
-                  className="flex items-center justify-between p-3 rounded-md hover:bg-[#353535] text-left group transition-colors"
+                  className="flex items-center justify-between p-3 rounded-md hover:bg-app-hover text-left group transition-colors"
                 >
                   <div className="flex flex-col">
-                    <span className="text-[#e8e8e8] font-medium group-hover:text-app-accent transition-colors">
+                    <span className="text-text-primary font-medium group-hover:text-app-accent transition-colors">
                       {result.title}
                     </span>
                     {result.description && (
-                      <span className="text-xs text-[#808080]">
+                      <span className="text-xs text-text-tertiary">
                         {result.description}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-[#606060] uppercase tracking-wider bg-[#2a2a2a] px-2 py-1 rounded">
+                  <span className="text-xs text-text-tertiary uppercase tracking-wider bg-app-bg px-2 py-1 rounded">
                     {result.type}
                   </span>
                 </button>

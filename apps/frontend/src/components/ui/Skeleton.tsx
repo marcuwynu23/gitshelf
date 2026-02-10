@@ -10,7 +10,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   children,
 }) => {
   return (
-    <div className={`skeleton-loading bg-[#3d3d3d] rounded ${className}`}>
+    <div className={`skeleton-loading bg-app-border rounded ${className}`}>
       {children}
     </div>
   );

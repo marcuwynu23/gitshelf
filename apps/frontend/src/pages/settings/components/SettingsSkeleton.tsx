@@ -8,10 +8,10 @@ import {
 
 export const SettingsSkeleton = () => {
   const tabs = [
-    { id: "general", label: "General", icon: UserIcon },
-    { id: "notifications", label: "Notifications", icon: BellIcon },
-    { id: "security", label: "Security", icon: ShieldCheckIcon },
-    { id: "appearance", label: "Appearance", icon: PaintBrushIcon },
+    {id: "general", label: "General", icon: UserIcon},
+    {id: "notifications", label: "Notifications", icon: BellIcon},
+    {id: "security", label: "Security", icon: ShieldCheckIcon},
+    {id: "appearance", label: "Appearance", icon: PaintBrushIcon},
   ];
 
   return (
@@ -32,13 +32,18 @@ export const SettingsSkeleton = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Tabs Sidebar Skeleton */}
           <div className="lg:col-span-1">
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-2">
+            <div className="bg-app-surface border border-app-border rounded-lg p-2">
               <nav className="space-y-1">
                 {tabs.map((tab, index) => (
-                  <div key={tab.id} className={`flex items-center gap-3 px-3 py-2 text-sm rounded ${
-                    index === 0 ? 'bg-app-accent/10 border border-app-accent/30' : ''
-                  }`}>
-                    <div className="w-4 h-4 bg-[#808080] rounded opacity-50" />
+                  <div
+                    key={tab.id}
+                    className={`flex items-center gap-3 px-3 py-2 text-sm rounded ${
+                      index === 0
+                        ? "bg-app-accent/10 border border-app-accent/30"
+                        : ""
+                    }`}
+                  >
+                    <div className="w-4 h-4 bg-text-tertiary rounded opacity-50" />
                     <SkeletonText className="flex-1 h-4" />
                   </div>
                 ))}
@@ -48,12 +53,12 @@ export const SettingsSkeleton = () => {
 
           {/* Settings Panel Skeleton */}
           <div className="lg:col-span-3">
-            <div className="bg-app-surface border border-[#3d3d3d] rounded-lg p-6">
+            <div className="bg-app-surface border border-app-border rounded-lg p-6">
               <SkeletonTitle className="w-32 mb-6" />
 
               {/* Form Fields Skeleton */}
               <div className="space-y-6">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({length: 4}).map((_, i) => (
                   <div key={i}>
                     <SkeletonText className="w-24 h-4 mb-2" />
                     <Skeleton className="h-10 w-full" />
@@ -61,7 +66,7 @@ export const SettingsSkeleton = () => {
                 ))}
 
                 {/* Save Button Skeleton */}
-                <div className="flex justify-end pt-4 border-t border-[#3d3d3d]">
+                <div className="flex justify-end pt-4 border-t border-app-border">
                   <Skeleton className="h-8 w-24" />
                 </div>
               </div>

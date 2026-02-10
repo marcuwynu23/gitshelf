@@ -28,7 +28,7 @@ const RepoFileTreeLoading = () => (
           <div className="h-2 w-2 bg-app-accent rounded-full"></div>
         </div>
       </div>
-      <p className="mt-4 text-sm font-medium text-[#b0b0b0] animate-pulse">
+      <p className="mt-4 text-sm font-medium text-text-secondary animate-pulse">
         Loading repository files...
       </p>
     </div>
@@ -197,7 +197,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
           {/* Top Row: Title, Badges, Breadcrumbs */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-[#e8e8e8] tracking-tight truncate">
+              <div className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-text-primary tracking-tight truncate">
                 {selectedFile ? (
                   <>
                     <span className="opacity-50 font-normal">
@@ -224,7 +224,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
           {!selectedFile && (
             <div className="flex flex-col gap-4 animate-fadeIn">
               {description && (
-                <p className="text-sm text-[#b0b0b0] max-w-4xl leading-relaxed">
+                <p className="text-sm text-text-secondary max-w-4xl leading-relaxed">
                   {description}
                 </p>
               )}
@@ -235,7 +235,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                 <div className="relative w-full sm:w-auto" ref={viewMenuRef}>
                   <button
                     type="button"
-                    className={`group w-full sm:w-64 flex items-center justify-between gap-2 px-3 py-2 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] hover:border-[#505050] rounded-lg text-sm text-[#e8e8e8] transition-all shadow-sm ${
+                    className={`group w-full sm:w-64 flex items-center justify-between gap-2 px-3 py-2 bg-app-surface hover:bg-app-hover border border-app-border hover:border-app-border rounded-lg text-sm text-text-primary transition-all shadow-sm ${
                       isViewMenuOpen
                         ? "ring-2 ring-app-accent/20 border-app-accent"
                         : ""
@@ -243,7 +243,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                     onClick={() => setIsViewMenuOpen((v) => !v)}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <CodeBracketIcon className="w-4 h-4 text-[#808080] group-hover:text-app-accent transition-colors" />
+                      <CodeBracketIcon className="w-4 h-4 text-text-tertiary group-hover:text-app-accent transition-colors" />
                       <span className="truncate font-medium">
                         {(() => {
                           const v = viewRef.trim();
@@ -266,24 +266,24 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                       </span>
                     </div>
                     <ChevronDownIcon
-                      className={`w-4 h-4 text-[#808080] transition-transform duration-200 ${isViewMenuOpen ? "rotate-180" : ""}`}
+                      className={`w-4 h-4 text-text-tertiary transition-transform duration-200 ${isViewMenuOpen ? "rotate-180" : ""}`}
                     />
                   </button>
 
                   {isViewMenuOpen && (
                     <div
-                      className="absolute z-50 mt-2 w-full sm:w-80 bg-[#1e1e1e] border border-[#3d3d3d] rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5"
+                      className="absolute z-50 mt-2 w-full sm:w-80 bg-app-bg border border-app-border rounded-xl shadow-xl overflow-hidden ring-1 ring-black/5"
                       role="menu"
                     >
-                      <div className="p-2 border-b border-[#3d3d3d]">
+                      <div className="p-2 border-b border-app-border">
                         <div className="relative">
-                          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#808080]" />
+                          <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary" />
                           <input
                             value={viewQuery}
                             onChange={(e) => setViewQuery(e.target.value)}
                             placeholder="Find a branch or commit..."
                             autoFocus
-                            className="w-full pl-9 pr-3 py-2 bg-[#2d2d2d] border border-transparent focus:border-app-accent rounded-lg text-sm text-[#e8e8e8] placeholder-[#808080] focus:outline-none focus:ring-1 focus:ring-app-accent transition-all"
+                            className="w-full pl-9 pr-3 py-2 bg-app-surface border border-transparent focus:border-app-accent rounded-lg text-sm text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-1 focus:ring-app-accent transition-all"
                           />
                         </div>
                       </div>
@@ -320,14 +320,14 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                           if (filteredBranches.length > 0) {
                             return (
                               <>
-                                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-[#808080] bg-[#2d2d2d]/30 mt-1">
+                                <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-text-tertiary bg-app-surface/30 mt-1">
                                   Branches
                                 </div>
                                 {filteredBranches.map((b) => (
                                   <button
                                     key={`branch:${b}`}
                                     type="button"
-                                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#2d2d2d] flex items-center justify-between transition-colors"
+                                    className="w-full text-left px-3 py-2 text-sm hover:bg-app-surface flex items-center justify-between transition-colors"
                                     onClick={() => {
                                       setSelectedFile(null);
                                       setViewRef(b);
@@ -335,7 +335,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                                       setIsViewMenuOpen(false);
                                     }}
                                   >
-                                    <span className="truncate text-[#b0b0b0] hover:text-[#e8e8e8]">
+                                    <span className="truncate text-text-secondary hover:text-text-primary">
                                       {b}
                                     </span>
                                   </button>
@@ -346,7 +346,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                           return null;
                         })()}
 
-                        <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-[#808080] bg-[#2d2d2d]/30 mt-1">
+                        <div className="px-3 py-1.5 text-[10px] uppercase tracking-wider font-semibold text-text-tertiary bg-app-surface/30 mt-1">
                           Recent Commits
                         </div>
 
@@ -371,7 +371,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                               <button
                                 key={`commit:${full}`}
                                 type="button"
-                                className="w-full text-left px-3 py-2 text-sm hover:bg-[#2d2d2d] group flex flex-col gap-0.5 transition-colors"
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-app-surface group flex flex-col gap-0.5 transition-colors"
                                 onClick={() => {
                                   setSelectedFile(null);
                                   setViewRef(full);
@@ -379,15 +379,15 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                                   setIsViewMenuOpen(false);
                                 }}
                               >
-                                <span className="truncate text-[#e8e8e8] w-full">
+                                <span className="truncate text-text-primary w-full">
                                   {label}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                  <span className="font-mono text-[10px] bg-[#2d2d2d] px-1.5 py-0.5 rounded text-[#808080] group-hover:text-app-accent group-hover:bg-app-accent/10 transition-colors">
+                                  <span className="font-mono text-[10px] bg-app-surface px-1.5 py-0.5 rounded text-text-tertiary group-hover:text-app-accent group-hover:bg-app-accent/10 transition-colors">
                                     {short}
                                   </span>
                                   {c.author && (
-                                    <span className="text-[10px] text-[#606060] truncate max-w-[150px]">
+                                    <span className="text-[10px] text-text-tertiary truncate max-w-[150px]">
                                       by {c.author}
                                     </span>
                                   )}
@@ -406,7 +406,7 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                   <div className="relative w-full sm:w-auto" ref={cloneMenuRef}>
                     <button
                       type="button"
-                      className={`w-full sm:w-auto justify-center sm:justify-start flex items-center gap-2 px-4 py-2 bg-app-accent hover:bg-app-accent/90 text-white rounded-lg text-sm font-medium transition-colors shadow-sm active:scale-[0.98] ${isCloneMenuOpen ? "ring-2 ring-offset-2 ring-offset-[#1e1e1e] ring-app-accent" : ""}`}
+                      className={`w-full sm:w-auto justify-center sm:justify-start flex items-center gap-2 px-4 py-2 bg-app-accent hover:bg-app-accent/90 text-text-on-accent rounded-lg text-sm font-medium transition-colors shadow-sm active:scale-[0.98] ${isCloneMenuOpen ? "ring-2 ring-offset-2 ring-offset-app-bg ring-app-accent" : ""}`}
                       onClick={() => setIsCloneMenuOpen((v) => !v)}
                     >
                       <CodeBracketIcon className="w-4 h-4" />
@@ -417,26 +417,26 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                     </button>
 
                     {isCloneMenuOpen && (
-                      <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-full sm:w-80 bg-[#1e1e1e] border border-[#3d3d3d] rounded-xl shadow-xl p-4 z-50 animate-fadeIn origin-top-left sm:origin-top-right">
-                        <h4 className="text-sm font-semibold text-[#e8e8e8] mb-3">
+                      <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-full sm:w-80 bg-app-bg border border-app-border rounded-xl shadow-xl p-4 z-50 animate-fadeIn origin-top-left sm:origin-top-right">
+                        <h4 className="text-sm font-semibold text-text-primary mb-3">
                           Clone repository
                         </h4>
 
                         <div className="space-y-4">
                           {httpAddress && (
                             <div className="space-y-1.5">
-                              <div className="flex items-center justify-between text-xs text-[#b0b0b0]">
+                              <div className="flex items-center justify-between text-xs text-text-secondary">
                                 <span>HTTPS</span>
                               </div>
                               <div className="flex gap-2">
                                 <input
                                   readOnly
                                   value={httpAddress}
-                                  className="flex-1 min-w-0 bg-[#2d2d2d] border border-[#3d3d3d] rounded-md px-2 py-1.5 text-xs text-[#e8e8e8] font-mono focus:outline-none focus:border-app-accent"
+                                  className="flex-1 min-w-0 bg-app-surface border border-app-border rounded-md px-2 py-1.5 text-xs text-text-primary font-mono focus:outline-none focus:border-app-accent"
                                 />
                                 <button
                                   onClick={() => handleCopy(httpAddress)}
-                                  className="p-1.5 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
+                                  className="p-1.5 bg-app-surface hover:bg-app-hover border border-app-border rounded-md text-text-tertiary hover:text-text-primary transition-colors"
                                   title="Copy to clipboard"
                                 >
                                   <Square2StackIcon className="w-4 h-4" />
@@ -447,18 +447,18 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
 
                           {sshAddress && (
                             <div className="space-y-1.5">
-                              <div className="flex items-center justify-between text-xs text-[#b0b0b0]">
+                              <div className="flex items-center justify-between text-xs text-text-secondary">
                                 <span>SSH</span>
                               </div>
                               <div className="flex gap-2">
                                 <input
                                   readOnly
                                   value={sshAddress}
-                                  className="flex-1 min-w-0 bg-[#2d2d2d] border border-[#3d3d3d] rounded-md px-2 py-1.5 text-xs text-[#e8e8e8] font-mono focus:outline-none focus:border-app-accent"
+                                  className="flex-1 min-w-0 bg-app-surface border border-app-border rounded-md px-2 py-1.5 text-xs text-text-primary font-mono focus:outline-none focus:border-app-accent"
                                 />
                                 <button
                                   onClick={() => handleCopy(sshAddress)}
-                                  className="p-1.5 bg-[#2d2d2d] hover:bg-[#353535] border border-[#3d3d3d] rounded-md text-[#808080] hover:text-[#e8e8e8] transition-colors"
+                                  className="p-1.5 bg-app-surface hover:bg-app-hover border border-app-border rounded-md text-text-tertiary hover:text-text-primary transition-colors"
                                   title="Copy to clipboard"
                                 >
                                   <Square2StackIcon className="w-4 h-4" />
@@ -475,12 +475,12 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
             </div>
           )}
           {copied && (
-            <div className="fixed bottom-6 right-6 bg-app-surface border border-[#3d3d3d] px-4 py-3 rounded-lg shadow-xl z-50 flex items-center gap-3 animate-slideIn">
-              <div className="bg-green-500/10 p-1 rounded-full">
-                <CheckIcon className="w-4 h-4 text-green-500" />
+            <div className="fixed bottom-6 right-6 bg-app-surface border border-app-border px-4 py-3 rounded-lg shadow-xl z-50 flex items-center gap-3 animate-slideIn">
+              <div className="bg-success/10 p-1 rounded-full">
+                <CheckIcon className="w-4 h-4 text-success" />
               </div>
               <div>
-                <p className="text-sm font-medium text-[#e8e8e8]">
+                <p className="text-sm font-medium text-text-primary">
                   Copied to clipboard!
                 </p>
               </div>

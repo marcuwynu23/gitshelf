@@ -64,11 +64,11 @@ export const Register = () => {
         <div className="lg:hidden inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 mx-auto">
           <img src={Logo} alt="GitShelf" className="w-7 h-7" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#e8e8e8] tracking-tight mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight mb-2">
           Create an account
         </h1>
-        <p className="text-[#b0b0b0] text-base sm:text-lg">
-          Join <span className="text-[#e8e8e8] font-medium">GitShelf</span>{" "}
+        <p className="text-text-secondary text-base sm:text-lg">
+          Join <span className="text-text-primary font-medium">GitShelf</span>{" "}
           today
         </p>
       </div>
@@ -94,7 +94,7 @@ export const Register = () => {
                 onChange={handleChange}
                 required
                 autoComplete="username"
-                className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+                className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
               />
 
               <Input
@@ -106,7 +106,7 @@ export const Register = () => {
                 onChange={handleChange}
                 required
                 autoComplete="name"
-                className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+                className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
               />
             </div>
 
@@ -119,7 +119,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               autoComplete="email"
-              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
 
             <Input
@@ -132,7 +132,7 @@ export const Register = () => {
               required
               autoComplete="new-password"
               helperText="Must be at least 8 characters"
-              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
 
             <Input
@@ -144,7 +144,7 @@ export const Register = () => {
               onChange={handleChange}
               required
               autoComplete="new-password"
-              className="h-11 !bg-[#1c2128] border-[#30363d] focus:border-app-accent focus:ring-app-accent/20 transition-all"
+              className="h-11 !bg-app-surface border-app-border focus:border-app-accent focus:ring-app-accent/20 transition-all"
             />
           </div>
 
@@ -155,7 +155,7 @@ export const Register = () => {
           >
             {loading ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-text-on-accent/30 border-t-text-on-accent rounded-full animate-spin" />
                 <span>Creating account...</span>
               </div>
             ) : (
@@ -166,11 +166,11 @@ export const Register = () => {
       </div>
 
       {/* Sign in link */}
-      <p className="mt-8 text-center text-sm text-[#b0b0b0] animate-fadeIn delay-100">
+      <p className="mt-8 text-center text-sm text-text-secondary animate-fadeIn delay-100">
         Already have an account?{" "}
         <Link
           to="/auth/login"
-          className="text-app-accent hover:text-[#5a95f5] transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
+          className="text-app-accent hover:text-app-accent-hover transition-colors font-medium hover:underline decoration-app-accent/30 underline-offset-4"
         >
           Sign in
         </Link>
