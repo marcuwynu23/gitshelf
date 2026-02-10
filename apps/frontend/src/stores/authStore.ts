@@ -15,7 +15,11 @@ interface AuthStore {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (
+    username: string,
+    password: string,
+    rememberMe?: boolean,
+  ) => Promise<void>;
   register: (
     username: string,
     name: string,
@@ -33,7 +37,8 @@ interface AuthStore {
 
 // Set up axios interceptor for auth token
 axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("token") || sessionStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -42,15 +47,26 @@ axios.interceptors.request.use((config) => {
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
-  token: localStorage.getItem("token"),
-  isAuthenticated: !!localStorage.getItem("token"),
+  token: localStorage.getItem("token") || sessionStorage.getItem("token"),
+  isAuthenticated: !!(
+    localStorage.getItem("token") || sessionStorage.getItem("token")
+  ),
 
-  login: async (username: string, password: string) => {
+  login: async (username: string, password: string, rememberMe?: boolean) => {
     try {
       const res = await axios.post("/api/auth/login", {username, password});
       const {user, token} = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+
+      // Clear any existing session data to avoid conflicts
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("user");
+
+      const storage = rememberMe ? localStorage : sessionStorage;
+
+      storage.setItem("token", token);
+      storage.setItem("user", JSON.stringify(user));
       set({user, token, isAuthenticated: true});
     } catch (err: any) {
       throw new Error(err?.response?.data?.error || "Login failed");
@@ -82,6 +98,8 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     set({user: null, token: null, isAuthenticated: false});
   },
 
@@ -148,9 +166,10 @@ axios.interceptors.response.use(
   },
 );
 
-// Initialize user from localStorage on mount
+// Initialize user from localStorage or sessionStorage on mount
 if (typeof window !== "undefined") {
-  const storedUser = localStorage.getItem("user");
+  const storedUser =
+    localStorage.getItem("user") || sessionStorage.getItem("user");
   if (storedUser) {
     try {
       const user = JSON.parse(storedUser);
