@@ -7,7 +7,7 @@ import {useBranchStore} from "~/stores/branchStore";
 import {useCommitStore} from "~/stores/commitStore";
 import {RepoSettingsModal} from "./components/RepoSettingsModal";
 import {RepoDetail} from "./RepoDetail";
-
+import {RepoDetailSkeleton} from "./components/RepoDetailSkeleton";
 interface RepoMetadata {
   title?: string;
   description?: string;
