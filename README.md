@@ -1,6 +1,5 @@
 <div align="center">
-  <h1> GitShelf
- </h1>
+  <h1>GitShelf</h1>
 </div>
 
 <p align="center">
@@ -10,29 +9,21 @@
   <img src="https://img.shields.io/github/license/marcuwynu23/repohub.svg" alt="License Badge"/>
 </p>
 
-GitShelf is a lightweight Git repository manager built with **Node.js/Express** for the backend and **React + TailwindCSS** for the frontend. It allows you to:
+GitShelf is a lightweight Git repository manager that allows you to:
 
-- Create Git repositories locally.
-- Browse repository files in a tree view.
-- View recent commits for each repository.
-- Manage repositories without using external Git hosting services.
+* Create and manage Git repositories locally.
+* Browse repository files in a tree view.
+* View recent commits for each repository.
+* Manage repositories without external Git hosting services.
 
 ---
 
 ## Features
 
-- **Repository Management:** Create, list, and view repositories.
-- **File Explorer:** Browse repository contents with a folder/file tree view.
-- **Commits Viewer:** See the latest commits of a repository.
-- **Lightweight & Local:** Runs entirely on your local machine or server.
-
----
-
-## Tech Stack
-
-- **Backend:** Node.js, Express, Simple-Git
-- **Frontend:** React, TypeScript, TailwindCSS
-- **Other:** Dotenv, Axios
+* **Repository Management:** Create, list, and view repositories.
+* **File Explorer:** Browse repository contents with a folder/file tree view.
+* **Commits Viewer:** See the latest commits of a repository.
+* **Lightweight & Local:** Runs entirely on your local machine or server.
 
 ---
 
@@ -40,8 +31,8 @@ GitShelf is a lightweight Git repository manager built with **Node.js/Express** 
 
 ### Prerequisites
 
-- Node.js v20+
-- Git installed on your machine
+* Node.js v20+
+* Git installed on your machine
 
 ### Installation
 
@@ -52,10 +43,9 @@ git clone https://github.com/yourusername/repohub.git
 cd repohub
 ```
 
-2. Install dependencies for backend and frontend:
+2. Install dependencies:
 
 ```bash
-# Root project
 pnpm install
 ```
 
@@ -87,15 +77,17 @@ pnpm dev
 
 ### Repositories
 
-- **GET** `/api/repos` - List all repositories.
-- **POST** `/api/repos` - Create a new repository.
+* **GET** `/api/repos` - List all repositories.
+
+* **POST** `/api/repos` - Create a new repository.
 
   ```json
   { "name": "repo-name" }
   ```
 
-- **GET** `/api/repos/:name` - Get file tree of a repository.
-- **GET** `/api/repos/:name/commits` - Get recent commits (returns empty array if no commits).
+* **GET** `/api/repos/:name` - Get file tree of a repository.
+
+* **GET** `/api/repos/:name/commits` - Get recent commits (returns empty array if no commits).
 
 ### Example Response: Commits
 
@@ -114,19 +106,18 @@ pnpm dev
 
 ## Frontend Structure
 
-- **Repo List:** Left sidebar
-- **File Tree:** Center
-- **Commits:** Right sidebar
-- Uses `@myapp/ui` for FileTree component.
+* **Repo List:** Left sidebar
+* **File Tree:** Center
+* **Commits:** Right sidebar
 
 ---
 
 ## Future Improvements
 
-- Support multiple branches.
-- Add commit creation directly from the UI.
-- Push/pull from remote repositories.
-- User authentication.
+* Support multiple branches.
+* Add commit creation directly from the UI.
+* Push/pull from remote repositories.
+* User authentication.
 
 ---
 
