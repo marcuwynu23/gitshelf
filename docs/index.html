@@ -287,6 +287,130 @@
     }
     footer a { color: #fff; text-decoration: none; }
     footer a:hover { text-decoration: underline; }
+
+    /* Mobile menu: hidden on desktop */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: background 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-toggle:hover { background: rgba(255, 255, 255, 0.1); }
+    .nav-toggle__bar {
+      display: block;
+      width: 22px;
+      height: 2.5px;
+      background: currentColor;
+      border-radius: 2px;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+    body.nav-open .nav-toggle__bar:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+    body.nav-open .nav-toggle__bar:nth-child(2) { opacity: 0; }
+    body.nav-open .nav-toggle__bar:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+    .nav-backdrop, .nav-drawer { display: none; }
+
+    /* Responsive: mobile & tablet (Android-like) */
+    @media (max-width: 768px) {
+      .container-fluid { padding-left: 1rem; padding-right: 1rem; }
+      header .container-fluid { padding-left: 1rem; padding-right: 1rem; }
+      header { padding: 0.75rem 0; }
+      .header-inner { position: relative; }
+      .nav-toggle { display: flex; order: 2; margin-left: auto; }
+      .nav { display: none; }
+      .nav-backdrop {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1001;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s, visibility 0.25s;
+      }
+      body.nav-open .nav-backdrop { opacity: 1; visibility: visible; }
+      .nav-drawer {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: min(280px, 85vw);
+        height: 100%;
+        background: var(--bg);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        z-index: 1002;
+        overflow-y: auto;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease-out;
+        -webkit-overflow-scrolling: touch;
+      }
+      body.nav-open .nav-drawer { transform: translateX(0); }
+      .nav-drawer__links {
+        list-style: none;
+        margin: 0;
+        padding: 1rem 0;
+      }
+      .nav-drawer__links li { margin: 0; }
+      .nav-drawer__links a {
+        display: flex;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        color: var(--text);
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+        transition: background 0.15s;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .nav-drawer__links a:hover { background: var(--surface); }
+      body.nav-open { overflow: hidden; }
+
+      .hero { padding: 2.5rem 0 3rem; }
+      .hero h1 { font-size: clamp(1.5rem, 6vw, 2rem); margin-bottom: 0.75rem; }
+      .hero p { font-size: 1rem; margin-bottom: 1.5rem; }
+      .hero-badges { gap: 0.5rem; margin-bottom: 1.5rem; }
+      .badge { font-size: 0.75rem; padding: 0.3rem 0.6rem; }
+      .hero-cta { gap: 0.75rem; }
+      .btn { padding: 0.5rem 0.875rem; font-size: 0.875rem; }
+
+      .section { padding: 2.5rem 0; }
+      .section-title { font-size: 1.4rem; margin-bottom: 1.5rem; }
+      .features-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      .feature-card { padding: 1.25rem; }
+      .feature-card h3 { font-size: 1.1rem; }
+      .feature-card p { font-size: 0.9rem; }
+
+      .cta-section { padding: 2.5rem 0; }
+      .cta-section h2 { font-size: 1.25rem; }
+      .cta-section p { margin-bottom: 1rem; }
+
+      footer { padding: 1.25rem 0; font-size: 0.8125rem; }
+      footer .container-fluid { padding-left: 1rem; padding-right: 1rem; }
+      footer p { text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .container-fluid { padding-left: 0.75rem; padding-right: 0.75rem; }
+      header .container-fluid { padding-left: 0.75rem; padding-right: 0.75rem; }
+      .hero { padding: 2rem 0 2.5rem; }
+      .hero h1 { font-size: 1.375rem; }
+      .section { padding: 2rem 0; }
+      .section-title { font-size: 1.25rem; }
+      footer { padding: 1rem 0; }
+    }
   </style>
 </head>
 <body>
@@ -303,6 +427,11 @@
           </svg>
           GitShelf
         </a>
+        <button type="button" class="nav-toggle" id="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="nav-drawer">
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+          <span class="nav-toggle__bar"></span>
+        </button>
         <nav class="nav">
           <a href="#features">Features</a>
           <a href="#get-started">Get started</a>
@@ -310,6 +439,14 @@
             View on GitHub
           </a>
         </nav>
+        <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
+        <div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="Navigation menu" aria-hidden="true">
+          <ul class="nav-drawer__links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#get-started">Get started</a></li>
+            <li><a href="https://github.com/marcuwynu23/repohub" target="_blank" rel="noopener noreferrer">View on GitHub</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </header>
@@ -405,5 +542,35 @@
       </p>
     </div>
   </footer>
+  <script>
+    (function() {
+      var toggle = document.getElementById('nav-toggle');
+      var drawer = document.getElementById('nav-drawer');
+      var backdrop = document.getElementById('nav-backdrop');
+      if (!toggle || !drawer || !backdrop) return;
+      function open() {
+        document.body.classList.add('nav-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        toggle.setAttribute('aria-label', 'Close menu');
+        drawer.setAttribute('aria-hidden', 'false');
+        backdrop.setAttribute('aria-hidden', 'false');
+      }
+      function close() {
+        document.body.classList.remove('nav-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-label', 'Open menu');
+        drawer.setAttribute('aria-hidden', 'true');
+        backdrop.setAttribute('aria-hidden', 'true');
+      }
+      toggle.addEventListener('click', function() {
+        document.body.classList.contains('nav-open') ? close() : open();
+      });
+      backdrop.addEventListener('click', close);
+      drawer.querySelectorAll('a').forEach(function(a) { a.addEventListener('click', close); });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && document.body.classList.contains('nav-open')) close();
+      });
+    })();
+  </script>
 </body>
 </html>
