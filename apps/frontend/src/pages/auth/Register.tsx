@@ -73,7 +73,7 @@ export const Register = () => {
         </p>
       </div>
 
-      <div className="w-full px-4 sm:px-0 animate-slideUp">
+      <div className="w-full animate-slideUp">
         {/* Error Alert */}
         {error && (
           <Alert variant="error" className="mb-6 animate-shake">

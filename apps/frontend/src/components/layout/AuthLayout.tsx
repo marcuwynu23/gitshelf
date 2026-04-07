@@ -8,7 +8,7 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({
   children,
-  maxWidth = "max-w-[420px]",
+  maxWidth = "max-w-[460px]",
 }: AuthLayoutProps) => {
   const [mousePosition, setMousePosition] = useState({
     x: 0,
@@ -109,7 +109,7 @@ export const AuthLayout = ({
   return (
     <div className="min-h-[100dvh] flex flex-col lg:flex-row bg-app-bg relative overflow-hidden">
       {/* Left Panel - Info & Branding (Desktop Only) */}
-      <div className="hidden lg:flex lg:w-3/4 relative flex-col justify-between p-16 bg-app-surface  overflow-hiddenX">
+      <div className="hidden lg:flex lg:flex-1 relative flex-col justify-between p-16 bg-app-surface overflow-hidden">
         {/* Background Effects (Left Side) */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div
@@ -197,7 +197,7 @@ export const AuthLayout = ({
       </div>
 
       {/* Right Panel - Form (Mobile: Full Screen, Desktop: Half Screen) */}
-      <div className="w-full lg:w-1/4 flex flex-col relative z-10 h-[100dvh] overflow-y-auto bg-gradient-to-br from-app-bg to-app-surface">
+      <div className="w-full lg:w-[clamp(24rem,32vw,34rem)] lg:min-w-[24rem] lg:max-w-[34rem] lg:flex-shrink-0 flex flex-col relative z-10 min-h-[100dvh] lg:h-[100dvh] overflow-y-auto bg-gradient-to-br from-app-bg to-app-surface">
         {/* Spotlight Effect (Global/Right side focused) */}
         <div
           className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-300"
@@ -213,7 +213,7 @@ export const AuthLayout = ({
         </div>
 
         <div
-          className={`w-full ${maxWidth} flex flex-col justify-center flex-1 relative z-10 mx-auto px-6 py-8 lg:px-0 lg:py-12 lg:m-auto`}
+          className={`w-full ${maxWidth} flex flex-col flex-1 relative z-10 mx-auto px-6 sm:px-8 lg:px-8 xl:px-10 py-8 lg:py-12 justify-start lg:justify-center pb-[max(2rem,env(safe-area-inset-bottom))]`}
         >
           {children}
         </div>
