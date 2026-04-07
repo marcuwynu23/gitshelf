@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Mona+Sans:ital,wght@0,200..900;1,200..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -52,8 +52,8 @@
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
 
-  --font-family-sans: "Inter", "Mona Sans", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
-  --font-family-display: "Mona Sans", "Inter", "Roboto", sans-serif;
+  --font-family-sans: "Google Sans", "Inter", "Mona Sans", "Roboto", "Source Sans 3", "Segoe UI", sans-serif;
+  --font-family-display: "Google Sans", "Mona Sans", "Inter", "Roboto", sans-serif;
   --font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", monospace;
 }
 
