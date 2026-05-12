@@ -25,16 +25,16 @@ export interface RepoFileTreeProps {
   onSettingsClick?: () => void;
 }
 
-export const RepoFileTree: FC<RepoFileTreeProps> = ({
-  selectedRepo,
-  fileTree,
-  branchOrCommit,
-  branches,
-  currentBranch,
-  commits,
-  onSwitchBranch,
-  onSettingsClick,
-}) => {
+export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
+  const {
+    fileTree,
+    branchOrCommit,
+    branches,
+    currentBranch,
+    commits,
+    onSwitchBranch,
+    onSettingsClick,
+  } = props;
   const fetchFileContent = useRepoStore((state) => state.fetchFileContent);
   const fileContent = useRepoStore((state) => state.fileContent);
   const selectedFile = useRepoStore((state) => state.selectedFile);
@@ -83,30 +83,30 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     ? normalizeNodes(fileTree)
     : [];
 
-  // Debug logs to help identify mount/unmount and data state
+  // Clear module-level fetch cache on mount (component re-keys per repo/ref)
   useEffect(() => {
-    console.log("RepoFileTree mounted/updated", {
-      selectedRepo,
-      selectedFile,
-      normalizedTreeLength: normalizedTree.length,
-    });
-    return () => console.log("RepoFileTree unmounted", {selectedRepo});
-  }, [selectedRepo, selectedFile, normalizedTree.length]);
+    Object.keys(globalFetchedFiles).forEach(
+      (k) => delete globalFetchedFiles[k],
+    );
+  }, []);
 
-  // When Documentation panel is opened, fetch the active doc (README or LICENSE)
+  // When Documentation panel is active and readmeFile/licenseFile becomes available, fetch it
   useEffect(() => {
     if (panelView !== "readme") return;
+
     const target = docTab === "readme" ? readmeFile : licenseFile;
     if (!target) return;
-    if (fileContent[target] || globalFetchedFiles[target]) return;
+
+    // Already have content — skip
+    if (fileContent[target] !== undefined) return;
+
+    // Prevent duplicate in-flight requests
+    if (globalFetchedFiles[target]) return;
     globalFetchedFiles[target] = true;
-    (async () => {
-      try {
-        await fetchFileContent(target, branchOrCommit);
-      } catch {
-        globalFetchedFiles[target] = false;
-      }
-    })();
+
+    fetchFileContent(target, branchOrCommit).catch(() => {
+      globalFetchedFiles[target] = false;
+    });
   }, [
     panelView,
     docTab,
@@ -116,9 +116,6 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     fetchFileContent,
     branchOrCommit,
   ]);
-
-  // Default panel when README appears
-  // (removed earlier auto-panel effect to avoid cascading setState)
 
   // Render selected file using split-out viewer
   if (selectedFile) {
@@ -149,18 +146,38 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
             <p className="text-text-tertiary text-sm">No files found</p>
           </div>
         );
-      case "readme":
+      case "readme": {
+        const target = docTab === "readme" ? readmeFile : licenseFile;
+
+        if (!target) {
+          // No README/LICENSE in tree yet — show skeleton while tree is loading, otherwise show message
+          if (isLoading) return <LoadingSkeleton />;
+          return (
+            <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
+              <p className="text-text-tertiary text-sm">
+                {docTab === "readme"
+                  ? "No README.md found"
+                  : "No LICENSE found"}
+              </p>
+            </div>
+          );
+        }
+
+        const content = fileContent[target];
+
+        // undefined means not fetched yet; null/empty string is valid content
+        if (content === undefined) {
+          return <LoadingSkeleton />;
+        }
+
         return (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
             <div className="markdown-body overflow-auto">
-              <ReactMarkdown>
-                {docTab === "readme"
-                  ? fileContent[readmeFile!]
-                  : fileContent[licenseFile!]}
-              </ReactMarkdown>
+              <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           </div>
         );
+      }
       case "branches":
         return (
           <BranchList

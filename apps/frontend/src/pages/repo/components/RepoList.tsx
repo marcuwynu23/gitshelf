@@ -137,11 +137,6 @@ export const RepoList: React.FC<RepoListProps> = ({repos, selectedRepo}) => {
     return currentPath === repoPath;
   };
 
-  const truncateDescription = (desc: string, length: number = 200) => {
-    if (desc.length <= length) return desc;
-    return desc.substring(0, length) + "...";
-  };
-
   if (repos.length === 0) {
     return (
       <div className="text-center py-12 sm:py-20 bg-app-surface/10 rounded-xl border border-app-border border-dashed">

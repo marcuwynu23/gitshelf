@@ -45,7 +45,10 @@ export const Settings = () => {
   });
 
   // Appearance settings
-  const [appearanceSettings, setAppearanceSettings] = useState({
+  const [appearanceSettings, setAppearanceSettings] = useState<{
+    theme: string;
+    fontSize: string;
+  }>({
     theme: currentTheme,
     fontSize: "medium",
   });
