@@ -140,7 +140,7 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
   },
 
   fetchFileContent: async (filePath: string, branchOrCommit?: string) => {
-    const {selectedRepo, fileContent} = get();
+    const {selectedRepo} = get();
     if (!selectedRepo) return;
 
     try {
@@ -155,12 +155,12 @@ export const useRepoStore = create<RepoStore>((set, get) => ({
         `/api/repos/${encodeURIComponent(repoWithGit)}/files?${params.toString()}`,
       );
 
-      set({
+      set((state) => ({
         fileContent: {
-          ...(fileContent ?? {}),
+          ...state.fileContent,
           [filePath]: res.data.content,
         },
-      });
+      }));
     } catch (err) {
       console.error(err);
     }
