@@ -64,8 +64,6 @@ interface RepoDetailProps {
   onSettingsClick?: () => void;
 }
 
-const isFullSha = (s: string) => /^[0-9a-f]{40}$/i.test(s);
-
 export const RepoDetail: React.FC<RepoDetailProps> = ({
   repoName,
   repoTitle,
@@ -75,7 +73,6 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   httpAddress,
   branches,
   currentBranch,
-  setCurrentBranch,
   className,
   onSettingsClick,
 }) => {
