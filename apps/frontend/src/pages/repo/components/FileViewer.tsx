@@ -5,10 +5,9 @@ import {
 } from "@heroicons/react/24/outline";
 import MonacoEditor from "@monaco-editor/react";
 import {useMemo, type FC} from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
 import {Button} from "~/components/ui";
 import {useThemeStore} from "~/stores/themeStore";
+import {MarkdownRenderer} from "./MarkdownRenderer";
 
 type Props = {
   selectedFile: string | null;
@@ -163,9 +162,7 @@ export const FileViewer: FC<Props> = ({
         {isMarkdown ? (
           viewMode === "preview" ? (
             <div className="markdown-body p-4 md:p-6">
-              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                {content}
-              </ReactMarkdown>
+              <MarkdownRenderer content={content} />
             </div>
           ) : (
             <div className="h-full">

@@ -2,7 +2,6 @@ import type {FileNode} from "@myapp/ui";
 import {FileTree} from "@myapp/ui";
 import type {FC} from "react";
 import {useEffect, useMemo, useRef, useState} from "react";
-import ReactMarkdown from "react-markdown";
 import {useRepoStore} from "~/stores/repoStore";
 import {FileViewer} from "./FileViewer";
 import LoadingSkeleton from "./LoadingSkeleton";
@@ -15,7 +14,7 @@ import {
 import {BranchList} from "./BranchList";
 import {CommitList} from "./CommitList";
 import type {Commit} from "~/props/Commit";
-import rehypeRaw from "rehype-raw";
+import {MarkdownRenderer} from "./MarkdownRenderer";
 
 // Persist fetched-file flags across mounts to avoid duplicate GETs
 const globalFetchedFiles: Record<string, boolean> = {};
@@ -178,9 +177,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
           return (
             <div className="bg-app-surface border border-app-border rounded-lg p-6">
               <div className="markdown-body overflow-auto">
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                  {fallbackContent}
-                </ReactMarkdown>
+                <MarkdownRenderer content={fallbackContent} />
               </div>
             </div>
           );
@@ -201,9 +198,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
         return (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
             <div className="markdown-body overflow-auto">
-              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-                {displayContent}
-              </ReactMarkdown>
+              <MarkdownRenderer content={displayContent} />
             </div>
           </div>
         );
