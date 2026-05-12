@@ -241,8 +241,23 @@ body {
   border-radius: 2px;
 }
 
-/* Selection */
-::selection {
-  background-color: var(--color-app-accent);
-  color: var(--color-text-primary);
+/* Selection - disabled globally */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection in code/content areas */
+.markdown-body,
+pre,
+code,
+textarea,
+input,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
