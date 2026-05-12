@@ -1,9 +1,9 @@
-import { Router } from "express";
-import { BranchController } from "../controllers/BranchController";
-import { CommitController } from "../controllers/CommitController";
-import { FileController } from "../controllers/FileController";
-import { RepoController } from "../controllers/RepoController";
-import { authMiddleware } from "../middleware/auth";
+import {Router} from "express";
+import {BranchController} from "../controllers/BranchController";
+import {CommitController} from "../controllers/CommitController";
+import {FileController} from "../controllers/FileController";
+import {RepoController} from "../controllers/RepoController";
+import {authMiddleware} from "../middleware/auth";
 
 const router = Router();
 const repoController = new RepoController();
@@ -18,22 +18,43 @@ router.use(authMiddleware);
 router.get("/", (req, res) => repoController.listRepos(req, res));
 router.post("/", (req, res) => repoController.createRepo(req, res));
 router.post("/import", (req, res) => repoController.importRepo(req, res));
-router.get("/:name/metadata", (req, res) => repoController.getRepoMetadata(req, res));
-router.put("/:name/metadata", (req, res) => repoController.updateRepoMetadata(req, res));
-router.patch("/:name/rename", (req, res) => repoController.renameRepo(req, res));
-router.patch("/:name/unarchive", (req, res) => repoController.unarchiveRepo(req, res));
+router.get("/:name/metadata", (req, res) =>
+  repoController.getRepoMetadata(req, res),
+);
+router.put("/:name/metadata", (req, res) =>
+  repoController.updateRepoMetadata(req, res),
+);
+router.patch("/:name/rename", (req, res) =>
+  repoController.renameRepo(req, res),
+);
+router.patch("/:name/unarchive", (req, res) =>
+  repoController.unarchiveRepo(req, res),
+);
 router.get("/:name", (req, res) => repoController.getRepoTree(req, res));
 router.delete("/:name", (req, res) => repoController.deleteRepo(req, res));
-router.patch("/:name/archive", (req, res) => repoController.archiveRepo(req, res));
+router.patch("/:name/archive", (req, res) =>
+  repoController.archiveRepo(req, res),
+);
 
 // File routes
-router.get("/:name/files", (req, res) => fileController.getFileContent(req, res));
+router.get("/:name/files", (req, res) =>
+  fileController.getFileContent(req, res),
+);
 
 // Branch routes
-router.get("/:name/branches", (req, res) => branchController.getBranches(req, res));
-router.get("/:name/current-branch", (req, res) => branchController.getCurrentBranch(req, res));
+router.get("/:name/branches", (req, res) =>
+  branchController.getBranches(req, res),
+);
+router.post("/:name/branches", (req, res) =>
+  branchController.createBranch(req, res),
+);
+router.get("/:name/current-branch", (req, res) =>
+  branchController.getCurrentBranch(req, res),
+);
 
 // Commit routes
-router.get("/:name/commits", (req, res) => commitController.getCommits(req, res));
+router.get("/:name/commits", (req, res) =>
+  commitController.getCommits(req, res),
+);
 
 export default router;

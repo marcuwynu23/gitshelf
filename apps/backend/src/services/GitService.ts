@@ -258,6 +258,22 @@ export class GitService {
     }
   }
 
+  async createBranch(
+    username: string,
+    repoName: string,
+    newBranch: string,
+    sourceBranch: string,
+  ): Promise<void> {
+    const repoPath = this.getRepoPath(username, repoName);
+    const git = this.getGitInstance(repoPath);
+
+    // Verify source branch exists
+    await git.raw(["rev-parse", "--verify", sourceBranch]);
+
+    // Create the new branch from source
+    await git.branch([newBranch, sourceBranch]);
+  }
+
   async getCommits(
     username: string,
     repoName: string,

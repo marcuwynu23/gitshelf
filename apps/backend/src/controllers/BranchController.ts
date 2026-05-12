@@ -65,4 +65,62 @@ export class BranchController {
       res.status(500).json({error: "Internal server error"});
     }
   }
+
+  async createBranch(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
+
+      if (!repoService.repoExists(req.username, repoName)) {
+        res.status(404).json({error: "Repo not found"});
+        return;
+      }
+
+      const {newBranch, sourceBranch} = req.body as {
+        newBranch?: string;
+        sourceBranch?: string;
+      };
+
+      if (!newBranch || !newBranch.trim()) {
+        res.status(400).json({error: "newBranch is required"});
+        return;
+      }
+
+      if (!sourceBranch || !sourceBranch.trim()) {
+        res.status(400).json({error: "sourceBranch is required"});
+        return;
+      }
+
+      await gitService.createBranch(
+        req.username,
+        repoName,
+        newBranch.trim(),
+        sourceBranch.trim(),
+      );
+
+      res
+        .status(201)
+        .json({message: "Branch created", branch: newBranch.trim()});
+    } catch (err: any) {
+      console.error("POST /api/repos/:name/branches error:", err);
+      if (
+        err?.message?.includes("not a valid object name") ||
+        err?.message?.includes("not a valid ref")
+      ) {
+        res.status(400).json({error: "Invalid source branch"});
+      } else if (err?.message?.includes("already exists")) {
+        res.status(409).json({error: "Branch already exists"});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
+    }
+  }
 }
