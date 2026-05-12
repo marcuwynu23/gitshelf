@@ -274,24 +274,23 @@ const FileNodeItem: React.FC<{
       style={{paddingLeft: `${indent + 20}px`}}
       onClick={() => onFileClick && onFileClick(node.path)}
     >
-      <div className="flex items-center gap-1.5 min-w-0">
+      <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
         {icon}
         <span className={`text-sm ${textColor} truncate`}>{node.name}</span>
       </div>
 
-      <div className="hidden sm:flex items-center gap-4 shrink-0 text-sm opacity-80">
-        <span
-          className="whitespace-nowrap block text-text-primary"
-          title={node.lastCommitMsg ?? ""}
-        >
-          {node.lastCommitMsg && node.lastCommitMsg.length > 25
-            ? `${node.lastCommitMsg.slice(0, 25)}...`
-            : (node.lastCommitMsg ?? "")}
-        </span>
-        <span className="text-xs text-text-primary">
-          {formatRelative(node.lastCommitTime)}
-        </span>
-      </div>
+      {(node.lastCommitMsg || node.lastCommitTime) && (
+        <div className="hidden lg:flex items-center gap-4 shrink-0 text-sm opacity-80">
+          <span className="text-text-primary" title={node.lastCommitMsg ?? ""}>
+            {node.lastCommitMsg && node.lastCommitMsg.length > 25
+              ? `${node.lastCommitMsg.slice(0, 25)}...`
+              : (node.lastCommitMsg ?? "")}
+          </span>
+          <span className="text-xs text-text-primary">
+            {formatRelative(node.lastCommitTime)}
+          </span>
+        </div>
+      )}
     </li>
   );
 };
