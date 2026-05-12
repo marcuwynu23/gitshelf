@@ -202,18 +202,20 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     <div
       className={`w-full flex flex-col px-4 sm:px-6 lg:px-8 ${className ?? "h-full"}`}
     >
-      <div className="sticky top-0 z-20 bg-app-bg/95 backdrop-blur-sm border-b border-app-border py-4 mb-4 transition-all">
-        <div className="flex flex-col gap-4 w-full">
+      <div className="sticky top-0 z-20 bg-app-bg/95 backdrop-blur-sm border-b border-app-border py-2 mb-2 transition-all">
+        <div className="flex flex-col gap-2 w-full">
           {/* Top Row: Title, Badges, Breadcrumbs */}
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-text-primary tracking-tight truncate">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 text-lg font-bold text-text-primary tracking-tight truncate">
                 {selectedFile ? (
                   <>
-                    <span className="opacity-50 font-normal">
+                    <span className="opacity-50 font-normal text-sm">
                       {selectedFile.split("/").slice(0, -1).join("/")}/
                     </span>
-                    <span>{selectedFile.split("/").pop()}</span>
+                    <span className="text-sm">
+                      {selectedFile.split("/").pop()}
+                    </span>
                   </>
                 ) : (
                   <span>{repoTitle || displayName(repoName)}</span>
@@ -232,20 +234,20 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
           </div>
 
           {!selectedFile && (
-            <div className="flex flex-col gap-4 animate-fadeIn">
+            <div className="flex flex-col gap-2">
               {description && (
-                <p className="text-sm text-text-secondary max-w-4xl leading-relaxed">
+                <p className="text-xs text-text-secondary max-w-4xl leading-relaxed">
                   {description}
                 </p>
               )}
 
               {/* Controls Row */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-wrap">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 flex-wrap">
                 {/* Branch/Tag Selector */}
                 <div className="relative w-full sm:w-auto" ref={viewMenuRef}>
                   <button
                     type="button"
-                    className={`group w-full sm:w-64 flex items-center justify-between gap-2 px-3 py-2 bg-app-surface hover:bg-app-hover border border-app-border hover:border-app-border rounded-lg text-sm text-text-primary transition-all shadow-sm ${
+                    className={`group w-full sm:w-56 flex items-center justify-between gap-2 px-2.5 py-1.5 bg-app-surface hover:bg-app-hover border border-app-border hover:border-app-border rounded-md text-sm text-text-primary transition-all shadow-sm ${
                       isViewMenuOpen
                         ? "ring-2 ring-app-accent/20 border-app-accent"
                         : ""
@@ -416,13 +418,13 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
                   <div className="relative w-full sm:w-auto" ref={cloneMenuRef}>
                     <button
                       type="button"
-                      className={`w-full sm:w-auto justify-center sm:justify-start flex items-center gap-2 px-4 py-2 bg-app-accent hover:bg-app-accent/90 text-text-on-accent rounded-lg text-sm font-medium transition-colors shadow-sm active:scale-[0.98] ${isCloneMenuOpen ? "ring-2 ring-offset-2 ring-offset-app-bg ring-app-accent" : ""}`}
+                      className={`w-full sm:w-auto justify-center sm:justify-start flex items-center gap-1.5 px-3 py-1.5 bg-app-accent hover:bg-app-accent/90 text-text-on-accent rounded-md text-sm font-medium transition-colors shadow-sm active:scale-[0.98] ${isCloneMenuOpen ? "ring-2 ring-offset-2 ring-offset-app-bg ring-app-accent" : ""}`}
                       onClick={() => setIsCloneMenuOpen((v) => !v)}
                     >
-                      <CodeBracketIcon className="w-4 h-4" />
+                      <CodeBracketIcon className="w-3.5 h-3.5" />
                       <span>Clone</span>
                       <ChevronDownIcon
-                        className={`w-4 h-4 transition-transform ${isCloneMenuOpen ? "rotate-180" : ""}`}
+                        className={`w-3.5 h-3.5 transition-transform ${isCloneMenuOpen ? "rotate-180" : ""}`}
                       />
                     </button>
 
