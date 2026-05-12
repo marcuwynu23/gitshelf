@@ -236,15 +236,15 @@ const FileNodeItem: React.FC<{
     return (
       <li>
         <div
-          className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-hover cursor-pointer select-none transition-colors"
+          className="flex items-center justify-between gap-2 py-0 px-2 rounded-md hover:bg-app-hover cursor-pointer select-none transition-colors"
           style={{paddingLeft: `${indent}px`}}
           onClick={() => setOpen(!open)}
         >
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <ChevronRightIcon
-              className={`w-3 h-3 text-text-tertiary transition-transform ${open ? "rotate-90" : ""}`}
+              className={`w-3 h-3 text-text-tertiary transition-transform shrink-0 ${open ? "rotate-90" : ""}`}
             />
-            {icon}
+            <span className="shrink-0">{icon}</span>
             <span className={`text-sm font-medium ${textColor} truncate`}>
               {node.name}
             </span>
@@ -270,12 +270,12 @@ const FileNodeItem: React.FC<{
 
   return (
     <li
-      className="flex items-center justify-between gap-2 py-2 px-2 rounded-md hover:bg-app-hover cursor-pointer transition-colors"
+      className="flex items-center justify-between gap-2 py-0 px-2 rounded-md hover:bg-app-hover cursor-pointer transition-colors"
       style={{paddingLeft: `${indent + 20}px`}}
       onClick={() => onFileClick && onFileClick(node.path)}
     >
-      <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
-        {icon}
+      <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+        <span className="shrink-0">{icon}</span>
         <span className={`text-sm ${textColor} truncate`}>{node.name}</span>
       </div>
 
