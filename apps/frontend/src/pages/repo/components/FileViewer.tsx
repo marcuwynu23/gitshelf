@@ -4,9 +4,10 @@ import {
   EyeIcon,
 } from "@heroicons/react/24/outline";
 import MonacoEditor from "@monaco-editor/react";
-import type {FC} from "react";
+import {useMemo, type FC} from "react";
 import ReactMarkdown from "react-markdown";
 import {Button} from "~/components/ui";
+import {useThemeStore} from "~/stores/themeStore";
 
 type Props = {
   selectedFile: string | null;
@@ -23,6 +24,20 @@ export const FileViewer: FC<Props> = ({
   setViewMode,
   setSelectedFile,
 }) => {
+  const theme = useThemeStore((s) => s.theme);
+
+  const monacoTheme = useMemo(() => {
+    if (theme === "light") return "light";
+    if (theme === "dark") return "vs-dark";
+    // "auto" — check system preference
+    if (typeof window !== "undefined") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "vs-dark"
+        : "light";
+    }
+    return "vs-dark";
+  }, [theme]);
+
   if (!selectedFile) return null;
 
   const content = fileContent[selectedFile] || "";
@@ -160,7 +175,7 @@ export const FileViewer: FC<Props> = ({
                 <MonacoEditor
                   height="100%"
                   language={language}
-                  theme="vs-dark"
+                  theme={monacoTheme}
                   value={content}
                   options={{
                     readOnly: true,
@@ -191,7 +206,7 @@ export const FileViewer: FC<Props> = ({
               <MonacoEditor
                 height="100%"
                 language={language}
-                theme="vs-dark"
+                theme={monacoTheme}
                 value={content}
                 options={{
                   readOnly: true,
