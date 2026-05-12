@@ -169,4 +169,43 @@ export class BranchController {
       }
     }
   }
+
+  async setDefaultBranch(req: AuthRequest, res: Response): Promise<void> {
+    try {
+      if (!req.username) {
+        res.status(401).json({error: "Unauthorized"});
+        return;
+      }
+
+      const repoName = req.params.name;
+      if (!isSingleParam(repoName)) {
+        res.status(400).json({error: "Invalid repo name"});
+        return;
+      }
+
+      if (!repoService.repoExists(req.username, repoName)) {
+        res.status(404).json({error: "Repo not found"});
+        return;
+      }
+
+      const {branch} = req.body as {branch?: string};
+      if (!branch || !branch.trim()) {
+        res.status(400).json({error: "branch is required"});
+        return;
+      }
+
+      await gitService.setDefaultBranch(req.username, repoName, branch.trim());
+      res.json({message: "Default branch updated", branch: branch.trim()});
+    } catch (err: any) {
+      console.error("PUT /api/repos/:name/default-branch error:", err);
+      if (
+        err?.message?.includes("not a valid object name") ||
+        err?.message?.includes("not a valid ref")
+      ) {
+        res.status(400).json({error: "Branch does not exist"});
+      } else {
+        res.status(500).json({error: "Internal server error"});
+      }
+    }
+  }
 }

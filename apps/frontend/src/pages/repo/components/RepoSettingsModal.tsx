@@ -4,6 +4,7 @@ import {
   Cog6ToothIcon,
   ShieldCheckIcon,
   KeyIcon,
+  CodeBracketIcon,
 } from "@heroicons/react/24/outline";
 import axios from "axios";
 import React, {useEffect, useMemo, useState} from "react";
@@ -12,6 +13,7 @@ import {Alert} from "~/components/ui/Alert";
 import {Button} from "~/components/ui/Button";
 import {Input} from "~/components/ui/Input";
 import {Modal} from "~/components/ui/Modal";
+import {useBranchStore} from "~/stores/branchStore";
 
 interface RepoMetadata {
   title?: string;
@@ -77,6 +79,11 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Default branch
+  const {branches, currentBranch, fetchBranches} = useBranchStore();
+  const [selectedDefaultBranch, setSelectedDefaultBranch] = useState("");
+  const [isSavingBranch, setIsSavingBranch] = useState(false);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -86,13 +93,14 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
     setTitle(repoMetadata?.title ?? "");
     setDescription(repoMetadata?.description ?? "");
     setNewRepoName(repoNameWithoutGit);
+    setSelectedDefaultBranch(currentBranch || "");
 
     // reset inline confirmations
     setRenameConfirmText("");
     setArchiveConfirmChecked(false);
     setDeleteExpanded(false);
     setDeleteConfirmText("");
-  }, [isOpen, repoMetadata, repoNameWithoutGit]);
+  }, [isOpen, repoMetadata, repoNameWithoutGit, currentBranch]);
 
   const closeAndReset = () => {
     setError(null);
@@ -134,6 +142,26 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
       );
     } finally {
       setIsSavingMeta(false);
+    }
+  };
+
+  const handleSetDefaultBranch = async () => {
+    if (!selectedDefaultBranch || selectedDefaultBranch === currentBranch)
+      return;
+
+    setError(null);
+    setIsSavingBranch(true);
+    try {
+      await axios.put(
+        `/api/repos/${encodeURIComponent(repoNameWithGit)}/default-branch`,
+        {branch: selectedDefaultBranch},
+      );
+      // Refresh branches to reflect the change
+      await fetchBranches(repoName);
+    } catch (err: any) {
+      setError(err?.response?.data?.error || "Failed to update default branch");
+    } finally {
+      setIsSavingBranch(false);
     }
   };
 
@@ -222,7 +250,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
   ) => (
     <button
       onClick={() => setActiveTab(key)}
-      className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-l-2 ${
+      className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors border-l-2 ${
         activeTab === key
           ? variant === "danger"
             ? "bg-error/10 text-error border-error"
@@ -254,29 +282,29 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
 
       <div
         data-testid="repo-settings-shell"
-        className="flex flex-col md:flex-row h-full min-h-[500px] border-t border-app-border -mx-6"
+        className="flex flex-col md:flex-row h-full min-h-[400px] border-t border-app-border -mx-6"
       >
         {/* Left Sidebar */}
         <nav
           data-testid="repo-settings-nav"
-          className="w-full md:w-64 bg-app-surface border-b md:border-b-0 md:border-r border-app-border flex-shrink-0"
+          className="w-full md:w-56 bg-app-surface border-b md:border-b-0 md:border-r border-app-border flex-shrink-0"
         >
-          <div className="p-4 md:py-6 space-y-1">
+          <div className="p-3 md:py-4 space-y-0.5">
             {renderTabButton(
               "general",
               "General",
-              <Cog6ToothIcon className="w-5 h-5" />,
+              <Cog6ToothIcon className="w-4 h-4" />,
             )}
             {renderTabButton(
               "access",
               "Access",
-              <ShieldCheckIcon className="w-5 h-5" />,
+              <ShieldCheckIcon className="w-4 h-4" />,
             )}
-            <div className="h-px bg-app-border my-2 mx-4" />
+            <div className="h-px bg-app-border my-1.5 mx-3" />
             {renderTabButton(
               "danger",
               "Danger Zone",
-              <ExclamationTriangleIcon className="w-5 h-5" />,
+              <ExclamationTriangleIcon className="w-4 h-4" />,
               "danger",
             )}
           </div>
@@ -287,24 +315,24 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
           data-testid="repo-settings-content"
           className="flex-1 overflow-y-auto bg-app-surface"
         >
-          <div className="p-6 max-w-3xl mx-auto">
+          <div className="p-4 max-w-3xl mx-auto">
             {activeTab === "general" && (
-              <div className="space-y-8">
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-xl font-semibold text-text-primary mb-1">
+                  <h3 className="text-lg font-semibold text-text-primary mb-0.5">
                     General Settings
                   </h3>
-                  <p className="text-sm text-text-tertiary">
+                  <p className="text-xs text-text-tertiary">
                     Manage your repository's main configuration.
                   </p>
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-4">
                   {/* Metadata Section */}
-                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-5 space-y-5">
-                    <div className="flex items-center gap-2 pb-3 border-b border-app-border">
-                      <PencilIcon className="w-5 h-5 text-app-accent" />
-                      <h4 className="font-medium text-text-primary">
+                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-app-border">
+                      <PencilIcon className="w-4 h-4 text-app-accent" />
+                      <h4 className="text-sm font-medium text-text-primary">
                         Repository Details
                       </h4>
                     </div>
@@ -354,10 +382,10 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   </section>
 
                   {/* Rename Section */}
-                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-5 space-y-5">
-                    <div className="flex items-center gap-2 pb-3 border-b border-app-border">
-                      <KeyIcon className="w-5 h-5 text-text-primary" />
-                      <h4 className="font-medium text-text-primary">
+                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-app-border">
+                      <KeyIcon className="w-4 h-4 text-text-primary" />
+                      <h4 className="text-sm font-medium text-text-primary">
                         Rename Repository
                       </h4>
                     </div>
@@ -407,20 +435,72 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                       )}
                     </div>
                   </section>
+
+                  {/* Default Branch Section */}
+                  <section className="bg-app-surface/30 border border-app-border rounded-lg p-4 space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b border-app-border">
+                      <CodeBracketIcon className="w-4 h-4 text-app-accent" />
+                      <h4 className="text-sm font-medium text-text-primary">
+                        Default Branch
+                      </h4>
+                    </div>
+
+                    <div className="space-y-3">
+                      <p className="text-xs text-text-tertiary">
+                        The default branch is used when viewing files and
+                        creating new branches.
+                      </p>
+
+                      <div>
+                        <label className="block text-sm font-medium text-text-primary mb-1.5">
+                          Default Branch
+                        </label>
+                        <select
+                          value={selectedDefaultBranch}
+                          onChange={(e) =>
+                            setSelectedDefaultBranch(e.target.value)
+                          }
+                          className="w-full h-9 px-3 bg-app-surface border border-app-border rounded text-sm text-text-primary focus:outline-none focus:ring-1 focus:ring-app-accent focus:border-app-accent transition-colors"
+                        >
+                          {branches.map((b: string) => (
+                            <option key={b} value={b}>
+                              {b}
+                              {b === currentBranch ? " (current default)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="pt-2 flex justify-end">
+                        <Button
+                          onClick={handleSetDefaultBranch}
+                          disabled={
+                            isSavingBranch ||
+                            !selectedDefaultBranch ||
+                            selectedDefaultBranch === currentBranch
+                          }
+                        >
+                          {isSavingBranch
+                            ? "Updating..."
+                            : "Update Default Branch"}
+                        </Button>
+                      </div>
+                    </div>
+                  </section>
                 </div>
               </div>
             )}
 
             {activeTab === "access" && (
-              <div className="flex flex-col items-center justify-center h-full text-center py-12 space-y-4">
-                <div className="w-16 h-16 rounded-full bg-app-surface flex items-center justify-center">
-                  <ShieldCheckIcon className="w-8 h-8 text-text-tertiary" />
+              <div className="flex flex-col items-center justify-center h-full text-center py-8 space-y-3">
+                <div className="w-12 h-12 rounded-full bg-app-surface flex items-center justify-center">
+                  <ShieldCheckIcon className="w-6 h-6 text-text-tertiary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-medium text-text-primary">
+                  <h3 className="text-base font-medium text-text-primary">
                     Access Control
                   </h3>
-                  <p className="text-text-tertiary max-w-sm mt-2">
+                  <p className="text-xs text-text-tertiary max-w-sm mt-1">
                     Manage collaborators, teams, and deploy keys. This feature
                     is currently under development.
                   </p>
@@ -429,19 +509,19 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
             )}
 
             {activeTab === "danger" && (
-              <div className="space-y-8">
+              <div className="space-y-5">
                 <div>
-                  <h3 className="text-xl font-semibold text-error mb-1">
+                  <h3 className="text-lg font-semibold text-error mb-0.5">
                     Danger Zone
                   </h3>
-                  <p className="text-sm text-text-tertiary">
+                  <p className="text-xs text-text-tertiary">
                     Destructive actions that affect your repository.
                   </p>
                 </div>
 
                 <div className="border border-error/30 rounded-lg overflow-hidden divide-y divide-error/30">
                   {/* Archive Row */}
-                  <div className="p-5 bg-error/5 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="p-4 bg-error/5 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1">
                       <h4 className="text-sm font-medium text-text-primary">
                         {isArchived
@@ -486,7 +566,7 @@ export const RepoSettingsModal: React.FC<RepoSettingsModalProps> = ({
                   </div>
 
                   {/* Delete Row */}
-                  <div className="p-5 bg-error/10 flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="p-4 bg-error/10 flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                     <div className="space-y-1 flex-1">
                       <h4 className="text-sm font-medium text-text-primary">
                         Delete this repository

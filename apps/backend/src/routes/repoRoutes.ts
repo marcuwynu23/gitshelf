@@ -51,6 +51,9 @@ router.post("/:name/branches", (req, res) =>
 router.delete("/:name/branches/:branch", (req, res) =>
   branchController.deleteBranch(req, res),
 );
+router.put("/:name/default-branch", (req, res) =>
+  branchController.setDefaultBranch(req, res),
+);
 router.get("/:name/current-branch", (req, res) =>
   branchController.getCurrentBranch(req, res),
 );

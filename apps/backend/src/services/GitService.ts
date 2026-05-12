@@ -345,4 +345,19 @@ export class GitService {
       throw err;
     }
   }
+
+  async setDefaultBranch(
+    username: string,
+    repoName: string,
+    branchName: string,
+  ): Promise<void> {
+    const repoPath = this.getRepoPath(username, repoName);
+    const git = this.getGitInstance(repoPath);
+
+    // Verify branch exists
+    await git.raw(["rev-parse", "--verify", branchName]);
+
+    // Update HEAD to point to the new default branch
+    await git.raw(["symbolic-ref", "HEAD", `refs/heads/${branchName}`]);
+  }
 }
