@@ -274,6 +274,18 @@ export class GitService {
     await git.branch([newBranch, sourceBranch]);
   }
 
+  async deleteBranch(
+    username: string,
+    repoName: string,
+    branchName: string,
+  ): Promise<void> {
+    const repoPath = this.getRepoPath(username, repoName);
+    const git = this.getGitInstance(repoPath);
+
+    // Delete the branch (force delete to handle unmerged branches)
+    await git.branch(["-D", branchName]);
+  }
+
   async getCommits(
     username: string,
     repoName: string,

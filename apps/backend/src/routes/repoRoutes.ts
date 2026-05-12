@@ -48,6 +48,9 @@ router.get("/:name/branches", (req, res) =>
 router.post("/:name/branches", (req, res) =>
   branchController.createBranch(req, res),
 );
+router.delete("/:name/branches/:branch", (req, res) =>
+  branchController.deleteBranch(req, res),
+);
 router.get("/:name/current-branch", (req, res) =>
   branchController.getCurrentBranch(req, res),
 );

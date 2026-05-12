@@ -35,25 +35,27 @@ export const RepoDetailPage = () => {
       fetchBranches(repoName);
 
       // Fetch repo metadata
-      // API expects repo name with .git
       const repoNameWithGit = repoName.includes(".git")
         ? repoName
         : `${repoName}.git`;
-      setLoading(true);
+      let cancelled = false;
       axios
         .get(`/api/repos/${encodeURIComponent(repoNameWithGit)}/metadata`)
         .then((res) => {
-          setRepoMetadata(res.data);
+          if (!cancelled) setRepoMetadata(res.data);
         })
         .catch((err) => {
-          // If metadata doesn't exist, that's okay
           if (err.response?.status !== 404) {
             console.error("Failed to fetch repo metadata:", err);
           }
         })
         .finally(() => {
-          setLoading(false);
+          if (!cancelled) setLoading(false);
         });
+
+      return () => {
+        cancelled = true;
+      };
     }
   }, [repoName, fetchCommits, fetchBranches]);
 

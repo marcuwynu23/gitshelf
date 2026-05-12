@@ -12,6 +12,7 @@ interface BranchStore {
     newBranch: string,
     sourceBranch: string,
   ) => Promise<void>;
+  deleteBranch: (repo: string, branchName: string) => Promise<void>;
 }
 
 const STORAGE_KEY = "branch-store-v1";
@@ -67,6 +68,15 @@ export const useBranchStore = create<BranchStore>()(
           },
         );
         // Refresh branches after creation
+        await get().fetchBranches(repo);
+      },
+
+      deleteBranch: async (repo, branchName) => {
+        const repoWithGit = repo.includes(".git") ? repo : `${repo}.git`;
+        await axios.delete(
+          `/api/repos/${encodeURIComponent(repoWithGit)}/branches/${encodeURIComponent(branchName)}`,
+        );
+        // Refresh branches after deletion
         await get().fetchBranches(repo);
       },
     }),

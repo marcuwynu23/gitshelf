@@ -2,6 +2,7 @@ import {
   CodeBracketIcon,
   MagnifyingGlassIcon,
   PlusIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import React, {useMemo, useState} from "react";
 import {Badge, Button, Input, Modal} from "~/components/ui";
@@ -28,8 +29,11 @@ export const BranchList: React.FC<BranchListProps> = ({
   const [sourceBranch, setSourceBranch] = useState(currentBranch || "");
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [branchToDelete, setBranchToDelete] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  const createBranch = useBranchStore((s) => s.createBranch);
+  const createBranchAction = useBranchStore((s) => s.createBranch);
+  const deleteBranchAction = useBranchStore((s) => s.deleteBranch);
   const selectedRepo = useRepoStore((s) => s.selectedRepo);
 
   const filteredBranches = useMemo(() => {
@@ -48,7 +52,7 @@ export const BranchList: React.FC<BranchListProps> = ({
     setCreateError(null);
 
     try {
-      await createBranch(
+      await createBranchAction(
         selectedRepo,
         newBranchName.trim(),
         sourceBranch.trim(),
@@ -63,6 +67,20 @@ export const BranchList: React.FC<BranchListProps> = ({
       setCreateError(msg);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleDeleteBranch = async () => {
+    if (!branchToDelete || !selectedRepo) return;
+
+    setDeleting(true);
+    try {
+      await deleteBranchAction(selectedRepo, branchToDelete);
+      setBranchToDelete(null);
+    } catch {
+      // Error handled silently; branch list refreshes
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -99,6 +117,7 @@ export const BranchList: React.FC<BranchListProps> = ({
               branch={branch}
               currentBranch={currentBranch}
               onClick={() => onSwitchBranch(branch)}
+              onDelete={() => setBranchToDelete(branch)}
             />
           ))}
 
@@ -153,6 +172,7 @@ export const BranchList: React.FC<BranchListProps> = ({
                     onSwitchBranch(branch);
                     setIsOpen(false);
                   }}
+                  onDelete={() => setBranchToDelete(branch)}
                 />
               ))
             )}
@@ -232,6 +252,41 @@ export const BranchList: React.FC<BranchListProps> = ({
           </div>
         </div>
       </Modal>
+
+      {/* Delete Branch Confirmation Modal */}
+      <Modal
+        isOpen={!!branchToDelete}
+        onClose={() => setBranchToDelete(null)}
+        title="Delete Branch"
+        size="sm"
+        closeOnBackdrop={true}
+        footer={
+          <div className="flex gap-3 w-full sm:w-auto">
+            <Button
+              variant="secondary"
+              onClick={() => setBranchToDelete(null)}
+              className="flex-1 sm:flex-none"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteBranch}
+              disabled={deleting}
+              className="flex-1 sm:flex-none bg-error hover:bg-error/90 text-white"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </Button>
+          </div>
+        }
+      >
+        <p className="text-sm text-text-secondary">
+          Are you sure you want to delete branch{" "}
+          <span className="font-mono font-medium text-text-primary">
+            {branchToDelete}
+          </span>
+          ? This action cannot be undone.
+        </p>
+      </Modal>
     </div>
   );
 };
@@ -240,7 +295,8 @@ const BranchRow: React.FC<{
   branch: string;
   currentBranch: string | null;
   onClick?: () => void;
-}> = ({branch, currentBranch, onClick}) => {
+  onDelete?: () => void;
+}> = ({branch, currentBranch, onClick, onDelete}) => {
   const isCurrent = branch === currentBranch;
 
   return (
@@ -270,15 +326,29 @@ const BranchRow: React.FC<{
           {branch}
         </span>
       </div>
-      {isCurrent && (
-        <Badge
-          variant="success"
-          size="sm"
-          className="text-[10px] px-1.5 py-0.5"
-        >
-          Current
-        </Badge>
-      )}
+      <div className="flex items-center gap-2">
+        {isCurrent && (
+          <Badge
+            variant="success"
+            size="sm"
+            className="text-[10px] px-1.5 py-0.5"
+          >
+            Default
+          </Badge>
+        )}
+        {!isCurrent && onDelete && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-1 rounded text-text-tertiary hover:text-error hover:bg-error/10 opacity-0 group-hover:opacity-100 transition-all"
+            title="Delete branch"
+          >
+            <TrashIcon className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
     </div>
   );
 };
