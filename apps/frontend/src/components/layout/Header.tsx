@@ -4,7 +4,9 @@ import {
   ChevronRightIcon,
   CodeBracketIcon,
   MagnifyingGlassIcon,
+  MoonIcon,
   ShareIcon,
+  SunIcon,
   UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import {useEffect, useRef, useState} from "react";
@@ -13,6 +15,7 @@ import {useAuthStore} from "~/stores/authStore";
 
 import Logo from "~/assets/logo.svg";
 import {SearchModal} from "../search/SearchModal";
+import {useThemeStore} from "~/stores/themeStore";
 
 interface HeaderProps {
   user?: {
@@ -42,6 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   const authUser = useAuthStore((state) => state.user);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const {theme, setTheme} = useThemeStore();
 
   // Use auth user if available, otherwise use prop
   const user = authUser || propUser;
@@ -295,6 +299,26 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           )}
         </div>
+
+        {/* Theme Switcher */}
+        <button
+          onClick={() => {
+            if (theme === "dark") setTheme("light");
+            else if (theme === "light") setTheme("auto");
+            else setTheme("dark");
+          }}
+          className="p-1.5 hover:bg-app-hover rounded transition-colors"
+          aria-label="Toggle theme"
+          title={`Theme: ${theme}`}
+        >
+          {theme === "dark" ? (
+            <MoonIcon className="w-5 h-5 text-text-secondary hover:text-text-primary transition-colors" />
+          ) : theme === "light" ? (
+            <SunIcon className="w-5 h-5 text-text-secondary hover:text-text-primary transition-colors" />
+          ) : (
+            <SunIcon className="w-5 h-5 text-text-secondary hover:text-text-primary transition-colors opacity-50" />
+          )}
+        </button>
 
         {/* User Menu */}
         <div className="relative">
