@@ -12,6 +12,7 @@ import {useRepoStore} from "~/stores/repoStore";
 interface BranchListProps {
   branches: string[];
   currentBranch: string | null;
+  viewingBranch?: string | null;
   onSwitchBranch: (branch: string) => void;
   previewCount?: number;
 }
@@ -19,6 +20,7 @@ interface BranchListProps {
 export const BranchList: React.FC<BranchListProps> = ({
   branches,
   currentBranch,
+  viewingBranch,
   onSwitchBranch,
   previewCount = 5,
 }) => {
@@ -115,7 +117,8 @@ export const BranchList: React.FC<BranchListProps> = ({
             <BranchRow
               key={branch}
               branch={branch}
-              currentBranch={currentBranch}
+              defaultBranch={currentBranch}
+              viewingBranch={viewingBranch}
               onClick={() => onSwitchBranch(branch)}
               onDelete={() => setBranchToDelete(branch)}
             />
@@ -167,7 +170,8 @@ export const BranchList: React.FC<BranchListProps> = ({
                 <BranchRow
                   key={branch}
                   branch={branch}
-                  currentBranch={currentBranch}
+                  defaultBranch={currentBranch}
+                  viewingBranch={viewingBranch}
                   onClick={() => {
                     onSwitchBranch(branch);
                     setIsOpen(false);
@@ -293,17 +297,19 @@ export const BranchList: React.FC<BranchListProps> = ({
 
 const BranchRow: React.FC<{
   branch: string;
-  currentBranch: string | null;
+  defaultBranch: string | null;
+  viewingBranch?: string | null;
   onClick?: () => void;
   onDelete?: () => void;
-}> = ({branch, currentBranch, onClick, onDelete}) => {
-  const isCurrent = branch === currentBranch;
+}> = ({branch, defaultBranch, viewingBranch, onClick, onDelete}) => {
+  const isDefault = branch === defaultBranch;
+  const isViewing = branch === (viewingBranch || defaultBranch);
 
   return (
     <div
-      onClick={isCurrent ? undefined : onClick}
+      onClick={isViewing ? undefined : onClick}
       className={`group flex items-center justify-between p-2.5 rounded border transition-all ${
-        isCurrent
+        isViewing
           ? "bg-app-accent/10 border-app-accent cursor-default"
           : "bg-transparent border-transparent hover:bg-app-hover hover:border-app-border cursor-pointer"
       }`}
@@ -311,14 +317,14 @@ const BranchRow: React.FC<{
       <div className="flex items-center gap-3">
         <CodeBracketIcon
           className={`w-4 h-4 ${
-            isCurrent
+            isViewing
               ? "text-app-accent"
               : "text-text-tertiary group-hover:text-text-secondary"
           }`}
         />
         <span
           className={`text-sm font-mono ${
-            isCurrent
+            isViewing
               ? "text-text-primary font-medium"
               : "text-text-secondary group-hover:text-text-primary"
           }`}
@@ -327,7 +333,7 @@ const BranchRow: React.FC<{
         </span>
       </div>
       <div className="flex items-center gap-2">
-        {isCurrent && (
+        {isDefault && (
           <Badge
             variant="success"
             size="sm"
@@ -336,7 +342,7 @@ const BranchRow: React.FC<{
             Default
           </Badge>
         )}
-        {!isCurrent && onDelete && (
+        {!isDefault && onDelete && (
           <button
             onClick={(e) => {
               e.stopPropagation();

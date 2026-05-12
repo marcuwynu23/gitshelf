@@ -199,12 +199,6 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
     const ref = next.trim();
     setSelectedFile(null);
     setViewRef(ref);
-
-    // If selected value is a branch name, update store currentBranch
-    // If commit SHA (or empty/default), don't change currentBranch
-    if (ref && normalizedBranches.includes(ref) && !isFullSha(ref)) {
-      setCurrentBranch(ref);
-    }
   };
 
   return (
@@ -518,7 +512,10 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
             branches={branches}
             currentBranch={currentBranch}
             commits={commits}
-            onSwitchBranch={setCurrentBranch}
+            onSwitchBranch={(branch) => {
+              setViewRef(branch);
+              onChangeView(branch);
+            }}
             onSettingsClick={onSettingsClick}
           />
         </Suspense>

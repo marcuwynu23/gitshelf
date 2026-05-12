@@ -208,6 +208,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
           <BranchList
             branches={branches}
             currentBranch={currentBranch}
+            viewingBranch={branchOrCommit || null}
             onSwitchBranch={onSwitchBranch}
           />
         );
