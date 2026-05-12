@@ -40,19 +40,6 @@ export const RepoFileTreeHeader: FC<Props> = ({
       <div className="flex items-center w-full">
         <div className="flex flex-1 items-center gap-2 w-full">
           <button
-            onClick={() => setPanelView("files")}
-            aria-pressed={panelView === "files"}
-            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
-              panelView === "files"
-                ? "bg-app-accent text-text-on-accent shadow-sm"
-                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
-            }`}
-          >
-            <CodeBracketIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Codebase</span>
-          </button>
-
-          <button
             onClick={() => setPanelView("readme")}
             aria-pressed={panelView === "readme"}
             className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
@@ -63,6 +50,19 @@ export const RepoFileTreeHeader: FC<Props> = ({
           >
             <DocumentTextIcon className="w-4 h-4" />
             <span className="hidden sm:inline">Documentation</span>
+          </button>
+
+          <button
+            onClick={() => setPanelView("files")}
+            aria-pressed={panelView === "files"}
+            className={`flex flex-1 items-center justify-center gap-2 px-3 py-1 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+              panelView === "files"
+                ? "bg-app-accent text-text-on-accent shadow-sm"
+                : "text-text-tertiary hover:text-text-primary hover:bg-app-hover"
+            }`}
+          >
+            <CodeBracketIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Codebase</span>
           </button>
 
           <button

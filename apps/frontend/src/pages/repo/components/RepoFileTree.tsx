@@ -55,8 +55,8 @@ export const RepoFileTree: FC<RepoFileTreeProps> = ({
     return n ? n.path : null;
   }, [fileTree]);
 
-  // default panel: show README when present, otherwise show files
-  const [panelView, setPanelView] = useState<PanelView>("files");
+  // default panel: show Documentation (readme) by default
+  const [panelView, setPanelView] = useState<PanelView>("readme");
   const [docTab, setDocTab] = useState<"readme" | "license">("readme");
   const isLoading = useRepoStore((s) => s.isLoading);
   // using module-level `globalFetchedFiles` instead of per-mount ref
