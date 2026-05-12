@@ -14,7 +14,7 @@ import {
 import {useThemeStore} from "~/stores/themeStore";
 
 export const Settings = () => {
-  const {setTheme} = useThemeStore();
+  const {theme: currentTheme, setTheme} = useThemeStore();
   const [activeTab, setActiveTab] = useState<
     "general" | "notifications" | "security" | "appearance"
   >("general");
@@ -46,7 +46,7 @@ export const Settings = () => {
 
   // Appearance settings
   const [appearanceSettings, setAppearanceSettings] = useState({
-    theme: "dark",
+    theme: currentTheme,
     fontSize: "medium",
   });
 
@@ -73,7 +73,6 @@ export const Settings = () => {
         }
         if (settings.appearance) {
           setAppearanceSettings(settings.appearance);
-          setTheme(settings.appearance.theme as any);
         }
       } catch (err: any) {
         // If 401, user is not authenticated - that's okay, use defaults
@@ -270,106 +269,98 @@ export const Settings = () => {
 
                     {/* Notification Settings */}
                     {activeTab === "notifications" && (
-                      <div className="space-y-6">
-                        <div>
-                          <h2 className="text-lg font-semibold text-text-primary mb-4">
-                            Notification Preferences
-                          </h2>
-                          <div className="space-y-4">
-                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                              <div>
-                                <p className="text-sm font-medium text-text-primary">
-                                  Email Notifications
-                                </p>
-                                <p className="text-xs text-text-secondary mt-1">
-                                  Receive notifications via email
-                                </p>
-                              </div>
-                              <input
-                                type="checkbox"
-                                checked={
-                                  notificationSettings.emailNotifications
-                                }
-                                onChange={(e) =>
-                                  setNotificationSettings({
-                                    ...notificationSettings,
-                                    emailNotifications: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                              />
-                            </label>
+                      <div className="space-y-4">
+                        <h2 className="text-lg font-semibold text-text-primary mb-2">
+                          Notification Preferences
+                        </h2>
+                        <div className="space-y-2">
+                          <label className="flex items-center justify-between px-4 py-2.5 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                            <div>
+                              <p className="text-sm font-medium text-text-primary">
+                                Email Notifications
+                              </p>
+                              <p className="text-xs text-text-secondary">
+                                Receive notifications via email
+                              </p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={notificationSettings.emailNotifications}
+                              onChange={(e) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  emailNotifications: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                            />
+                          </label>
 
-                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                              <div>
-                                <p className="text-sm font-medium text-text-primary">
-                                  Push Notifications
-                                </p>
-                                <p className="text-xs text-text-secondary mt-1">
-                                  Receive browser push notifications
-                                </p>
-                              </div>
-                              <input
-                                type="checkbox"
-                                checked={notificationSettings.pushNotifications}
-                                onChange={(e) =>
-                                  setNotificationSettings({
-                                    ...notificationSettings,
-                                    pushNotifications: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                              />
-                            </label>
+                          <label className="flex items-center justify-between px-4 py-2.5 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                            <div>
+                              <p className="text-sm font-medium text-text-primary">
+                                Push Notifications
+                              </p>
+                              <p className="text-xs text-text-secondary">
+                                Receive browser push notifications
+                              </p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={notificationSettings.pushNotifications}
+                              onChange={(e) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  pushNotifications: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                            />
+                          </label>
 
-                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                              <div>
-                                <p className="text-sm font-medium text-text-primary">
-                                  Commit Notifications
-                                </p>
-                                <p className="text-xs text-text-secondary mt-1">
-                                  Get notified about new commits
-                                </p>
-                              </div>
-                              <input
-                                type="checkbox"
-                                checked={
-                                  notificationSettings.commitNotifications
-                                }
-                                onChange={(e) =>
-                                  setNotificationSettings({
-                                    ...notificationSettings,
-                                    commitNotifications: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                              />
-                            </label>
+                          <label className="flex items-center justify-between px-4 py-2.5 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                            <div>
+                              <p className="text-sm font-medium text-text-primary">
+                                Commit Notifications
+                              </p>
+                              <p className="text-xs text-text-secondary">
+                                Get notified about new commits
+                              </p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={notificationSettings.commitNotifications}
+                              onChange={(e) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  commitNotifications: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                            />
+                          </label>
 
-                            <label className="flex items-center justify-between p-4 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
-                              <div>
-                                <p className="text-sm font-medium text-text-primary">
-                                  Branch Notifications
-                                </p>
-                                <p className="text-xs text-text-secondary mt-1">
-                                  Get notified about branch changes
-                                </p>
-                              </div>
-                              <input
-                                type="checkbox"
-                                checked={
-                                  notificationSettings.branchNotifications
-                                }
-                                onChange={(e) =>
-                                  setNotificationSettings({
-                                    ...notificationSettings,
-                                    branchNotifications: e.target.checked,
-                                  })
-                                }
-                                className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
-                              />
-                            </label>
-                          </div>
+                          <label className="flex items-center justify-between px-4 py-2.5 bg-app-bg rounded border border-app-border cursor-pointer hover:bg-app-hover transition-colors">
+                            <div>
+                              <p className="text-sm font-medium text-text-primary">
+                                Branch Notifications
+                              </p>
+                              <p className="text-xs text-text-secondary">
+                                Get notified about branch changes
+                              </p>
+                            </div>
+                            <input
+                              type="checkbox"
+                              checked={notificationSettings.branchNotifications}
+                              onChange={(e) =>
+                                setNotificationSettings({
+                                  ...notificationSettings,
+                                  branchNotifications: e.target.checked,
+                                })
+                              }
+                              className="w-4 h-4 rounded border-app-border bg-app-surface text-app-accent focus:ring-app-accent"
+                            />
+                          </label>
                         </div>
                       </div>
                     )}
