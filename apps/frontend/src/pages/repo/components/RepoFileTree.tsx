@@ -1,7 +1,7 @@
 import type {FileNode} from "@myapp/ui";
 import {FileTree} from "@myapp/ui";
 import type {FC} from "react";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import ReactMarkdown from "react-markdown";
 import {useRepoStore} from "~/stores/repoStore";
 import {FileViewer} from "./FileViewer";
@@ -83,7 +83,6 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
   const [panelView, setPanelView] = useState<PanelView>("readme");
   const [docTab, setDocTab] = useState<DocTab>("readme");
   const isLoading = useRepoStore((s) => s.isLoading);
-  // using module-level `globalFetchedFiles` instead of per-mount ref
 
   const handleFileClick = async (filePath: string) => {
     await fetchFileContent(filePath, branchOrCommit);
@@ -107,12 +106,8 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
     ? normalizeNodes(fileTree)
     : [];
 
-  // Clear module-level fetch cache on mount (component re-keys per repo/ref)
-  useEffect(() => {
-    Object.keys(globalFetchedFiles).forEach(
-      (k) => delete globalFetchedFiles[k],
-    );
-  }, []);
+  // Track in-flight doc fetches to prevent duplicates
+  const fetchingRef = useRef<Set<string>>(new Set());
 
   // When Documentation panel is active and doc file becomes available, fetch it
   useEffect(() => {
@@ -125,12 +120,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
     // Already have content — skip
     if (fileContent[target] !== undefined) return;
 
-    // Prevent duplicate in-flight requests
-    if (globalFetchedFiles[target]) return;
-    globalFetchedFiles[target] = true;
+    // Already fetching — skip
+    if (fetchingRef.current.has(target)) return;
+    fetchingRef.current.add(target);
 
-    fetchFileContent(target, branchOrCommit).catch(() => {
-      globalFetchedFiles[target] = false;
+    fetchFileContent(target, branchOrCommit).finally(() => {
+      fetchingRef.current.delete(target);
     });
   }, [
     panelView,
