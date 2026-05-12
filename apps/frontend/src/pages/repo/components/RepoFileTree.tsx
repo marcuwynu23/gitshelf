@@ -15,6 +15,7 @@ import {
 import {BranchList} from "./BranchList";
 import {CommitList} from "./CommitList";
 import type {Commit} from "~/props/Commit";
+import rehypeRaw from "rehype-raw";
 
 // Persist fetched-file flags across mounts to avoid duplicate GETs
 const globalFetchedFiles: Record<string, boolean> = {};
@@ -177,7 +178,9 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
           return (
             <div className="bg-app-surface border border-app-border rounded-lg p-6">
               <div className="markdown-body overflow-auto">
-                <ReactMarkdown>{fallbackContent}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                  {fallbackContent}
+                </ReactMarkdown>
               </div>
             </div>
           );
@@ -198,7 +201,9 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
         return (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
             <div className="markdown-body overflow-auto">
-              <ReactMarkdown>{displayContent}</ReactMarkdown>
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                {displayContent}
+              </ReactMarkdown>
             </div>
           </div>
         );

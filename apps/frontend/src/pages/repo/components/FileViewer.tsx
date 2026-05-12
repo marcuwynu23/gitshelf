@@ -6,6 +6,7 @@ import {
 import MonacoEditor from "@monaco-editor/react";
 import {useMemo, type FC} from "react";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import {Button} from "~/components/ui";
 import {useThemeStore} from "~/stores/themeStore";
 
@@ -162,7 +163,9 @@ export const FileViewer: FC<Props> = ({
         {isMarkdown ? (
           viewMode === "preview" ? (
             <div className="markdown-body p-4 md:p-6">
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                {content}
+              </ReactMarkdown>
             </div>
           ) : (
             <div className="h-full">
