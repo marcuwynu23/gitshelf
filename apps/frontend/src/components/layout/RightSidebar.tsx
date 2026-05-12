@@ -17,7 +17,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({
   footer,
   className = "",
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   if (isCollapsed) {
     return (
