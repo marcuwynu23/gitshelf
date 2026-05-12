@@ -105,6 +105,11 @@ export const RepoDetail: React.FC<RepoDetailProps> = ({
   const viewRef = useCodeViewStore((s) => s.viewRef);
   const setViewRef = useCodeViewStore((s) => s.setViewRef);
 
+  // Reset viewRef when switching to a different repository
+  useEffect(() => {
+    setViewRef("");
+  }, [repoName, setViewRef]);
+
   const displayName = (name: string) => name.replace(/\.git$/, "");
 
   useEffect(() => {
