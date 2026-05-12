@@ -9,13 +9,25 @@ import type {FC} from "react";
 
 export type PanelView = "files" | "readme" | "branches" | "commits";
 
+export type DocTab =
+  | "readme"
+  | "license"
+  | "contributing"
+  | "code_of_conduct"
+  | "changelog";
+
+export interface DocFile {
+  key: DocTab;
+  label: string;
+  path: string;
+}
+
 type Props = {
   panelView: PanelView;
   setPanelView: (v: PanelView) => void;
-  docTab: "readme" | "license";
-  setDocTab: (t: "readme" | "license") => void;
-  readmeFile: string | null;
-  licenseFile: string | null;
+  docTab: DocTab;
+  setDocTab: (t: DocTab) => void;
+  docFiles: DocFile[];
   fileContent: Record<string, string>;
   fetchFileContent: (path: string) => Promise<void>;
   globalFetchedFiles: Record<string, boolean>;
@@ -28,8 +40,7 @@ export const RepoFileTreeHeader: FC<Props> = ({
   setPanelView,
   docTab,
   setDocTab,
-  readmeFile,
-  licenseFile,
+  docFiles,
   fileContent,
   fetchFileContent,
   globalFetchedFiles,
@@ -103,59 +114,30 @@ export const RepoFileTreeHeader: FC<Props> = ({
         </div>
       </div>
 
-      {panelView === "readme" && (readmeFile || licenseFile) && (
-        <div className="mt-3 flex items-center gap-4">
-          {readmeFile && (
+      {panelView === "readme" && docFiles.length > 0 && (
+        <div className="mt-3 flex items-center gap-4 overflow-x-auto no-scrollbar">
+          {docFiles.map((doc) => (
             <button
+              key={doc.key}
               onClick={async () => {
-                setDocTab("readme");
-                if (
-                  readmeFile &&
-                  !fileContent[readmeFile] &&
-                  !globalFetchedFiles[readmeFile]
-                ) {
+                setDocTab(doc.key);
+                if (!fileContent[doc.path] && !globalFetchedFiles[doc.path]) {
                   try {
-                    await fetchFileContent(readmeFile);
+                    await fetchFileContent(doc.path);
                   } catch {
                     /* fetch failed; allow retry */
                   }
                 }
               }}
-              className={`text-sm font-medium transition-colors ${
-                docTab === "readme"
+              className={`text-sm font-medium transition-colors whitespace-nowrap ${
+                docTab === doc.key
                   ? "border-b-2 border-app-accent text-text-primary pb-1"
                   : "text-text-tertiary hover:text-text-primary"
               }`}
             >
-              README
+              {doc.label}
             </button>
-          )}
-
-          {licenseFile && (
-            <button
-              onClick={async () => {
-                setDocTab("license");
-                if (
-                  licenseFile &&
-                  !fileContent[licenseFile] &&
-                  !globalFetchedFiles[licenseFile]
-                ) {
-                  try {
-                    await fetchFileContent(licenseFile);
-                  } catch {
-                    /* fetch failed; allow retry */
-                  }
-                }
-              }}
-              className={`text-sm font-medium transition-colors ${
-                docTab === "license"
-                  ? "border-b-2 border-app-accent text-text-primary pb-1"
-                  : "text-text-tertiary hover:text-text-primary"
-              }`}
-            >
-              LICENSE
-            </button>
-          )}
+          ))}
         </div>
       )}
     </div>

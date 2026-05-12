@@ -6,7 +6,12 @@ import ReactMarkdown from "react-markdown";
 import {useRepoStore} from "~/stores/repoStore";
 import {FileViewer} from "./FileViewer";
 import LoadingSkeleton from "./LoadingSkeleton";
-import {RepoFileTreeHeader, type PanelView} from "./RepoFileTreeHeader";
+import {
+  RepoFileTreeHeader,
+  type DocFile,
+  type DocTab,
+  type PanelView,
+} from "./RepoFileTreeHeader";
 import {BranchList} from "./BranchList";
 import {CommitList} from "./CommitList";
 import type {Commit} from "~/props/Commit";
@@ -42,23 +47,41 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
   const setSelectedFile = useRepoStore((state) => state.setSelectedFile);
 
   const [viewMode, setViewMode] = useState<"preview" | "raw">("preview");
-  // compute README / LICENSE from fileTree to avoid state cascades
-  const readmeFile = useMemo(() => {
-    const n = fileTree.find(
-      (node) => node.type === "file" && /^README\.md$/i.test(node.name),
-    );
-    return n ? n.path : null;
-  }, [fileTree]);
-  const licenseFile = useMemo(() => {
-    const n = fileTree.find(
-      (node) => node.type === "file" && /^LICENSE(\.|$)/i.test(node.name),
-    );
-    return n ? n.path : null;
+
+  // Detect all documentation files in the root of the tree
+  const docFiles = useMemo<DocFile[]>(() => {
+    const docs: DocFile[] = [];
+    const patterns: Array<{key: DocTab; label: string; regex: RegExp}> = [
+      {key: "readme", label: "README", regex: /^README(\.md)?$/i},
+      {
+        key: "contributing",
+        label: "CONTRIBUTING",
+        regex: /^CONTRIBUTING(\.md)?$/i,
+      },
+      {
+        key: "code_of_conduct",
+        label: "CODE OF CONDUCT",
+        regex: /^CODE_OF_CONDUCT(\.md)?$/i,
+      },
+      {key: "changelog", label: "CHANGELOG", regex: /^CHANGELOG(\.md)?$/i},
+      {key: "license", label: "LICENSE", regex: /^LICENSE(\.md|\.txt)?$/i},
+    ];
+
+    for (const pattern of patterns) {
+      const node = fileTree.find(
+        (n) => n.type === "file" && pattern.regex.test(n.name),
+      );
+      if (node) {
+        docs.push({key: pattern.key, label: pattern.label, path: node.path});
+      }
+    }
+
+    return docs;
   }, [fileTree]);
 
   // default panel: show Documentation (readme) by default
   const [panelView, setPanelView] = useState<PanelView>("readme");
-  const [docTab, setDocTab] = useState<"readme" | "license">("readme");
+  const [docTab, setDocTab] = useState<DocTab>("readme");
   const isLoading = useRepoStore((s) => s.isLoading);
   // using module-level `globalFetchedFiles` instead of per-mount ref
 
@@ -91,11 +114,12 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
     );
   }, []);
 
-  // When Documentation panel is active and readmeFile/licenseFile becomes available, fetch it
+  // When Documentation panel is active and doc file becomes available, fetch it
   useEffect(() => {
     if (panelView !== "readme") return;
 
-    const target = docTab === "readme" ? readmeFile : licenseFile;
+    const activeDoc = docFiles.find((d) => d.key === docTab);
+    const target = activeDoc?.path;
     if (!target) return;
 
     // Already have content — skip
@@ -111,8 +135,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
   }, [
     panelView,
     docTab,
-    readmeFile,
-    licenseFile,
+    docFiles,
     fileContent,
     fetchFileContent,
     branchOrCommit,
@@ -148,10 +171,11 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
           </div>
         );
       case "readme": {
-        const target = docTab === "readme" ? readmeFile : licenseFile;
+        const activeDoc = docFiles.find((d) => d.key === docTab);
+        const target = activeDoc?.path;
 
         if (!target) {
-          // No README/LICENSE in tree yet — show skeleton while tree is loading, otherwise show fallback
+          // No doc file found — show skeleton while tree is loading, otherwise show fallback
           if (isLoading) return <LoadingSkeleton />;
 
           const fallbackContent = `# ${(selectedRepo || "Project").replace(/\.git$/, "")}\n\nNo Documentation Yet.`;
@@ -166,7 +190,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
 
         const content = fileContent[target];
 
-        // undefined means not fetched yet; null/empty string is valid content
+        // undefined means not fetched yet
         if (content === undefined) {
           return <LoadingSkeleton />;
         }
@@ -207,8 +231,7 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
         setPanelView={setPanelView}
         docTab={docTab}
         setDocTab={setDocTab}
-        readmeFile={readmeFile}
-        licenseFile={licenseFile}
+        docFiles={docFiles}
         fileContent={fileContent}
         fetchFileContent={fetchFileContent}
         globalFetchedFiles={globalFetchedFiles}

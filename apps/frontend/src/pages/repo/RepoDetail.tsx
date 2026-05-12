@@ -21,16 +21,30 @@ const RepoFileTree = lazy(() =>
 
 const RepoFileTreeLoading = () => (
   <div className="flex-1 overflow-auto bg-app-bg">
-    <div className="flex flex-col items-center justify-center py-20">
-      <div className="relative">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-app-accent border-t-transparent"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="h-2 w-2 bg-app-accent rounded-full"></div>
-        </div>
+    <div className="animate-pulse space-y-4 py-4">
+      {/* Tab bar skeleton */}
+      <div className="flex items-center gap-2 p-2 border-b border-app-border">
+        <div className="h-7 bg-text-tertiary/15 rounded-md flex-1"></div>
+        <div className="h-7 bg-text-tertiary/15 rounded-md flex-1"></div>
+        <div className="h-7 bg-text-tertiary/15 rounded-md flex-1"></div>
+        <div className="h-7 bg-text-tertiary/15 rounded-md flex-1"></div>
       </div>
-      <p className="mt-4 text-sm font-medium text-text-secondary animate-pulse">
-        Loading repository files...
-      </p>
+
+      {/* Content skeleton */}
+      <div className="bg-app-surface border border-app-border rounded-lg overflow-hidden">
+        {Array.from({length: 8}).map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-3 px-4 py-2.5 border-b border-app-border/40 last:border-0"
+          >
+            <div className="w-4 h-4 bg-text-tertiary/10 rounded shrink-0"></div>
+            <div
+              className={`h-3.5 bg-text-tertiary/10 rounded ${i % 3 === 0 ? "w-1/3" : i % 3 === 1 ? "w-1/2" : "w-2/5"}`}
+            ></div>
+            <div className="h-3 bg-text-tertiary/10 rounded w-16 ml-auto"></div>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
 );
