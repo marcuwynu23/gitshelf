@@ -27,6 +27,7 @@ export interface RepoFileTreeProps {
 
 export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
   const {
+    selectedRepo,
     fileTree,
     branchOrCommit,
     branches,
@@ -150,15 +151,15 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
         const target = docTab === "readme" ? readmeFile : licenseFile;
 
         if (!target) {
-          // No README/LICENSE in tree yet — show skeleton while tree is loading, otherwise show message
+          // No README/LICENSE in tree yet — show skeleton while tree is loading, otherwise show fallback
           if (isLoading) return <LoadingSkeleton />;
+
+          const fallbackContent = `# ${(selectedRepo || "Project").replace(/\.git$/, "")}\n\nNo Documentation Yet.`;
           return (
-            <div className="bg-app-surface border border-app-border rounded-lg p-8 text-center">
-              <p className="text-text-tertiary text-sm">
-                {docTab === "readme"
-                  ? "No README.md found"
-                  : "No LICENSE found"}
-              </p>
+            <div className="bg-app-surface border border-app-border rounded-lg p-6">
+              <div className="markdown-body overflow-auto">
+                <ReactMarkdown>{fallbackContent}</ReactMarkdown>
+              </div>
             </div>
           );
         }
@@ -170,10 +171,15 @@ export const RepoFileTree: FC<RepoFileTreeProps> = (props) => {
           return <LoadingSkeleton />;
         }
 
+        const displayContent =
+          content && content.trim()
+            ? content
+            : `# ${(selectedRepo || "Project").replace(/\.git$/, "")}\n\nNo Documentation Yet.`;
+
         return (
           <div className="bg-app-surface border border-app-border rounded-lg p-6">
             <div className="markdown-body overflow-auto">
-              <ReactMarkdown>{content}</ReactMarkdown>
+              <ReactMarkdown>{displayContent}</ReactMarkdown>
             </div>
           </div>
         );
