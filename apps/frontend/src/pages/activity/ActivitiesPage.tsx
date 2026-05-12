@@ -122,59 +122,115 @@ export const ActivitiesPage = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="bg-app-surface border border-app-border rounded-xl overflow-hidden">
+                    <div className="bg-app-surface border border-app-border rounded-xl overflow-hidden hidden md:block">
                       {activities.map((activity) => (
                         <div
                           key={activity.id}
-                          className={`group w-full flex items-start gap-4 p-4 border-b border-app-border last:border-0 transition-colors hover:bg-app-hover ${
+                          className={`group w-full flex items-center gap-3 px-4 py-2 border-b border-app-border last:border-0 transition-colors hover:bg-app-hover ${
                             !activity.read ? "bg-app-hover/30" : ""
                           }`}
                         >
-                          <div className="mt-1 p-2 bg-app-hover rounded-lg shrink-0">
+                          <div className="p-1.5 bg-app-hover rounded-md shrink-0">
                             {getActivityIcon(activity.type)}
                           </div>
 
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <p
-                                className={`text-base text-text-primary truncate pr-2 ${!activity.read ? "font-semibold" : "font-medium"}`}
-                              >
-                                {getActivityMessage(activity)}
-                              </p>
-                              <span className="text-xs text-text-tertiary whitespace-nowrap shrink-0 mt-0.5">
-                                {format(
-                                  new Date(activity.createdAt),
-                                  "MMM d, yyyy h:mm a",
-                                )}
-                              </span>
-                            </div>
-
+                          <div className="flex-1 min-w-0 flex items-center gap-3">
+                            <p
+                              className={`text-sm text-text-primary truncate ${!activity.read ? "font-semibold" : "font-medium"}`}
+                            >
+                              {getActivityMessage(activity)}
+                            </p>
                             {activity.description && (
-                              <p className="text-sm text-text-secondary mt-1">
+                              <span className="hidden lg:inline text-xs text-text-tertiary truncate max-w-[30ch]">
                                 {activity.description}
-                              </p>
+                              </span>
                             )}
+                          </div>
 
+                          <div className="flex items-center gap-3 shrink-0">
                             {activity.link && (
                               <Link
                                 to={activity.link}
-                                className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-text-primary hover:underline opacity-60 hover:opacity-100 transition-opacity"
+                                className="inline-flex items-center gap-1 text-xs font-medium text-text-primary hover:underline opacity-60 hover:opacity-100 transition-opacity"
                                 onClick={() =>
                                   !activity.read && markAsRead(activity.id)
                                 }
                               >
-                                View details{" "}
-                                <ArrowRightIcon className="w-3 h-3" />
+                                View <ArrowRightIcon className="w-3 h-3" />
                               </Link>
                             )}
+                            <span className="text-xs text-text-tertiary whitespace-nowrap">
+                              {format(
+                                new Date(activity.createdAt),
+                                "MMM d, h:mm a",
+                              )}
+                            </span>
+                            {!activity.read && (
+                              <div
+                                className="w-2 h-2 rounded-full bg-text-primary shrink-0"
+                                title="Unread"
+                              />
+                            )}
                           </div>
+                        </div>
+                      ))}
+                    </div>
 
-                          {!activity.read && (
-                            <div
-                              className="w-2 h-2 rounded-full bg-text-primary mt-2.5 shrink-0"
-                              title="Unread"
-                            />
-                          )}
+                    {/* Mobile: Card layout */}
+                    <div className="space-y-2 md:hidden">
+                      {activities.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className={`bg-app-surface border border-app-border rounded-lg p-3 transition-colors ${
+                            !activity.read
+                              ? "bg-app-hover/30 border-app-accent/20"
+                              : ""
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="p-1.5 bg-app-hover rounded-md shrink-0 mt-0.5">
+                              {getActivityIcon(activity.type)}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <p
+                                  className={`text-sm text-text-primary truncate ${!activity.read ? "font-semibold" : "font-medium"}`}
+                                >
+                                  {getActivityMessage(activity)}
+                                </p>
+                                {!activity.read && (
+                                  <div
+                                    className="w-2 h-2 rounded-full bg-text-primary shrink-0"
+                                    title="Unread"
+                                  />
+                                )}
+                              </div>
+                              {activity.description && (
+                                <p className="text-xs text-text-tertiary mt-0.5 line-clamp-2">
+                                  {activity.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-3 mt-1.5">
+                                <span className="text-xs text-text-tertiary">
+                                  {format(
+                                    new Date(activity.createdAt),
+                                    "MMM d, h:mm a",
+                                  )}
+                                </span>
+                                {activity.link && (
+                                  <Link
+                                    to={activity.link}
+                                    className="inline-flex items-center gap-1 text-xs font-medium text-text-primary hover:underline opacity-60 hover:opacity-100 transition-opacity"
+                                    onClick={() =>
+                                      !activity.read && markAsRead(activity.id)
+                                    }
+                                  >
+                                    View <ArrowRightIcon className="w-3 h-3" />
+                                  </Link>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
